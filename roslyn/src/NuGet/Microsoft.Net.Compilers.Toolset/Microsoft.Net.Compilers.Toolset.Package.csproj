@@ -4,10 +4,12 @@
     <TargetFrameworks>netcoreapp2.1;net472</TargetFrameworks>
 
     <IsPackable>true</IsPackable>
-    <NuspecPackageId>Microsoft.Net.Compilers.Toolset</NuspecPackageId>
+    <NuspecPackageId>OpenSesame.Net.Compilers.Toolset</NuspecPackageId>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <DevelopmentDependency>true</DevelopmentDependency>
     <PackageDescription>
+      NOTE: A custom Roslyn compiler that allows access to internals/privates in other assemblies.
+
       .NET Compilers Toolset Package.
       Referencing this package will cause the project to be built using the specific version of the C# and Visual Basic compilers contained in the package, as opposed to any system installed version.
 

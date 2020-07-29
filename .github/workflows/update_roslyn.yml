@@ -1,0 +1,61 @@
+name: Update Roslyn
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.title, 'Request to update roslyn:') && contains(github.event.issue.labels.*.name, 'approved')
+
+    steps:
+
+    - name: Create comment (start)
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        issue-number: ${{ github.event.issue.number }}
+        body: |
+          Processing the merge request... :hourglass_flowing_sand:
+          https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+    - uses: actions/checkout@v2
+      with:
+        ref: 'roslyn'
+        
+    - name: Update roslyn
+      run: |
+        # Get version from issue title.
+        VERSION=`echo '${{ github.event.issue.title }}' | awk -F "[v: ]" '{print $NF}'`
+        echo ::set-env name=VERSION::${VERSION}
+
+        # Find sha1 from nuget page.
+        SHA1=`curl -L https://www.nuget.org/packages/Microsoft.Net.Compilers.Toolset/${VERSION} \
+          | grep https://github.com/dotnet/roslyn/commit/ \
+          | sed -e 's/.*\([0-9a-f]\{40\}\).*$/\1/' \
+          | head -n 1`
+
+        # Git settings.
+        git remote set-url origin https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }}.git
+        git config --local user.name GitHub
+        git config --local user.email noreply@github.com
+
+        # Subtree merge from dotnet/roslyn.
+        [ -d roslyn ] && CMD=pull || CMD=add
+        git subtree ${CMD} --prefix=roslyn --squash https://github.com/dotnet/roslyn.git ${SHA1} -m "Merge roslyn ${VERSION}" -m "https://github.com/dotnet/roslyn/commit/${SHA1}"
+
+        # Push.
+        git push origin HEAD:roslyn
+    
+    - name: Close comment (end)
+      uses: peter-evans/close-issue@v1
+      with:
+        issue-number: ${{ github.event.issue.number }}
+        comment: |
+          :tada: The merge request (roslyn ${{ env.VERSION }}) has been completed! :tada:
+          ---
+          **:bulb: Next Action:**
+
+          - [Create new pull request][0] to merge `roslyn` into `develop`
+
+          [0]:https://github.com/${{ github.repository }}/compare/develop...roslyn?expand=1&title=Update+Roslyn+${{ env.VERSION }}&body=%23${{ github.event.issue.number }}

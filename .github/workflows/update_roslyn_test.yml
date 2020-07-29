@@ -1,0 +1,72 @@
+name: Update Roslyn (test) 
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.title, 'Request to update roslyn:') && !contains(github.event.issue.labels.*.name, 'approved')
+
+    steps:
+
+    - name: Create comment (start)
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        issue-number: ${{ github.event.issue.number }}
+        body: |
+          Verifying the merge request... :hourglass_flowing_sand:
+          https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+    - uses: actions/checkout@v2
+      with:
+        ref: 'roslyn'
+        
+    - name: Update Roslyn (test) 
+      run: |
+        # Get version from issue title.
+        VERSION=`echo '${{ github.event.issue.title }}' | awk -F "[v: ]" '{print $NF}'`
+        echo ::set-env name=VERSION::${VERSION}
+
+        # Find sha1 from nuget page.
+        SHA1=`curl -L https://www.nuget.org/packages/Microsoft.Net.Compilers.Toolset/${VERSION} \
+          | grep https://github.com/dotnet/roslyn/commit/ \
+          | sed -e 's/.*\([0-9a-f]\{40\}\).*$/\1/' \
+          | head -n 1`
+
+        # Git settings.
+        git remote set-url origin https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }}.git
+        git config --local user.name GitHub
+        git config --local user.email noreply@github.com
+
+        # Subtree merge from dotnet/roslyn.
+        [ -d roslyn ] && CMD=pull || CMD=add
+        git subtree ${CMD} --prefix=roslyn --squash https://github.com/dotnet/roslyn.git ${SHA1} -m "Merge roslyn ${VERSION}" -m "https://github.com/dotnet/roslyn/commit/${SHA1}"
+
+        # Push.
+        # git push origin HEAD:roslyn
+
+    - name: Update comment (failure)
+      if: ${{ failure() }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        issue-number: ${{ github.event.issue.number }}
+        body: |
+          :x: The merge request can not be approved. :x:
+          ---
+          **:bulb: Next Action:**
+
+          - The given roslyn version may be incorrect. Fix the title of this issue.
+
+    - name: Update comment (success)
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        issue-number: ${{ github.event.issue.number }}
+        body: |
+          :tada: The merge request can be approved! :tada:
+          ---
+          **:bulb: Next Action:**
+
+          - :white_check_mark: **Add `approved` label on this issue** to accept the request. (Run merge action)
+          - :x: Or, close this issue to deny the request.

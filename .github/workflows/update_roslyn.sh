@@ -1,18 +1,25 @@
 #!/bin/bash -ex
 
-# Input roslyn sha1
-SHA1=$1
-[ -z "${SHA1}" ] && exit
+# Get version from issue title.
+VERSION=$1
+[ -z "${VERSION}" ] && exit
 
-# Subtree merge from dotnet/roslyn
+# Find sha1 from nuget page.
+SHA1=`curl -L https://www.nuget.org/packages/Microsoft.Net.Compilers.Toolset/${VERSION} \
+    | grep https://github.com/dotnet/roslyn/commit/ \
+    | sed -e 's/.*\([0-9a-f]\{40\}\).*$/\1/' \
+    | head -n 1`
+
+# Git settings.
+git remote set-url origin https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }}.git
+git config --local user.name GitHub
+git config --local user.email noreply@github.com
+
+# Subtree merge from dotnet/roslyn.
 [ -d roslyn ] && CMD=pull || CMD=add
-git subtree ${CMD} --prefix=roslyn --squash https://github.com/dotnet/roslyn.git ${SHA1} -m "roslyn ${SHA1}"
+git checkout -f roslyn
+git subtree ${CMD} --prefix=roslyn --squash https://github.com/dotnet/roslyn.git ${SHA1} -m "Merge roslyn ${VERSION}" -m "https://github.com/dotnet/roslyn/commit/${SHA1}"
+git push origin HEAD:roslyn
 
-# Get roslyn version
-MAJOR=`grep "<MajorVersion>.*</MajorVersion>" roslyn/eng/Versions.props | awk  -F'[<>]' '{print $3}'`
-MINOR=`grep "<MinorVersion>.*</MinorVersion>" roslyn/eng/Versions.props | awk  -F'[<>]' '{print $3}'`
-PATCH=`grep "<PatchVersion>.*</PatchVersion>" roslyn/eng/Versions.props | awk  -F'[<>]' '{print $3}'`
-VERSION="${MAJOR}.${MINOR}.${PATCH}"
-
-# Amend
-git commit --amend -m "Merge dotnet/roslyn v${VERSION}" -m "https://github.com/dotnet/roslyn"
+git config --local --unset user.name
+git config --local --unset user.email

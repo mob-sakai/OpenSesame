@@ -1,0 +1,29 @@
+{
+  "name": "release-to-nuget",
+  "version": "1.0.0",
+  "description": "To release nuget package",
+  "scripts": {
+    "package:format": "npx format-package -w",
+    "package:update": "npx ncu -u && npm install && npm audit fix",
+    "release": "npm ci && npx semantic-release",
+    "release:debug": "npm run release -- --dry-run --no-ci --debug"
+  },
+  "release": {
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/github",
+      [
+        "@semantic-release/exec",
+        {
+          "prepareCmd": "roslyn/build.sh --pack -r -c Release /p:PackageVersion=${nextRelease.version} /p:SemanticVersioningV1=false",
+          "publishCmd": "dotnet nuget push roslyn/artifacts/packages/Release/Shipping/OpenSesame.*.nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json"
+        }
+      ]
+    ]
+  },
+  "devDependencies": {
+    "@semantic-release/exec": "^5.0.0",
+    "semantic-release": "^17.1.1"
+  }
+}

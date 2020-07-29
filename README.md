@@ -69,18 +69,15 @@ dotnet run /p:CscToolPath=$(PkgOpenSesameCompiler)tools/csc.exe
 
 ### Update Roslyn
 
-If a new stable version of the Rosly package has been released, please update Roslyn by following these steps:
+If a new stable version of the Rosly package has been released, please update Roslyn.
 
-- Create an issue using [the Roslyn update request issue template][issue_template]
-- The title `{commit-ish}` must be a tag, a branch, and SHA1 in https://github.com/dotnet/roslyn.git.
-- For example (target version is `3.6.0`):
-  - `Request to update roslyn: v3.6.0`
-  - `Request to update roslyn: c94e32157c34fa777f674242cd08cfdc98737d62`
-- You can get SHA1 of new version from: https://www.nuget.org/packages/Microsoft.Net.Compilers.Toolset
+[Create an issue using the Roslyn update request issue template][issue_template]
 
-When a Roslyn update request issue is created, a GitHub action for verification is automatically run.
-After verification, add `approved` label on the issue to update `roslyn` branch.
+[issue_template]: https://github.com/mob-sakai/OpenSesame/issues/new?assignees=mob-sakai&template=update_roslyn.md&title=Request+to+update+roslyn%3A+%7Bversion%7D
 
-After the merge, a pull request into `develop` branch is automatically created.
+### Test
 
-[issue_template]: https://github.com/mob-sakai/OpenSesame/issues/new?assignees=mob-sakai&template=update_roslyn.md&title=Request+to+update+roslyn%3A+%7Bcommit-ish%7D
+```
+roslyn/build.sh --pack -r -c Release
+dotnet test tests
+```

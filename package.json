@@ -6,7 +6,9 @@
     "package:format": "npx format-package -w",
     "package:update": "npx ncu -u && npm install && npm audit fix",
     "release": "npm ci && npx semantic-release",
-    "release:debug": "npm run release -- --dry-run --no-ci --debug"
+    "release:debug": "npm run release -- --dry-run --no-ci --debug",
+    "build:pack": "./tool.sh --pack",
+    "build:test": "./tool.sh --run-tests"
   },
   "release": {
     "plugins": [
@@ -16,8 +18,9 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "roslyn/build.sh --pack -r -c Release /p:PackageVersion=${nextRelease.version} /p:SemanticVersioningV1=false",
-          "publishCmd": ".github/workflows/push_package.sh ${nextRelease.version}"
+          "verifyConditionsCmd": "test -n \"$NUGET_TOKEN\"",
+          "prepareCmd": "./tool.sh --pack --run-tests --version ${nextRelease.version}",
+          "publishCmd": "./tool.sh --publish --version ${nextRelease.version} --token \"$NUGET_TOKEN\""
         }
       ]
     ]

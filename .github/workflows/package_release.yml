@@ -1,0 +1,37 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+      - alpha
+      - beta
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Cache Nuget
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.nuget/packages
+          ${{ github.workspace }}/roslyn/artifacts/obj
+        key: ${{ runner.os }}-nuget-and-artifacts-${{ hashFiles('**/eng/Versions.props') }}
+        restore-keys: ${{ runner.os }}-nuget-and-artifacts-
+
+    - name: Cache Node
+      uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: ${{ runner.os }}-node-
+        
+    - run: npm ci && npx semantic-release
+      env:
+        NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+        GITHUB_TOKEN: ${{ github.token }}

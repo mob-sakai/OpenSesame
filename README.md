@@ -23,18 +23,19 @@ A custom [Roslyn](https://github.com/dotnet/roslyn) compiler **that allows acces
 
 [OpenSesame.Net.Compilers.Toolset]: https://www.nuget.org/packages/OpenSesame.Net.Compilers.Toolset
 [Microsoft.Net.Compilers.Toolset]: https://www.nuget.org/packages/Microsoft.Net.Compilers.Toolset
-[V1]: https://img.shields.io/nuget/v/Microsoft.Net.Compilers.Toolset
-[D1]: https://img.shields.io/nuget/dt/Microsoft.Net.Compilers.Toolset
+[V1]: https://img.shields.io/nuget/v/OpenSesame.Net.Compilers.Toolset
+[D1]: https://img.shields.io/nuget/dt/OpenSesame.Net.Compilers.Toolset
+[MV1]: https://img.shields.io/nuget/v/Microsoft.Net.Compilers.Toolset
 
 [OpenSesame.Net.Compilers]: https://www.nuget.org/packages/OpenSesame.Net.Compilers
 [Microsoft.Net.Compilers]: https://www.nuget.org/packages/Microsoft.Net.Compilers
-[V2]: https://img.shields.io/nuget/v/Microsoft.Net.Compilers
-[D2]: https://img.shields.io/nuget/dt/Microsoft.Net.Compilers
+[V2]: https://img.shields.io/nuget/v/OpenSesame.Net.Compilers
+[D2]: https://img.shields.io/nuget/dt/OpenSesame.Net.Compilers
 
 [OpenSesame.NetCore.Compilers]: https://www.nuget.org/packages/OpenSesame.NetCore.Compilers
 [Microsoft.NetCore.Compilers]: https://www.nuget.org/packages/Microsoft.NetCore.Compilers
-[V3]: https://img.shields.io/nuget/v/Microsoft.NetCore.Compilers
-[D3]: https://img.shields.io/nuget/dt/Microsoft.NetCore.Compilers
+[V3]: https://img.shields.io/nuget/v/OpenSesame.NetCore.Compilers
+[D3]: https://img.shields.io/nuget/dt/OpenSesame.NetCore.Compilers
 
 ## Usage
 
@@ -68,6 +69,10 @@ dotnet run /p:CscToolPath=$(PkgOpenSesameCompiler)tools/csc.exe
 ## Develop
 
 ### Update Roslyn
+
+| OpenSesame | Roslyn   |
+| ---------- | -------- |
+| ![V1][]    | ![MV1][] |
 
 If a new stable version of the Rosly package has been released, please update Roslyn.
 

@@ -1,0 +1,9 @@
+node_modules/
+
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+Tests/**/.vs/
+Tests/**/obj/
+Tests/**/bin/

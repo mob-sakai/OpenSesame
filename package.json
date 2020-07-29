@@ -17,7 +17,7 @@
         "@semantic-release/exec",
         {
           "prepareCmd": "roslyn/build.sh --pack -r -c Release /p:PackageVersion=${nextRelease.version} /p:SemanticVersioningV1=false",
-          "publishCmd": "dotnet nuget push roslyn/artifacts/packages/Release/Shipping/OpenSesame.*.nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json"
+          "publishCmd": ".github/workflows/push_package.sh ${nextRelease.version}"
         }
       ]
     ]

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c)  Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information. -->
+<Project>
+  <PropertyGroup>
+    <NoConfig>true</NoConfig>
+    <NoStandardLib>true</NoStandardLib>
+    <NoCompilerStandardLib>true</NoCompilerStandardLib>
+    <FrameworkPathOverride>..\..\..\..\References\Debugger\CoreSystem</FrameworkPathOverride>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+    <SkipGenerateVsdconfig>true</SkipGenerateVsdconfig>
+  </PropertyGroup>
+  <Target Name="CopyFilesToOutputDirectory">
+    <!--
+      Redefine CopyFileToOutputDirectory to be a NOOP.  It's not expedient to set properties
+      to suppress all copying that may occur in the original definition of the Target...
+    -->
+  </Target>
+</Project>

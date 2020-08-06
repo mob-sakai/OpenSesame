@@ -321,12 +321,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(options != null);
             Debug.Assert(!isSubmission || options.ReferencesSupersedeLowerVersions);
 
-            // Modify compilation options.
-            options = options
-                .WithMetadataImportOptions(MetadataImportOptions.All) // MetadataImportOptions.All.
-                .WithAllowUnsafe(true)  // Allow unsafe.
-                ;
-
             var validatedReferences = ValidateReferences<CSharpCompilationReference>(references);
 
             // We can't reuse the whole Reference Manager entirely (reuseReferenceManager = false)
@@ -359,6 +353,17 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 compilation = compilation.AddSyntaxTrees(syntaxTrees);
             }
+
+            //====== MOD: Always IgnoresAccessChecks ======
+            // Info: https://www.strathweb.com/2018/10/no-internalvisibleto-no-problem-bypassing-c-visibility-rules-with-roslyn/
+
+            // Set compilation options.
+            compilation = compilation.WithOptions(
+                compilation.Options
+                    .WithMetadataImportOptions(MetadataImportOptions.All) // MetadataImportOptions = All.
+                    .WithAllowUnsafe(true)  // Allow unsafe.
+            );
+            //================== MOD END ==================
 
             Debug.Assert((object)compilation._lazyAssemblySymbol == null);
             return compilation;

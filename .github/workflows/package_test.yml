@@ -3,9 +3,7 @@ name: Release
 on:
   push:
     branches:
-      - master
-      - alpha
-      - beta
+      - develop
 
 jobs:
   build:
@@ -29,7 +27,5 @@ jobs:
         path: ~/.npm
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         
-    - run: npm ci && npx semantic-release
-      env:
-        NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
-        GITHUB_TOKEN: ${{ github.token }}
+    - run: |
+        ./tool.sh --pack --run-tests

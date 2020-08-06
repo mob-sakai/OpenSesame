@@ -78,9 +78,26 @@ fi
 if [ $run_tests == true ]; then
   echo -e "\n\n>>>> Update toolset: version=${version}\n"
   dotnet add tests/PrivateLibrary.Tests package OpenSesame.Net.Compilers.Toolset -v ${version}
+  dotnet add tests/PrivateLibrary.Console package OpenSesame.Net.Compilers.Toolset -v ${version}
 
   echo -e "\n\n>>>> Start tests: version=${version}\n"
   dotnet test tests
+
+  echo -e "\n\n>>>> Build runtime tests (Release): version=${version}\n"
+  dotnet build Tests/PrivateLibrary.Console -c Release
+
+  echo -e "\n\n>>>> Start runtime tests (Release): version=${version}\n"
+  frameworks=`grep '<TargetFrameworks>.*</TargetFrameworks>' Tests/PrivateLibrary.Console/PrivateLibrary.Console.csproj | awk '-F[<>]' '{print $3}' | tr ';' ' '`
+  for fw in `echo ${frameworks}`; do
+    echo ${fw}
+    if [ `echo ${fw} | grep 'netstandard'` ]; then
+      echo 'skipped'
+    elif [ `echo ${fw} | grep 'netcore'` ]; then
+      dotnet Tests/PrivateLibrary.Console/bin/Release/${fw}/PrivateLibrary.Console.dll
+    else
+      mono Tests/PrivateLibrary.Console/bin/Release/${fw}/PrivateLibrary.Console.exe
+    fi
+  done
 fi
 
 if [ $publish == true ]; then

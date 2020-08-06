@@ -3,15 +3,44 @@ Open Sesame
 
 A custom [Roslyn](https://github.com/dotnet/roslyn) compiler **that allows access to internals/privates in other assemblies.**
 
-![GitHub](https://img.shields.io/github/license/mob-sakai/OpenSesame)
-![ci](https://github.com/mob-sakai/OpenSesame/workflows/Release/badge.svg)
+![License](https://img.shields.io/github/license/mob-sakai/OpenSesame)
 
-## Changes from original roslyn
+![.NetFramework](https://img.shields.io/static/v1?label=.Net+Framework&message=4.7+or+later&color=blue)
+![.NetCore](https://img.shields.io/static/v1?label=.Net+Core&message=2.0+or+later&color=red)
+![.NetStandard](https://img.shields.io/static/v1?label=.Net+Standard&message=2.0+or+later&color=orange)
 
-* Change the names of the packages
-* Allow unsafe code automatically
-* Add `MetadataImportOptions.All` to compilation options
-* All public static methods in `AccessCheck.cs` will return `true`
+![test](https://github.com/mob-sakai/OpenSesame/workflows/test/badge.svg)
+![release](https://github.com/mob-sakai/OpenSesame/workflows/release/badge.svg)
+
+## Description
+
+This package contains a custom [Roslyn](https://github.com/dotnet/roslyn) compiler.
+If the package is installed in a c# project, it will override the compiler used in the build.
+
+The custom compiler automatically injects `IgnoresAccessChecksToAttribute` to the assembly.
+This attribute ignores accessibility to the assembly with the given name.
+In other words, **you can access to internals/privates in other assemblies, without [reflection feature][reflection].**
+
+Have you ever heard of a secret attribute `IgnoresAccessChecksToAttribute`?
+For more information, See [the great article by Filip W][ignores-access].
+
+[reflection]: https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/reflection
+[ignores-access]: https://www.strathweb.com/2018/10/no-internalvisibleto-no-problem-bypassing-c-visibility-rules-with-roslyn/
+
+### Changes from original roslyn
+
+* Change the names of the packages `Microsoft.*` to `OpenSesame.*`
+* Allow unsafe code automatically (for .Net Framework)
+* With `MetadataImportOptions.All` for compilation options
+* With `BinderFlags.IgnoreAccessibility` for compilation options
+* Inject `IgnoresAccessChecksToAttribute` automatically
+
+### Supported frameworks
+
+* .Net Framework 4.7 or later
+* .Net Core 2.0 or later
+* .Net Standard 2.0 or later
+* Unity 2018.3 or later
 
 ## Packages
 
@@ -39,18 +68,23 @@ A custom [Roslyn](https://github.com/dotnet/roslyn) compiler **that allows acces
 
 ## Usage
 
-### For .Net Framework
+### For C# project (.Net Framework, .Net Core, .Net Standard)
 
+For a C# project (`*.csproj`), you can install the Toolset package to change the compiler to be used at build time.
 
-
-### For .Net Core
+1. Install a nuget package [OpenSesame.Net.Compilers.Toolset][].
+2. Add the following somewhere in your code:
+```cs
+[assembly: System.Runtime.CompilerServices.IgnoresAccessChecksTo("<TargetAssemblyName>")]
+```
+3. The accessibility of the symbols (types, methods, properties, etc.) contained in the `<TargetAssemblyName>` will be ignored.
 
 ### For Unity
 
-Use [OpenSesameCompilerForUnity]()
+Use a unity package [com.coffee.open-sesame-compiler](https://github.com/mob-sakai/OpenSesameCompilerForUnity).
 
 
-#### ~~How to run (demo)~~
+## Demo
 
 1. ~~Clone [demo project]()~~
 ```sh
@@ -77,7 +111,7 @@ dotnet run /p:CscToolPath=$(PkgOpenSesameCompiler)tools/csc.exe
 
 ## Develop
 
-### Update Roslyn
+### Update Roslyn version
 
 | OpenSesame | Roslyn   |
 | ---------- | -------- |
@@ -89,9 +123,24 @@ If a new stable version of the Rosly package has been released, please update Ro
 
 [issue_template]: https://github.com/mob-sakai/OpenSesame/issues/new?assignees=mob-sakai&template=update_roslyn.md&title=Request+to+update+roslyn%3A+%7Bversion%7D
 
-### Test
+### Run Tests
 
 ```
-roslyn/build.sh --pack -r -c Release
-dotnet test tests
+./tool.sh --pack --run-tests
+```
+
+### Release
+
+When push to `beta` or `master` branch, this package is automatically released by GitHub Action.
+
+* Update version of packages
+* Update and push CHANGELOG.md
+* Create version tag
+* Release on GitHub
+* Publish to nuget registory
+
+Alternatively, release it manually with the following command:
+
+```bash
+$ node run release -- --no-ci
 ```

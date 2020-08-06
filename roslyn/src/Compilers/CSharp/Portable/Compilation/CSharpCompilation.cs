@@ -362,11 +362,55 @@ namespace Microsoft.CodeAnalysis.CSharp
                 compilation.Options
                     .WithMetadataImportOptions(MetadataImportOptions.All) // MetadataImportOptions = All.
                     .WithAllowUnsafe(true)  // Allow unsafe.
+                    .WithTopLevelBinderFlags(BinderFlags.IgnoreAccessibility) // BinderFlags = IgnoreAccessibility.
             );
+
+            // Inject IgnoresAccessChecksTo attribute.
+            if (syntaxTrees != null && syntaxTrees.Any())
+            {
+                var parseOptions = syntaxTrees.First().Options.WithKind(SourceCodeKind.Regular);
+                compilation = compilation
+                    .WithIgnoresAccessChecksToAttribute(parseOptions);
+            }
             //================== MOD END ==================
 
             Debug.Assert((object)compilation._lazyAssemblySymbol == null);
             return compilation;
+        }
+
+        private CSharpCompilation WithIgnoresAccessChecksToAttribute(ParseOptions parseOptions)
+        {
+            const string kSymbol = "System.Runtime.CompilerServices.IgnoresAccessChecksToAttribute";
+            if (ContainsTypeWithName(GlobalNamespace, kSymbol)) return this;
+
+            string code = @"
+namespace System.Runtime.CompilerServices
+{
+    [System.AttributeUsage(System.AttributeTargets.Assembly, AllowMultiple = true)]
+    public class IgnoresAccessChecksToAttribute : System.Attribute
+    {
+        public string AssemblyName { get; }
+        public IgnoresAccessChecksToAttribute(string assemblyName) { AssemblyName = assemblyName; }
+    }
+}";
+            var syntaxTree = SyntaxFactory.ParseSyntaxTree(code, parseOptions);
+            return AddSyntaxTrees(syntaxTree);
+        }
+
+        private static bool ContainsTypeWithName(INamespaceSymbol @namespace, string name, string current = null)
+        {
+            current = current == null ? "" : $"{current}{@namespace.Name}.";
+            foreach (var member in @namespace.GetMembers().Where(m => name.Contains(m.Name)))
+            {
+                switch (member)
+                {
+                    case INamespaceSymbol asNamespace when ContainsTypeWithName(asNamespace, name, current):
+                    case INamedTypeSymbol asType when $"{current}{asType.Name}" == name:
+                        return true;
+                }
+            }
+
+            return false;
         }
 
         private CSharpCompilation(

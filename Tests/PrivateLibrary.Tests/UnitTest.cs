@@ -1,5 +1,6 @@
 using NUnit.Framework;
 
+[assembly: System.Runtime.CompilerServices.IgnoresAccessChecksTo("PrivateLibrary")]
 namespace PrivateLibrary.Tests
 {
     [TestFixture]

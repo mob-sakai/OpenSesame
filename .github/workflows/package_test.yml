@@ -1,4 +1,4 @@
-name: Release
+name: test
 
 on:
   push:
@@ -21,11 +21,10 @@ jobs:
           ~/.nuget/packages
         key: ${{ runner.os }}-nuget-packages-${{ hashFiles('**/eng/Versions.props') }}
 
-    - name: Cache Node
-      uses: actions/cache@v2
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        
     - run: |
         ./tool.sh --pack --run-tests
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: packages
+        path: ./roslyn/artifacts/packages/Release/Shipping/OpenSesame.*.nupkg

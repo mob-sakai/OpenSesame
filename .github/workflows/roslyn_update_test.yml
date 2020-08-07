@@ -1,4 +1,4 @@
-name: Update Roslyn (test) 
+name: roslyn-test
 
 on:
   issues:

@@ -46,7 +46,7 @@ For more information, See [the great article by Filip W][ignores-access].
 
 ## Packages
 
-| PAckage Name                         | Original Package                    | Version | Downloads |
+| Package Name                         | Original Package                    | Version | Downloads |
 | ------------------------------------ | ----------------------------------- | ------- | --------- |
 | [OpenSesame.Net.Compilers.Toolset][] | [Microsoft.Net.Compilers.Toolset][] | ![V1][] | ![D1][]   |
 | [OpenSesame.Net.Compilers][]         | [Microsoft.Net.Compilers][]         | ![V2][] | ![D2][]   |

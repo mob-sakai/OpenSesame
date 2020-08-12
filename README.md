@@ -42,6 +42,8 @@ For more information, See [the great article by Filip W][ignores-access].
 * .Net Standard 2.0 or later
 * Unity 2018.3 or later
 
+<br><br><br><br>
+
 ## Packages
 
 | PAckage Name                         | Original Package                    | Version | Downloads |
@@ -66,14 +68,23 @@ For more information, See [the great article by Filip W][ignores-access].
 [V3]: https://img.shields.io/nuget/v/OpenSesame.NetCore.Compilers
 [D3]: https://img.shields.io/nuget/dt/OpenSesame.NetCore.Compilers
 
+<br><br><br><br>
+
 ## Usage
 
-### For C# project (.Net Framework, .Net Core, .Net Standard)
+### For C# project (.Net Framework)
 
 For a C# project (`*.csproj`), you can install the Toolset package to change the compiler to be used at build time.
 
-1. Install a nuget package [OpenSesame.Net.Compilers.Toolset][].
-2. Add the following somewhere in your code:
+1. Install the nuget package [OpenSesame.Net.Compilers.Toolset][] to the project.
+2. The accessibility of all symbols (types, methods, properties, etc.) will be ignored.
+
+### For C# project (.Net Core or .Net Standard)
+
+For a C# project (`*.csproj`), you can install the Toolset package to change the compiler to be used at build time.
+
+1. Install the nuget package [OpenSesame.Net.Compilers.Toolset][] to the project.
+2. Adddd the following somewhere in your code:
 ```cs
 [assembly: System.Runtime.CompilerServices.IgnoresAccessChecksTo("<TargetAssemblyName>")]
 ```
@@ -83,31 +94,7 @@ For a C# project (`*.csproj`), you can install the Toolset package to change the
 
 Use a unity package [com.coffee.open-sesame-compiler](https://github.com/mob-sakai/OpenSesameCompilerForUnity).
 
-
-## Demo
-
-1. ~~Clone [demo project]()~~
-```sh
-git clone demo-proj
-cd demo-proj
-```
-2. ~~The compilation will fail because this project contains internals/privates access.~~
-```sh
-# The following command will fail.
-dotnet run
-```
-```sh
-```
-3. ~~Install `OpenSesameCompiler` package to project from nuget~~
-```sh
-dotnet add OpenSesameCompiler
-```
-4. ~~Add `<CscToolPath>$(PkgOpenSesameCompiler)tools/csc.exe</CscToolPath>` to `PropertyGroup` in `demo.csproj`.~~  
-~~Or, execute the following command.~~
-```sh
-dotnet run /p:CscToolPath=$(PkgOpenSesameCompiler)tools/csc.exe
-```
-5. ~~Enjoy!~~
+<br><br><br><br>
 
 ## Develop
 
@@ -133,7 +120,7 @@ If a new stable version of the Rosly package has been released, please update Ro
 
 When push to `beta` or `master` branch, this package is automatically released by GitHub Action.
 
-* Update version of packages
+* Update version of the package
 * Update and push CHANGELOG.md
 * Create version tag
 * Release on GitHub

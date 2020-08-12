@@ -48,6 +48,38 @@ namespace PrivateLibrary
         {
             return "PrivateMethod";
         }
+
+        /// <summary>
+        /// Public Static Method
+        /// </summary>
+        internal static string PublicStaticMethod(InternalClass instance)
+        {
+            return instance.PublicMethod();
+        }
+
+        /// <summary>
+        /// Private Static Method
+        /// </summary>
+        private static string PrivateStaticMethod(InternalClass instance)
+        {
+            return instance.PublicMethod();
+        }
+
+        /// <summary>
+        /// Public Method
+        /// </summary>
+        internal string PublicMethod(InternalClass instance)
+        {
+            return instance.PublicMethod();
+        }
+
+        /// <summary>
+        /// Private Method
+        /// </summary>
+        private string PrivateMethod(InternalClass instance)
+        {
+            return instance.PublicMethod();
+        }
     }
 
     /// <summary>
@@ -73,6 +105,7 @@ namespace PrivateLibrary
             return "PublicStaticMethod";
         }
 
+
         /// <summary>
         /// Private Static Method
         /// </summary>
@@ -80,6 +113,7 @@ namespace PrivateLibrary
         {
             return "PrivateStaticMethod";
         }
+
 
         /// <summary>
         /// Public Method
@@ -89,12 +123,45 @@ namespace PrivateLibrary
             return "PublicMethod";
         }
 
+
         /// <summary>
         /// Private Method
         /// </summary>
         private string PrivateMethod()
         {
             return "PrivateMethod";
+        }
+
+        /// <summary>
+        /// Public Static Method
+        /// </summary>
+        public static string PublicStaticMethod(InternalClass instance)
+        {
+            return instance.PublicMethod();
+        }
+
+        /// <summary>
+        /// Private Static Method
+        /// </summary>
+        private static string PrivateStaticMethod(InternalClass instance)
+        {
+            return instance.PrivateMethod();
+        }
+
+        /// <summary>
+        /// Public Method
+        /// </summary>
+        public string PublicMethod(InternalClass instance)
+        {
+            return instance.PublicMethod();
+        }
+
+        /// <summary>
+        /// Private Method
+        /// </summary>
+        private string PrivateMethod(InternalClass instance)
+        {
+            return instance.PrivateMethod();
         }
     }
 }

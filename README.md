@@ -96,6 +96,20 @@ Use a unity package [com.coffee.open-sesame-compiler](https://github.com/mob-sak
 
 <br><br><br><br>
 
+## Unsupported Features
+
+### Set/get value into readonly field
+
+Use reflection
+
+### IDE support
+
+Use Csc-Manager to modify your VisualStudio Code and C# extension.
+- csc-manager enable-vscode: Show internals/privates in other assembly.
+- csc-manager disable-vscode: Hide them.
+
+<br><br><br><br>
+
 ## Develop
 
 ### Update Roslyn version

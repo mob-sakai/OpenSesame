@@ -466,9 +466,10 @@ function Deploy-VsixViaTool() {
   $vsDir = $vsInfo.installationPath.TrimEnd("\")
   $vsId = $vsInfo.instanceId
   $vsMajorVersion = $vsInfo.installationVersion.Split('.')[0]
+  $displayVersion = $vsInfo.catalog.productDisplayVersion
 
   $hive = "RoslynDev"
-  Write-Host "Using VS Instance $vsId at `"$vsDir`""
+  Write-Host "Using VS Instance $vsId ($displayVersion) at `"$vsDir`""
   $baseArgs = "/rootSuffix:$hive /vsInstallDir:`"$vsDir`""
 
   Write-Host "Uninstalling old Roslyn VSIX"
@@ -491,7 +492,6 @@ function Deploy-VsixViaTool() {
     "Roslyn.Compilers.Extension.vsix",
     "Roslyn.VisualStudio.Setup.vsix",
     "Roslyn.VisualStudio.Setup.Dependencies.vsix",
-    "Roslyn.VisualStudio.InteractiveComponents.vsix",
     "ExpressionEvaluatorPackage.vsix",
     "Roslyn.VisualStudio.DiagnosticsWindow.vsix",
     "Microsoft.VisualStudio.IntegrationTest.Setup.vsix")
@@ -603,6 +603,10 @@ try {
   Process-Arguments
 
   . (Join-Path $PSScriptRoot "build-utils.ps1")
+
+  if ($testVsi) {
+    . (Join-Path $PSScriptRoot "build-utils-win.ps1")
+  }
 
   Push-Location $RepoRoot
 

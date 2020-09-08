@@ -78,7 +78,8 @@ prefer throwing properties;
 prefer auto properties;
 regex;
 regular expression;
-Use enhanced colors;</source>
+Use enhanced colors;
+Editor Color Scheme;</source>
         <target state="translated">Mostrar diagnóstico para archivos cerrados;
 Colorear expresión regular; 
 Resaltar componentes relacionados bajo el cursor; 
@@ -124,7 +125,8 @@ preferir propiedades de lanzamiento;
 preferir propiedades automáticas;
 regex;
 expresión regular;
-Usar colores mejorados;</target>
+Usar colores mejorados;
+Combinación de colores del editor;</target>
         <note>C# Advanced options page keywords</note>
       </trans-unit>
       <trans-unit id="307">

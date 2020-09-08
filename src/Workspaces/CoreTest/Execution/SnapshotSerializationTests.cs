@@ -21,6 +21,7 @@ using Microsoft.CodeAnalysis.Serialization;
 using Microsoft.CodeAnalysis.Test.Utilities;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.UnitTests.Execution;
+using Roslyn.Test.Utilities;
 using Roslyn.Utilities;
 using Xunit;
 
@@ -319,31 +320,31 @@ namespace Microsoft.CodeAnalysis.UnitTests
         {
             var workspace = new AdhocWorkspace();
 
-            var newQualifyFieldAccessValue = new CodeStyleOption<bool>(false, NotificationOption.Error);
-            var newQualifyMethodAccessValue = new CodeStyleOption<bool>(true, NotificationOption.Warning);
-            var newVarWhenTypeIsApparentValue = new CodeStyleOption<bool>(false, NotificationOption.Suggestion);
-            var newPreferIntrinsicPredefinedTypeKeywordInMemberAccessValue = new CodeStyleOption<bool>(true, NotificationOption.Silent);
+            var newQualifyFieldAccessValue = new CodeStyleOption2<bool>(false, NotificationOption2.Error);
+            var newQualifyMethodAccessValue = new CodeStyleOption2<bool>(true, NotificationOption2.Warning);
+            var newVarWhenTypeIsApparentValue = new CodeStyleOption2<bool>(false, NotificationOption2.Suggestion);
+            var newPreferIntrinsicPredefinedTypeKeywordInMemberAccessValue = new CodeStyleOption2<bool>(true, NotificationOption2.Silent);
 
             workspace.TryApplyChanges(workspace.CurrentSolution.WithOptions(workspace.Options
-                                                 .WithChangedOption(CodeStyleOptions.QualifyFieldAccess, LanguageNames.CSharp, newQualifyFieldAccessValue)
-                                                 .WithChangedOption(CodeStyleOptions.QualifyMethodAccess, LanguageNames.VisualBasic, newQualifyMethodAccessValue)
+                                                 .WithChangedOption(CodeStyleOptions2.QualifyFieldAccess, LanguageNames.CSharp, newQualifyFieldAccessValue)
+                                                 .WithChangedOption(CodeStyleOptions2.QualifyMethodAccess, LanguageNames.VisualBasic, newQualifyMethodAccessValue)
                                                  .WithChangedOption(CSharpCodeStyleOptions.VarWhenTypeIsApparent, newVarWhenTypeIsApparentValue)
-                                                 .WithChangedOption(CodeStyleOptions.PreferIntrinsicPredefinedTypeKeywordInMemberAccess, LanguageNames.VisualBasic, newPreferIntrinsicPredefinedTypeKeywordInMemberAccessValue)));
+                                                 .WithChangedOption(CodeStyleOptions2.PreferIntrinsicPredefinedTypeKeywordInMemberAccess, LanguageNames.VisualBasic, newPreferIntrinsicPredefinedTypeKeywordInMemberAccessValue)));
 
             await VerifyOptionSetsAsync(workspace, VerifyOptions).ConfigureAwait(false);
 
             void VerifyOptions(OptionSet options)
             {
-                var actualQualifyFieldAccessValue = options.GetOption(CodeStyleOptions.QualifyFieldAccess, LanguageNames.CSharp);
+                var actualQualifyFieldAccessValue = options.GetOption(CodeStyleOptions2.QualifyFieldAccess, LanguageNames.CSharp);
                 Assert.Equal(newQualifyFieldAccessValue, actualQualifyFieldAccessValue);
 
-                var actualQualifyMethodAccessValue = options.GetOption(CodeStyleOptions.QualifyMethodAccess, LanguageNames.VisualBasic);
+                var actualQualifyMethodAccessValue = options.GetOption(CodeStyleOptions2.QualifyMethodAccess, LanguageNames.VisualBasic);
                 Assert.Equal(newQualifyMethodAccessValue, actualQualifyMethodAccessValue);
 
                 var actualVarWhenTypeIsApparentValue = options.GetOption(CSharpCodeStyleOptions.VarWhenTypeIsApparent);
                 Assert.Equal(newVarWhenTypeIsApparentValue, actualVarWhenTypeIsApparentValue);
 
-                var actualPreferIntrinsicPredefinedTypeKeywordInMemberAccessValue = options.GetOption(CodeStyleOptions.PreferIntrinsicPredefinedTypeKeywordInMemberAccess, LanguageNames.VisualBasic);
+                var actualPreferIntrinsicPredefinedTypeKeywordInMemberAccessValue = options.GetOption(CodeStyleOptions2.PreferIntrinsicPredefinedTypeKeywordInMemberAccess, LanguageNames.VisualBasic);
                 Assert.Equal(newPreferIntrinsicPredefinedTypeKeywordInMemberAccessValue, actualPreferIntrinsicPredefinedTypeKeywordInMemberAccessValue);
             }
         }
@@ -499,6 +500,45 @@ MefHostServices.DefaultAssemblies.Add(typeof(Host.TemporaryStorageServiceFactory
             using var snapshot = await snapshotService.CreatePinnedRemotableDataScopeAsync(project.Solution, CancellationToken.None).ConfigureAwait(false);
             // this shouldn't throw
             var recovered = await GetSolutionAsync(snapshotService, snapshot).ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task SnapshotWithIdenticalAnalyzerFiles()
+        {
+            var hostServices = MefHostServices.Create(
+                MefHostServices.DefaultAssemblies.Add(typeof(Host.TemporaryStorageServiceFactory.TemporaryStorageService).Assembly));
+
+            var project = new AdhocWorkspace(hostServices).CurrentSolution.AddProject("Project", "Project.dll", LanguageNames.CSharp);
+
+            using var temp = new TempRoot();
+            var dir = temp.CreateDirectory();
+
+            // create two analyzer assembly files whose content is identical but path is different:
+            var file1 = dir.CreateFile("analyzer1.dll").WriteAllBytes(TestResources.AnalyzerTests.FaultyAnalyzer);
+            var file2 = dir.CreateFile("analyzer2.dll").WriteAllBytes(TestResources.AnalyzerTests.FaultyAnalyzer);
+
+            var analyzer1 = new AnalyzerFileReference(file1.Path, DummyAssemblyLoader.Instance);
+            var analyzer2 = new AnalyzerFileReference(file2.Path, DummyAssemblyLoader.Instance);
+
+            project = project.AddAnalyzerReferences(new[] { analyzer1, analyzer2 });
+
+            var snapshotService = (IRemotableDataService)new RemotableDataServiceFactory().CreateService(project.Solution.Workspace.Services);
+            using var snapshot = await snapshotService.CreatePinnedRemotableDataScopeAsync(project.Solution, CancellationToken.None).ConfigureAwait(false);
+
+            var recovered = await GetSolutionAsync(snapshotService, snapshot).ConfigureAwait(false);
+            AssertEx.Equal(new[] { file1.Path, file1.Path }, recovered.GetProject(project.Id).AnalyzerReferences.Select(r => r.FullPath));
+        }
+
+        internal class DummyAssemblyLoader : IAnalyzerAssemblyLoader
+        {
+            public static DummyAssemblyLoader Instance = new DummyAssemblyLoader();
+
+            public void AddDependencyLocation(string fullPath)
+            {
+            }
+
+            public Assembly LoadFromPath(string fullPath)
+                => Assembly.LoadFrom(fullPath);
         }
 
         [Fact]
@@ -695,7 +735,7 @@ MefHostServices.DefaultAssemblies.Add(typeof(Host.TemporaryStorageServiceFactory
 
         private async Task<Solution> GetSolutionAsync(IRemotableDataService service, PinnedRemotableDataScope syncScope)
         {
-            var (solutionInfo, _) = await SolutionInfoCreator.CreateSolutionInfoAndOptionsAsync(new AssetProvider(service), syncScope.SolutionChecksum, CancellationToken.None).ConfigureAwait(false);
+            var (solutionInfo, _) = await new TestAssetProvider(service).CreateSolutionInfoAndOptionsAsync(syncScope.SolutionChecksum, CancellationToken.None).ConfigureAwait(false);
 
             var workspace = new AdhocWorkspace();
             return workspace.AddSolution(solutionInfo);
@@ -733,9 +773,7 @@ MefHostServices.DefaultAssemblies.Add(typeof(Host.TemporaryStorageServiceFactory
         private class MissingAnalyzerLoader : AnalyzerAssemblyLoader
         {
             protected override Assembly LoadFromPathImpl(string fullPath)
-            {
-                throw new FileNotFoundException(fullPath);
-            }
+                => throw new FileNotFoundException(fullPath);
         }
 
         private class MissingMetadataReference : PortableExecutableReference
@@ -746,19 +784,13 @@ MefHostServices.DefaultAssemblies.Add(typeof(Host.TemporaryStorageServiceFactory
             }
 
             protected override DocumentationProvider CreateDocumentationProvider()
-            {
-                return null;
-            }
+                => null;
 
             protected override Metadata GetMetadataImpl()
-            {
-                throw new FileNotFoundException("can't find");
-            }
+                => throw new FileNotFoundException("can't find");
 
             protected override PortableExecutableReference WithPropertiesImpl(MetadataReferenceProperties properties)
-            {
-                return this;
-            }
+                => this;
         }
 
         private class MockShadowCopyAnalyzerAssemblyLoader : IAnalyzerAssemblyLoader
@@ -766,18 +798,14 @@ MefHostServices.DefaultAssemblies.Add(typeof(Host.TemporaryStorageServiceFactory
             private readonly ImmutableDictionary<string, string> _map;
 
             public MockShadowCopyAnalyzerAssemblyLoader(ImmutableDictionary<string, string> map)
-            {
-                _map = map;
-            }
+                => _map = map;
 
             public void AddDependencyLocation(string fullPath)
             {
             }
 
             public Assembly LoadFromPath(string fullPath)
-            {
-                return Assembly.LoadFrom(_map[fullPath]);
-            }
+                => Assembly.LoadFrom(_map[fullPath]);
         }
 
         private class NotSerializableEncoding : Encoding

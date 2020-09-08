@@ -7,3 +7,4 @@ Desktop.ini
 Tests/**/.vs/
 Tests/**/obj/
 Tests/**/bin/
+.idea/

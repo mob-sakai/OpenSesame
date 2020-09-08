@@ -1,0 +1,25 @@
+name: test
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Cache Nuget
+      uses: actions/cache@v2
+      with:
+        path: |
+          !~/.nuget/packages/OpenSesame.*
+          ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-packages-${{ hashFiles('**/eng/Versions.props') }}
+
+    - run: |
+        ./tool.sh --pack --run-tests

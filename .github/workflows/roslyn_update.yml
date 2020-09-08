@@ -1,4 +1,4 @@
-name: Update Roslyn
+name: roslyn
 
 on:
   issues:

@@ -78,24 +78,31 @@ fi
 if [ $run_tests == true ]; then
   echo -e "\n\n>>>> Update toolset: version=${version}\n"
   dotnet add tests/PrivateLibrary.Tests package OpenSesame.Net.Compilers.Toolset -v ${version}
-  dotnet add tests/PrivateLibrary.Console package OpenSesame.Net.Compilers.Toolset -v ${version}
+  dotnet add tests/PrivateLibrary.Bridge package OpenSesame.Net.Compilers.Toolset -v ${version}
 
   echo -e "\n\n>>>> Start tests: version=${version}\n"
   dotnet test tests
+  [ "$?" != 0 ] && exit 1
 
   echo -e "\n\n>>>> Build runtime tests (Release): version=${version}\n"
   dotnet build Tests/PrivateLibrary.Console -c Release
+  [ "$?" != 0 ] && exit 1
 
   echo -e "\n\n>>>> Start runtime tests (Release): version=${version}\n"
   frameworks=`grep '<TargetFrameworks>.*</TargetFrameworks>' Tests/PrivateLibrary.Console/PrivateLibrary.Console.csproj | awk '-F[<>]' '{print $3}' | tr ';' ' '`
   for fw in `echo ${frameworks}`; do
-    echo ${fw}
+    echo "  >> Runtime test [${fw}]"
+    EXE=Tests/PrivateLibrary.Console/bin/Release/${fw}/PrivateLibrary.Console
     if [ `echo ${fw} | grep 'netstandard'` ]; then
-      echo 'skipped'
+      echo "    skipped: ${fw}"
     elif [ `echo ${fw} | grep 'netcore'` ]; then
-      dotnet Tests/PrivateLibrary.Console/bin/Release/${fw}/PrivateLibrary.Console.dll
+      dotnet ${EXE}.dll
+      [ "$?" != 0 ] && exit 1
+    elif [ -e ${EXE}.exe ]; then
+      mono ${EXE}.exe
+      [ "$?" != 0 ] && exit 1
     else
-      mono Tests/PrivateLibrary.Console/bin/Release/${fw}/PrivateLibrary.Console.exe
+      echo "    skipped: ${fw}"
     fi
   done
 fi

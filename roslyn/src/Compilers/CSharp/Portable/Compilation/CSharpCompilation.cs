@@ -402,15 +402,15 @@ namespace System.Runtime.CompilerServices
             return AddSyntaxTrees(syntaxTree);
         }
 
-        private static bool ContainsTypeWithName(INamespaceSymbol @namespace, string name, string current = null)
+        private static bool ContainsTypeWithName(NamespaceSymbol @namespace, string name, string? current = null)
         {
             current = current == null ? "" : $"{current}{@namespace.Name}.";
             foreach (var member in @namespace.GetMembers().Where(m => name.Contains(m.Name)))
             {
                 switch (member)
                 {
-                    case INamespaceSymbol asNamespace when ContainsTypeWithName(asNamespace, name, current):
-                    case INamedTypeSymbol asType when $"{current}{asType.Name}" == name:
+                    case NamespaceSymbol asNamespace when ContainsTypeWithName(asNamespace, name, current):
+                    case NamedTypeSymbol asType when $"{current}{asType.Name}" == name:
                         return true;
                 }
             }

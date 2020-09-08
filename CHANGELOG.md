@@ -1,3 +1,16 @@
+# [3.5.0](https://github.com/mob-sakai/OpenSesame/compare/v3.4.0...v3.5.0) (2020-09-08)
+
+
+### Bug Fixes
+
+* compile error ([8921eab](https://github.com/mob-sakai/OpenSesame/commit/8921eab691671cd9857e9e48c3713df7a0ded247))
+
+
+### Features
+
+* merge roslyn 3.5.0 ([93603ce](https://github.com/mob-sakai/OpenSesame/commit/93603ce904bcd29df4b3ac33bda4abd543d8542a))
+* update package prop ([008af46](https://github.com/mob-sakai/OpenSesame/commit/008af466ef98738ee8f3e295891e8014e68b1970))
+
 # [3.4.0](https://github.com/mob-sakai/OpenSesame/compare/v3.3.9...v3.4.0) (2020-09-08)
 
 

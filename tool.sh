@@ -77,22 +77,20 @@ fi
 
 if [ $run_tests == true ]; then
   echo -e "\n\n>>>> Update toolset: version=${version}\n"
-  dotnet add tests/PrivateLibrary.Tests package OpenSesame.Net.Compilers.Toolset -v ${version}
-  dotnet add tests/PrivateLibrary.Bridge package OpenSesame.Net.Compilers.Toolset -v ${version}
+  dotnet add ./Tests/PrivateLibrary.Tests package OpenSesame.Net.Compilers.Toolset -v ${version}
+  dotnet add ./Tests/PrivateLibrary.Bridge package OpenSesame.Net.Compilers.Toolset -v ${version}
 
   echo -e "\n\n>>>> Start tests: version=${version}\n"
-  dotnet test tests
-  [ "$?" != 0 ] && exit 1
+  dotnet test ./Tests
 
   echo -e "\n\n>>>> Build runtime tests (Release): version=${version}\n"
-  dotnet build Tests/PrivateLibrary.Console -c Release
-  [ "$?" != 0 ] && exit 1
+  dotnet build ./Tests/PrivateLibrary.Console -c Release
 
   echo -e "\n\n>>>> Start runtime tests (Release): version=${version}\n"
-  frameworks=`grep '<TargetFrameworks>.*</TargetFrameworks>' Tests/PrivateLibrary.Console/PrivateLibrary.Console.csproj | awk '-F[<>]' '{print $3}' | tr ';' ' '`
+  frameworks=`grep '<TargetFrameworks>.*</TargetFrameworks>' ./Tests/PrivateLibrary.Console/PrivateLibrary.Console.csproj | awk '-F[<>]' '{print $3}' | tr ';' ' '`
   for fw in `echo ${frameworks}`; do
     echo "  >> Runtime test [${fw}]"
-    EXE=Tests/PrivateLibrary.Console/bin/Release/${fw}/PrivateLibrary.Console
+    EXE=./Tests/PrivateLibrary.Console/bin/Release/${fw}/PrivateLibrary.Console
     if [ `echo ${fw} | grep 'netstandard'` ]; then
       echo "    skipped: ${fw}"
     elif [ `echo ${fw} | grep 'netcore'` ]; then

@@ -22,18 +22,21 @@ jobs:
     - uses: actions/checkout@v2
       with:
         ref: 'roslyn'
+        fetch-depth: 0
         
     - name: Update roslyn
       run: |
         # Get version from issue title.
         VERSION=`echo '${{ github.event.issue.title }}' | awk -F "[v: ]" '{print $NF}'`
         echo ::set-env name=VERSION::${VERSION}
+        echo "  >>>> VERSION = ${VERSION}"
 
         # Find sha1 from nuget page.
         SHA1=`curl -L https://www.nuget.org/packages/Microsoft.Net.Compilers.Toolset/${VERSION} \
           | grep https://github.com/dotnet/roslyn/commit/ \
           | sed -e 's/.*\([0-9a-f]\{40\}\).*$/\1/' \
           | head -n 1`
+        echo "  >>>> SHA1 = ${SHA1}"
 
         # Git settings.
         git remote set-url origin https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }}.git
@@ -42,6 +45,7 @@ jobs:
 
         # Subtree merge from dotnet/roslyn.
         [ -d roslyn ] && CMD=pull || CMD=add
+        echo "  >>>> CMD = ${CMD}"
         git subtree ${CMD} --prefix=roslyn --squash https://github.com/dotnet/roslyn.git ${SHA1} -m "Merge roslyn ${VERSION}" -m "https://github.com/dotnet/roslyn/commit/${SHA1}"
 
         # Push.

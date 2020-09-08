@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PrivateLibrary\PrivateLibrary.csproj" />
+    <ProjectReference Include="..\PrivateLibrary.Bridge\PrivateLibrary.Bridge.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="OpenSesame.Net.Compilers.Toolset" Version="3.4.0">

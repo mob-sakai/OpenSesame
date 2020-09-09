@@ -27,7 +27,10 @@ namespace Microsoft.CodeAnalysis
                 /// <summary>
                 /// The base <see cref="State"/> that starts with everything empty.
                 /// </summary>
-                public static readonly State Empty = new State(compilation: null, declarationOnlyCompilation: null, generatorDriver: new TrackedGeneratorDriver(null));
+                public static readonly State Empty = new State(
+                    compilation: null, declarationOnlyCompilation: null,
+                    generatorDriver: new TrackedGeneratorDriver(null),
+                    unrootedSymbolSet: null);
 
                 /// <summary>
                 /// A strong reference to the declaration-only compilation. This compilation isn't used to produce symbols,
@@ -44,6 +47,14 @@ namespace Microsoft.CodeAnalysis
                 public TrackedGeneratorDriver GeneratorDriver { get; }
 
                 /// <summary>
+                /// Weak set of the assembly, module and dynamic symbols that this compilation tracker has created.
+                /// This can be used to determine which project an assembly symbol came from after the fact.  This is
+                /// needed as the compilation an assembly came from can be GC'ed and further requests to get that
+                /// compilation (or any of it's assemblies) may produce new assembly symbols.
+                /// </summary>
+                public readonly WeakSet<ISymbol>? UnrootedSymbolSet;
+
+                /// <summary>
                 /// Specifies whether <see cref="FinalCompilation"/> and all compilations it depends on contain full information or not. This can return
                 /// <see langword="null"/> if the state isn't at the point where it would know, and it's necessary to transition to <see cref="FinalState"/> to figure that out.
                 /// </summary>
@@ -54,7 +65,11 @@ namespace Microsoft.CodeAnalysis
                 /// </summary>
                 public virtual ValueSource<Optional<Compilation>>? FinalCompilation => null;
 
-                protected State(ValueSource<Optional<Compilation>>? compilation, Compilation? declarationOnlyCompilation, TrackedGeneratorDriver generatorDriver)
+                protected State(
+                    ValueSource<Optional<Compilation>>? compilation,
+                    Compilation? declarationOnlyCompilation,
+                    TrackedGeneratorDriver generatorDriver,
+                    WeakSet<ISymbol>? unrootedSymbolSet)
                 {
                     // Declaration-only compilations should never have any references
                     Contract.ThrowIfTrue(declarationOnlyCompilation != null && declarationOnlyCompilation.ExternalReferences.Any());
@@ -62,6 +77,7 @@ namespace Microsoft.CodeAnalysis
                     Compilation = compilation;
                     DeclarationOnlyCompilation = declarationOnlyCompilation;
                     GeneratorDriver = generatorDriver;
+                    UnrootedSymbolSet = unrootedSymbolSet;
                 }
 
                 public static State Create(
@@ -87,6 +103,31 @@ namespace Microsoft.CodeAnalysis
                         ? new WeakValueSource<Compilation>(compilation)
                         : (ValueSource<Optional<Compilation>>)new ConstantValueSource<Optional<Compilation>>(compilation);
                 }
+
+                public static WeakSet<ISymbol> GetUnrootedSymbols(Compilation compilation)
+                {
+                    var result = new WeakSet<ISymbol>();
+
+                    var compAssembly = compilation.Assembly;
+                    result.Add(compAssembly);
+
+                    // The dynamic type is also unrooted (i.e. doesn't point back at the compilation or source
+                    // assembly).  So we have to keep track of it so we can get back from it to a project in case the 
+                    // underlying compilation is GC'ed.
+                    if (compilation.Language == LanguageNames.CSharp)
+                        result.Add(compilation.DynamicType);
+
+                    foreach (var reference in compilation.References)
+                    {
+                        var symbol = compilation.GetAssemblyOrModuleSymbol(reference);
+                        if (symbol == null)
+                            continue;
+
+                        result.Add(symbol);
+                    }
+
+                    return result;
+                }
             }
 
             /// <summary>
@@ -103,7 +144,8 @@ namespace Microsoft.CodeAnalysis
                     ImmutableArray<(ProjectState state, CompilationAndGeneratorDriverTranslationAction action)> intermediateProjects)
                     : base(compilation: new ConstantValueSource<Optional<Compilation>>(inProgressCompilation),
                            declarationOnlyCompilation: null,
-                           generatorDriver: inProgressGeneratorDriver)
+                           generatorDriver: inProgressGeneratorDriver,
+                           GetUnrootedSymbols(inProgressCompilation))
                 {
                     Contract.ThrowIfTrue(intermediateProjects.IsDefault);
                     Contract.ThrowIfFalse(intermediateProjects.Length > 0);
@@ -118,7 +160,10 @@ namespace Microsoft.CodeAnalysis
             private sealed class LightDeclarationState : State
             {
                 public LightDeclarationState(Compilation declarationOnlyCompilation)
-                    : base(compilation: null, declarationOnlyCompilation: declarationOnlyCompilation, generatorDriver: new TrackedGeneratorDriver(null))
+                    : base(compilation: null,
+                           declarationOnlyCompilation: declarationOnlyCompilation,
+                           generatorDriver: new TrackedGeneratorDriver(null),
+                           unrootedSymbolSet: null)
                 {
                 }
             }
@@ -130,7 +175,10 @@ namespace Microsoft.CodeAnalysis
             private sealed class FullDeclarationState : State
             {
                 public FullDeclarationState(Compilation declarationCompilation, TrackedGeneratorDriver generatorDriver)
-                    : base(new WeakValueSource<Compilation>(declarationCompilation), declarationCompilation.Clone().RemoveAllReferences(), generatorDriver)
+                    : base(new WeakValueSource<Compilation>(declarationCompilation),
+                           declarationCompilation.Clone().RemoveAllReferences(),
+                           generatorDriver,
+                           GetUnrootedSymbols(declarationCompilation))
                 {
                 }
             }
@@ -157,13 +205,15 @@ namespace Microsoft.CodeAnalysis
                     ValueSource<Optional<Compilation>> compilationWithoutGeneratedFilesSource,
                     Compilation compilationWithoutGeneratedFiles,
                     TrackedGeneratorDriver generatorDriver,
-                    bool hasSuccessfullyLoaded)
-                    : base(compilationWithoutGeneratedFilesSource, compilationWithoutGeneratedFiles.Clone().RemoveAllReferences(), generatorDriver)
+                    bool hasSuccessfullyLoaded,
+                    WeakSet<ISymbol>? compilationAssemblies)
+                    : base(compilationWithoutGeneratedFilesSource,
+                           compilationWithoutGeneratedFiles.Clone().RemoveAllReferences(),
+                           generatorDriver,
+                           compilationAssemblies)
                 {
                     HasSuccessfullyLoaded = hasSuccessfullyLoaded;
                     FinalCompilation = finalCompilationSource;
-
-#if DEBUG
 
                     if (generatorDriver.GeneratorDriver == null)
                     {
@@ -172,8 +222,6 @@ namespace Microsoft.CodeAnalysis
                         Debug.Assert(finalCompilationSource.TryGetValue(out var finalCompilation));
                         Debug.Assert(object.ReferenceEquals(finalCompilation.Value, compilationWithoutGeneratedFiles));
                     }
-
-#endif
                 }
             }
         }

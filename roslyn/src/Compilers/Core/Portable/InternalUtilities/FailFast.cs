@@ -27,8 +27,7 @@ namespace Microsoft.CodeAnalysis
 
 #if !NET20
             // don't fail fast with an aggregate exception that is masking true exception
-            var aggregate = exception as AggregateException;
-            if (aggregate != null && aggregate.InnerExceptions.Count == 1)
+            if (exception is AggregateException aggregate && aggregate.InnerExceptions.Count == 1)
             {
                 exception = aggregate.InnerExceptions[0];
             }
@@ -65,11 +64,10 @@ namespace Microsoft.CodeAnalysis
             if (exception is object)
             {
                 Console.WriteLine("Exception info");
-                for (Exception? current = exception; current is object; current = current!.InnerException)
+                for (Exception? current = exception; current is object; current = current.InnerException)
                 {
                     Console.WriteLine(current.Message);
                     Console.WriteLine(current.StackTrace);
-                    current = current.InnerException;
                 }
             }
 

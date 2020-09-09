@@ -43,6 +43,9 @@ namespace Microsoft.CodeAnalysis.Editing
         internal abstract SyntaxTrivia Whitespace(string text);
         internal abstract SyntaxTrivia SingleLineComment(string text);
 
+        internal abstract SyntaxToken CreateInterpolatedStringStartToken(bool isVerbatim);
+        internal abstract SyntaxToken CreateInterpolatedStringEndToken();
+
         /// <summary>
         /// Gets the <see cref="SyntaxGenerator"/> for the specified language.
         /// </summary>
@@ -216,7 +219,7 @@ namespace Microsoft.CodeAnalysis.Editing
             return decl;
         }
 
-        private OperatorKind GetOperatorKind(IMethodSymbol method)
+        private static OperatorKind GetOperatorKind(IMethodSymbol method)
             => method.Name switch
             {
                 WellKnownMemberNames.ImplicitConversionName => OperatorKind.ImplicitConversion,
@@ -1168,7 +1171,7 @@ namespace Microsoft.CodeAnalysis.Editing
             }
         }
 
-        internal SyntaxNode ReplaceNode(SyntaxNode root, SyntaxNode node, IEnumerable<SyntaxNode> newDeclarations)
+        internal static SyntaxNode ReplaceNode(SyntaxNode root, SyntaxNode node, IEnumerable<SyntaxNode> newDeclarations)
             => root.ReplaceNode(node, newDeclarations);
 
         /// <summary>
@@ -1214,6 +1217,8 @@ namespace Microsoft.CodeAnalysis.Editing
         #region Utility
 
         internal abstract SeparatedSyntaxList<TElement> SeparatedList<TElement>(SyntaxNodeOrTokenList list) where TElement : SyntaxNode;
+
+        internal abstract SeparatedSyntaxList<TElement> SeparatedList<TElement>(IEnumerable<TElement> nodes, IEnumerable<SyntaxToken> separators) where TElement : SyntaxNode;
 
         internal static SyntaxTokenList Merge(SyntaxTokenList original, SyntaxTokenList newList)
         {
@@ -1289,7 +1294,9 @@ namespace Microsoft.CodeAnalysis.Editing
         /// </summary>
         public abstract TNode ClearTrivia<TNode>(TNode node) where TNode : SyntaxNode;
 
+#pragma warning disable CA1822 // Mark members as static - shipped public API
         protected int IndexOf<T>(IReadOnlyList<T> list, T element)
+#pragma warning restore CA1822 // Mark members as static
         {
             for (int i = 0, count = list.Count; i < count; i++)
             {
@@ -1531,12 +1538,18 @@ namespace Microsoft.CodeAnalysis.Editing
 
         internal abstract SyntaxToken NumericLiteralToken(string text, ulong value);
 
-        internal abstract SyntaxToken InterpolatedStringTextToken(string content);
-        internal abstract SyntaxNode InterpolatedStringText(SyntaxToken textToken);
-        internal abstract SyntaxNode Interpolation(SyntaxNode syntaxNode);
-        internal abstract SyntaxNode InterpolatedStringExpression(SyntaxToken startToken, IEnumerable<SyntaxNode> content, SyntaxToken endToken);
-        internal abstract SyntaxNode InterpolationAlignmentClause(SyntaxNode alignment);
-        internal abstract SyntaxNode InterpolationFormatClause(string format);
+        internal SyntaxToken InterpolatedStringTextToken(string content)
+            => SyntaxGeneratorInternal.InterpolatedStringTextToken(content);
+        internal SyntaxNode InterpolatedStringText(SyntaxToken textToken)
+            => SyntaxGeneratorInternal.InterpolatedStringText(textToken);
+        internal SyntaxNode Interpolation(SyntaxNode syntaxNode)
+            => SyntaxGeneratorInternal.Interpolation(syntaxNode);
+        internal SyntaxNode InterpolatedStringExpression(SyntaxToken startToken, IEnumerable<SyntaxNode> content, SyntaxToken endToken)
+            => SyntaxGeneratorInternal.InterpolatedStringExpression(startToken, content, endToken);
+        internal SyntaxNode InterpolationAlignmentClause(SyntaxNode alignment)
+            => SyntaxGeneratorInternal.InterpolationAlignmentClause(alignment);
+        internal SyntaxNode InterpolationFormatClause(string format)
+            => SyntaxGeneratorInternal.InterpolationFormatClause(format);
 
         /// <summary>
         /// An expression that represents the default value of a type.
@@ -1949,6 +1962,9 @@ namespace Microsoft.CodeAnalysis.Editing
         /// </summary>
         public abstract SyntaxNode ObjectCreationExpression(SyntaxNode namedType, IEnumerable<SyntaxNode> arguments);
 
+        internal abstract SyntaxNode ObjectCreationExpression(
+            SyntaxNode namedType, SyntaxToken openParen, SeparatedSyntaxList<SyntaxNode> arguments, SyntaxToken closeParen);
+
         /// <summary>
         /// Creates an object creation expression.
         /// </summary>
@@ -2155,14 +2171,31 @@ namespace Microsoft.CodeAnalysis.Editing
         /// </summary>
         public abstract SyntaxNode TupleExpression(IEnumerable<SyntaxNode> arguments);
 
+        /// <summary>
+        /// Parses an expression from string
+        /// </summary>
+        internal abstract SyntaxNode ParseExpression(string stringToParse);
+
+        internal abstract SyntaxTrivia Trivia(SyntaxNode node);
+
+        internal abstract SyntaxNode DocumentationCommentTrivia(IEnumerable<SyntaxNode> nodes, SyntaxTriviaList trailingTrivia, SyntaxTrivia lastWhitespaceTrivia, string endOfLineString);
+
+        internal abstract SyntaxNode DocumentationCommentTriviaWithUpdatedContent(SyntaxTrivia trivia, IEnumerable<SyntaxNode> content);
+
         #endregion
 
         #region Patterns
 
         internal abstract bool SupportsPatterns(ParseOptions options);
-        internal abstract SyntaxNode IsPatternExpression(SyntaxNode expression, SyntaxNode pattern);
+        internal abstract SyntaxNode IsPatternExpression(SyntaxNode expression, SyntaxToken isToken, SyntaxNode pattern);
+
+        internal abstract SyntaxNode AndPattern(SyntaxNode left, SyntaxNode right);
         internal abstract SyntaxNode DeclarationPattern(INamedTypeSymbol type, string name);
         internal abstract SyntaxNode ConstantPattern(SyntaxNode expression);
+        internal abstract SyntaxNode NotPattern(SyntaxNode pattern);
+        internal abstract SyntaxNode OrPattern(SyntaxNode left, SyntaxNode right);
+        internal abstract SyntaxNode ParenthesizedPattern(SyntaxNode pattern);
+        internal abstract SyntaxNode TypePattern(SyntaxNode type);
 
         #endregion
     }

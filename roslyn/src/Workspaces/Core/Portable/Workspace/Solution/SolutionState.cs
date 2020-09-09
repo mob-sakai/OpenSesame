@@ -26,9 +26,9 @@ using Roslyn.Utilities;
 namespace Microsoft.CodeAnalysis
 {
     /// <summary>
-    /// Represents a set of projects and their source code documents. 
-    /// 
-    /// this is a green node of Solution like ProjectState/DocumentState are for 
+    /// Represents a set of projects and their source code documents.
+    ///
+    /// this is a green node of Solution like ProjectState/DocumentState are for
     /// Project and Document.
     /// </summary>
     internal partial class SolutionState
@@ -45,11 +45,24 @@ namespace Microsoft.CodeAnalysis
         private readonly ImmutableDictionary<string, ImmutableArray<DocumentId>> _filePathToDocumentIdsMap;
         private readonly ProjectDependencyGraph _dependencyGraph;
 
+        public readonly IReadOnlyList<AnalyzerReference> AnalyzerReferences;
+
         // Values for all these are created on demand.
         private ImmutableDictionary<ProjectId, CompilationTracker> _projectIdToTrackerMap;
 
         // Checksums for this solution state
         private readonly ValueSource<SolutionStateChecksums> _lazyChecksums;
+
+        // holds on data calculated based on the AnalyzerReferences list
+        private readonly Lazy<HostDiagnosticAnalyzers> _lazyAnalyzers;
+
+        /// <summary>
+        /// Cache we use to map between unrooted symbols (i.e. assembly, module and dynamic symbols) and the project
+        /// they came from.  That way if we are asked about many symbols from the same assembly/module we can answer the
+        /// question quickly after computing for the first one.  Created on demand.
+        /// </summary>
+        private ConditionalWeakTable<ISymbol, ProjectId?>? _unrootedSymbolToProjectId;
+        private static readonly Func<ConditionalWeakTable<ISymbol, ProjectId?>> s_createTable = () => new ConditionalWeakTable<ISymbol, ProjectId?>();
 
         private SolutionState(
             BranchId branchId,
@@ -58,10 +71,12 @@ namespace Microsoft.CodeAnalysis
             SolutionInfo.SolutionAttributes solutionAttributes,
             IReadOnlyList<ProjectId> projectIds,
             SerializableOptionSet options,
+            IReadOnlyList<AnalyzerReference> analyzerReferences,
             ImmutableDictionary<ProjectId, ProjectState> idToProjectStateMap,
             ImmutableDictionary<ProjectId, CompilationTracker> projectIdToTrackerMap,
             ImmutableDictionary<string, ImmutableArray<DocumentId>> filePathToDocumentIdsMap,
-            ProjectDependencyGraph dependencyGraph)
+            ProjectDependencyGraph dependencyGraph,
+            Lazy<HostDiagnosticAnalyzers>? lazyAnalyzers)
         {
             _branchId = branchId;
             _workspaceVersion = workspaceVersion;
@@ -69,22 +84,29 @@ namespace Microsoft.CodeAnalysis
             _solutionServices = solutionServices;
             ProjectIds = projectIds;
             Options = options;
+            AnalyzerReferences = analyzerReferences;
             _projectIdToProjectStateMap = idToProjectStateMap;
             _projectIdToTrackerMap = projectIdToTrackerMap;
             _filePathToDocumentIdsMap = filePathToDocumentIdsMap;
             _dependencyGraph = dependencyGraph;
+            _lazyAnalyzers = lazyAnalyzers ?? CreateLazyHostDiagnosticAnalyzers(analyzerReferences);
 
-            // when solution state is changed, we re-calcuate its checksum
+            // when solution state is changed, we recalculate its checksum
             _lazyChecksums = new AsyncLazy<SolutionStateChecksums>(ComputeChecksumsAsync, cacheResult: true);
 
             CheckInvariants();
+
+            // make sure we don't accidentally capture any state but the list of references:
+            static Lazy<HostDiagnosticAnalyzers> CreateLazyHostDiagnosticAnalyzers(IReadOnlyList<AnalyzerReference> analyzerReferences)
+                => new Lazy<HostDiagnosticAnalyzers>(() => new HostDiagnosticAnalyzers(analyzerReferences));
         }
 
         public SolutionState(
             BranchId primaryBranchId,
             SolutionServices solutionServices,
             SolutionInfo.SolutionAttributes solutionAttributes,
-            SerializableOptionSet options)
+            SerializableOptionSet options,
+            IReadOnlyList<AnalyzerReference> analyzerReferences)
             : this(
                 primaryBranchId,
                 workspaceVersion: 0,
@@ -92,10 +114,12 @@ namespace Microsoft.CodeAnalysis
                 solutionAttributes,
                 projectIds: SpecializedCollections.EmptyBoxedImmutableArray<ProjectId>(),
                 options,
+                analyzerReferences,
                 idToProjectStateMap: ImmutableDictionary<ProjectId, ProjectState>.Empty,
                 projectIdToTrackerMap: ImmutableDictionary<ProjectId, CompilationTracker>.Empty,
                 filePathToDocumentIdsMap: ImmutableDictionary.Create<string, ImmutableArray<DocumentId>>(StringComparer.OrdinalIgnoreCase),
-                dependencyGraph: ProjectDependencyGraph.Empty)
+                dependencyGraph: ProjectDependencyGraph.Empty,
+                lazyAnalyzers: null)
         {
         }
 
@@ -110,6 +134,8 @@ namespace Microsoft.CodeAnalysis
             return CreatePrimarySolution(branchId: workspace.PrimaryBranchId, workspaceVersion: workspaceVersion, services: services);
         }
 
+        public HostDiagnosticAnalyzers Analyzers => _lazyAnalyzers.Value;
+
         public SolutionInfo.SolutionAttributes SolutionAttributes => _solutionAttributes;
 
         public ImmutableDictionary<ProjectId, ProjectState> ProjectStates => _projectIdToProjectStateMap;
@@ -122,13 +148,13 @@ namespace Microsoft.CodeAnalysis
 
         /// <summary>
         /// branch id of this solution
-        /// 
+        ///
         /// currently, it only supports one level of branching. there is a primary branch of a workspace and all other
         /// branches that are branched from the primary branch.
-        /// 
+        ///
         /// one still can create multiple forked solutions from an already branched solution, but versions among those
-        /// can't be reliably used and compared. 
-        /// 
+        /// can't be reliably used and compared.
+        ///
         /// version only has a meaning between primary solution and branched one or between solutions from same branch.
         /// </summary>
         public BranchId BranchId => _branchId;
@@ -176,6 +202,7 @@ namespace Microsoft.CodeAnalysis
             SolutionInfo.SolutionAttributes? solutionAttributes = null,
             IReadOnlyList<ProjectId>? projectIds = null,
             SerializableOptionSet? options = null,
+            IReadOnlyList<AnalyzerReference>? analyzerReferences = null,
             ImmutableDictionary<ProjectId, ProjectState>? idToProjectStateMap = null,
             ImmutableDictionary<ProjectId, CompilationTracker>? projectIdToTrackerMap = null,
             ImmutableDictionary<string, ImmutableArray<DocumentId>>? filePathToDocumentIdsMap = null,
@@ -187,14 +214,18 @@ namespace Microsoft.CodeAnalysis
             projectIds ??= ProjectIds;
             idToProjectStateMap ??= _projectIdToProjectStateMap;
             options ??= Options.WithLanguages(GetProjectLanguages(idToProjectStateMap));
+            analyzerReferences ??= AnalyzerReferences;
             projectIdToTrackerMap ??= _projectIdToTrackerMap;
             filePathToDocumentIdsMap ??= _filePathToDocumentIdsMap;
             dependencyGraph ??= _dependencyGraph;
+
+            var analyzerReferencesEqual = AnalyzerReferences.SequenceEqual(analyzerReferences);
 
             if (branchId == _branchId &&
                 solutionAttributes == _solutionAttributes &&
                 projectIds == ProjectIds &&
                 options == Options &&
+                analyzerReferencesEqual &&
                 idToProjectStateMap == _projectIdToProjectStateMap &&
                 projectIdToTrackerMap == _projectIdToTrackerMap &&
                 filePathToDocumentIdsMap == _filePathToDocumentIdsMap &&
@@ -210,10 +241,12 @@ namespace Microsoft.CodeAnalysis
                 solutionAttributes,
                 projectIds,
                 options,
+                analyzerReferences,
                 idToProjectStateMap,
                 projectIdToTrackerMap,
                 filePathToDocumentIdsMap,
-                dependencyGraph);
+                dependencyGraph,
+                analyzerReferencesEqual ? _lazyAnalyzers : null);
         }
 
         private SolutionState CreatePrimarySolution(
@@ -235,15 +268,17 @@ namespace Microsoft.CodeAnalysis
                 _solutionAttributes,
                 ProjectIds,
                 Options,
+                AnalyzerReferences,
                 _projectIdToProjectStateMap,
                 _projectIdToTrackerMap,
                 _filePathToDocumentIdsMap,
-                _dependencyGraph);
+                _dependencyGraph,
+                _lazyAnalyzers);
         }
 
         private BranchId GetBranchId()
         {
-            // currently we only support one level branching. 
+            // currently we only support one level branching.
             // my reasonings are
             // 1. it seems there is no-one who needs sub branches.
             // 2. this lets us to branch without explicit branch API
@@ -374,22 +409,7 @@ namespace Microsoft.CodeAnalysis
         public ProjectState? GetProjectState(IAssemblySymbol? assemblySymbol)
         {
             if (assemblySymbol == null)
-            {
                 return null;
-            }
-
-            // TODO: Remove this loop when we add source assembly symbols to s_assemblyOrModuleSymbolToProjectMap
-            foreach (var (_, state) in _projectIdToProjectStateMap)
-            {
-                if (this.TryGetCompilation(state.Id, out var compilation))
-                {
-                    // if the symbol is the compilation's assembly symbol, we are done
-                    if (Equals(compilation.Assembly, assemblySymbol))
-                    {
-                        return state;
-                    }
-                }
-            }
 
             s_assemblyOrModuleSymbolToProjectMap.TryGetValue(assemblySymbol, out var id);
             return id == null ? null : this.GetProjectState(id);
@@ -420,7 +440,7 @@ namespace Microsoft.CodeAnalysis
         private SolutionState AddProject(ProjectId projectId, ProjectState projectState)
         {
             // changed project list so, increment version.
-            var newSolutionAttributes = _solutionAttributes.WithVersion(Version.GetNewerVersion());
+            var newSolutionAttributes = _solutionAttributes.With(version: Version.GetNewerVersion());
 
             var newProjectIds = ProjectIds.ToImmutableArray().Add(projectId);
             var newStateMap = _projectIdToProjectStateMap.Add(projectId, projectState);
@@ -532,7 +552,7 @@ namespace Microsoft.CodeAnalysis
             CheckContainsProject(projectId);
 
             // changed project list so, increment version.
-            var newSolutionAttributes = _solutionAttributes.WithVersion(this.Version.GetNewerVersion());
+            var newSolutionAttributes = _solutionAttributes.With(version: this.Version.GetNewerVersion());
 
             var newProjectIds = ProjectIds.ToImmutableArray().Remove(projectId);
             var newStateMap = _projectIdToProjectStateMap.Remove(projectId);
@@ -645,6 +665,22 @@ namespace Microsoft.CodeAnalysis
         }
 
         /// <summary>
+        /// Creates a new solution instance with the project specified updated to have the compiler output file path.
+        /// </summary>
+        public SolutionState WithProjectCompilationOutputInfo(ProjectId projectId, in CompilationOutputInfo info)
+        {
+            var oldProject = GetRequiredProjectState(projectId);
+            var newProject = oldProject.WithCompilationOutputInfo(info);
+
+            if (oldProject == newProject)
+            {
+                return this;
+            }
+
+            return ForkProject(newProject);
+        }
+
+        /// <summary>
         /// Creates a new solution instance with the project specified updated to have the default namespace.
         /// </summary>
         public SolutionState WithProjectDefaultNamespace(ProjectId projectId, string? defaultNamespace)
@@ -737,7 +773,7 @@ namespace Microsoft.CodeAnalysis
 
         /// <summary>
         /// Update a new solution instance with a fork of the specified project.
-        /// 
+        ///
         /// TODO: https://github.com/dotnet/roslyn/issues/42448
         /// this is a temporary workaround until editorconfig becomes real part of roslyn solution snapshot.
         /// until then, this will explicitly fork current solution snapshot
@@ -826,9 +862,9 @@ namespace Microsoft.CodeAnalysis
                 !_projectIdToProjectStateMap.ContainsKey(projectReference.ProjectId))
             {
                 // Two cases:
-                // 1) The project contained multiple non-equivalent references to the project, 
+                // 1) The project contained multiple non-equivalent references to the project,
                 // and not all of them were removed. The dependency graph doesn't change.
-                // Note that there might be two references to the same project, one with 
+                // Note that there might be two references to the same project, one with
                 // extern alias and the other without. These are not considered duplicates.
                 // 2) The referenced project is not part of the solution and hence not included
                 // in the dependency graph.
@@ -995,7 +1031,7 @@ namespace Microsoft.CodeAnalysis
         }
 
         /// <summary>
-        /// Create a new solution instance with the corresponding projects updated to include new 
+        /// Create a new solution instance with the corresponding projects updated to include new
         /// documents defined by the document info.
         /// </summary>
         public SolutionState AddDocuments(ImmutableArray<DocumentInfo> documentInfos)
@@ -1238,7 +1274,7 @@ namespace Microsoft.CodeAnalysis
                 return this;
             }
 
-            return UpdateAnalyzerConfigDocumentState(oldDocument.UpdateText(text, mode), textChanged: true);
+            return UpdateAnalyzerConfigDocumentState(oldDocument.UpdateText(text, mode));
         }
 
         /// <summary>
@@ -1283,7 +1319,7 @@ namespace Microsoft.CodeAnalysis
                 return this;
             }
 
-            return UpdateAnalyzerConfigDocumentState(oldDocument.UpdateText(textAndVersion, mode), textChanged: true);
+            return UpdateAnalyzerConfigDocumentState(oldDocument.UpdateText(textAndVersion, mode));
         }
 
         /// <summary>
@@ -1361,7 +1397,7 @@ namespace Microsoft.CodeAnalysis
 
             // Assumes that text has changed. User could have closed a doc without saving and we are loading text from closed file with
             // old content. Also this should make sure we don't re-use latest doc version with data associated with opened document.
-            return UpdateAnalyzerConfigDocumentState(oldDocument.UpdateText(loader, mode), textChanged: true, recalculateDependentVersions: true);
+            return UpdateAnalyzerConfigDocumentState(oldDocument.UpdateText(loader, mode));
         }
 
         private SolutionState UpdateDocumentState(DocumentState newDocument, bool textChanged = false, bool recalculateDependentVersions = false)
@@ -1394,10 +1430,10 @@ namespace Microsoft.CodeAnalysis
             return ForkProject(newProject);
         }
 
-        private SolutionState UpdateAnalyzerConfigDocumentState(AnalyzerConfigDocumentState newDocument, bool textChanged = false, bool recalculateDependentVersions = false)
+        private SolutionState UpdateAnalyzerConfigDocumentState(AnalyzerConfigDocumentState newDocument)
         {
             var oldProject = GetProjectState(newDocument.Id.ProjectId)!;
-            var newProject = oldProject.UpdateAnalyzerConfigDocument(newDocument, textChanged, recalculateDependentVersions);
+            var newProject = oldProject.UpdateAnalyzerConfigDocument(newDocument);
 
             // This method shouldn't have been called if the document has not changed.
             Debug.Assert(oldProject != newProject);
@@ -1513,9 +1549,9 @@ namespace Microsoft.CodeAnalysis
 
         /// <summary>
         /// Gets a copy of the solution isolated from the original so that they do not share computed state.
-        /// 
+        ///
         /// Use isolated solutions when doing operations that are likely to access a lot of text,
-        /// syntax trees or compilations that are unlikely to be needed again after the operation is done. 
+        /// syntax trees or compilations that are unlikely to be needed again after the operation is done.
         /// When the isolated solution is reclaimed so will the computed state.
         /// </summary>
         public SolutionState GetIsolatedSolution()
@@ -1527,7 +1563,42 @@ namespace Microsoft.CodeAnalysis
             return this.Branch(projectIdToTrackerMap: forkedMap);
         }
 
-        public SolutionState WithOptions(SerializableOptionSet options) => this.Branch(options: options);
+        public SolutionState WithOptions(SerializableOptionSet options)
+            => Branch(options: options);
+
+        public SolutionState AddAnalyzerReferences(IReadOnlyCollection<AnalyzerReference> analyzerReferences)
+        {
+            if (analyzerReferences.Count == 0)
+            {
+                return this;
+            }
+
+            var oldReferences = AnalyzerReferences.ToImmutableArray();
+            var newReferences = oldReferences.AddRange(analyzerReferences);
+            return Branch(analyzerReferences: newReferences);
+        }
+
+        public SolutionState RemoveAnalyzerReference(AnalyzerReference analyzerReference)
+        {
+            var oldReferences = AnalyzerReferences.ToImmutableArray();
+            var newReferences = oldReferences.Remove(analyzerReference);
+            if (oldReferences == newReferences)
+            {
+                return this;
+            }
+
+            return Branch(analyzerReferences: newReferences);
+        }
+
+        public SolutionState WithAnalyzerReferences(IReadOnlyList<AnalyzerReference> analyzerReferences)
+        {
+            if (analyzerReferences == AnalyzerReferences)
+            {
+                return this;
+            }
+
+            return Branch(analyzerReferences: analyzerReferences);
+        }
 
         // this lock guards all the mutable fields (do not share lock with derived classes)
         private NonReentrantLock? _stateLockBackingField;
@@ -1547,9 +1618,9 @@ namespace Microsoft.CodeAnalysis
         /// <summary>
         /// Creates a branch of the solution that has its compilations frozen in whatever state they are in at the time, assuming a background compiler is
         /// busy building this compilations.
-        /// 
+        ///
         /// A compilation for the project containing the specified document id will be guaranteed to exist with at least the syntax tree for the document.
-        /// 
+        ///
         /// This not intended to be the public API, use Document.WithFrozenPartialSemantics() instead.
         /// </summary>
         public SolutionState WithFrozenPartialCompilationIncludingSpecificDocument(DocumentId documentId, CancellationToken cancellationToken)
@@ -1678,7 +1749,7 @@ namespace Microsoft.CodeAnalysis
         /// </summary>
         public Task<bool> HasSuccessfullyLoadedAsync(ProjectState project, CancellationToken cancellationToken)
         {
-            // return HasAllInformation when compilation is not supported. 
+            // return HasAllInformation when compilation is not supported.
             // regardless whether project support compilation or not, if projectInfo is not complete, we can't guarantee its reference completeness
             return project.SupportsCompilation
                 ? this.GetCompilationTracker(project.Id).HasSuccessfullyLoadedAsync(this, cancellationToken)
@@ -1742,7 +1813,7 @@ namespace Microsoft.CodeAnalysis
             ProjectState fromProject)
         {
             // Try to get the compilation state for this project.  If it doesn't exist, don't do any
-            // more work.  
+            // more work.
             if (!_projectIdToTrackerMap.TryGetValue(projectReference.ProjectId, out var state))
             {
                 return null;

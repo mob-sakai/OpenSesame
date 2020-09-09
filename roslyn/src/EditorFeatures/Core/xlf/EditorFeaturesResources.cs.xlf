@@ -112,11 +112,6 @@
         <target state="translated">Odebrání dokumentu se nepodporuje.</target>
         <note />
       </trans-unit>
-      <trans-unit id="Rename_file">
-        <source>Rename _file</source>
-        <target state="translated">Přejmenovat _soubor</target>
-        <note />
-      </trans-unit>
       <trans-unit id="Rename_file_name_doesnt_match">
         <source>Rename _file (type does not match file name)</source>
         <target state="translated">Přejmenovat _soubor (typ neodpovídá názvu souboru)</target>
@@ -126,6 +121,11 @@
         <source>Rename _file (not allowed on partial types)</source>
         <target state="translated">Přejmenovat _soubor (nepovoleno pro dílčí typy)</target>
         <note>Disabled text status for file rename</note>
+      </trans-unit>
+      <trans-unit id="Rename_symbols_file">
+        <source>Rename symbol's _file</source>
+        <target state="translated">Přejmenovat _soubor symbolu</target>
+        <note>Indicates that the file a symbol is defined in will also be renamed</note>
       </trans-unit>
       <trans-unit id="String_Escape_Character">
         <source>String - Escape Character</source>
@@ -487,11 +487,6 @@
         <target state="translated">Daný pracovní prostor nepodporuje vrácení akce zpátky.</target>
         <note />
       </trans-unit>
-      <trans-unit id="Document_must_be_contained_in_the_workspace_that_created_this_service">
-        <source>Document must be contained in the workspace that created this service</source>
-        <target state="translated">Dokument musí být obsažený v pracovním prostoru, který vytvořil tuto datovou službu</target>
-        <note />
-      </trans-unit>
       <trans-unit id="Searching">
         <source>Searching...</source>
         <target state="translated">Hledá se...</target>
@@ -655,11 +650,6 @@
       <trans-unit id="external">
         <source>(external)</source>
         <target state="translated">(externí)</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="from_metadata">
-        <source>from metadata</source>
-        <target state="translated">z metadat</target>
         <note />
       </trans-unit>
       <trans-unit id="Automatic_Line_Ender">
@@ -1015,11 +1005,6 @@
       <trans-unit id="Peek">
         <source>Peek</source>
         <target state="translated">Náhled</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="symbol_cannot_be_a_namespace">
-        <source>'symbol' cannot be a namespace.</source>
-        <target state="translated">'Symbol nemůže být obor názvů.</target>
         <note />
       </trans-unit>
       <trans-unit id="Apply1">

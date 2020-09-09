@@ -19,6 +19,8 @@ using Roslyn.Utilities;
 using StreamJsonRpc;
 using LSP = Microsoft.VisualStudio.LanguageServer.Protocol;
 
+#pragma warning disable CA1822 // Mark members as static - Multiple 'JsonRpcMethod' attribute annotated methods.
+
 namespace Microsoft.CodeAnalysis.Remote
 {
     internal class LanguageServer : ServiceBase
@@ -45,7 +47,7 @@ namespace Microsoft.CodeAnalysis.Remote
         }
 
         [JsonRpcMethod(Methods.InitializeName)]
-        public Task<InitializeResult> InitializeAsync(JToken input, CancellationToken cancellationToken)
+        public Task<InitializeResult> InitializeAsync(JToken _1, CancellationToken _2)
         {
             return Task.FromResult(new InitializeResult()
             {
@@ -53,6 +55,10 @@ namespace Microsoft.CodeAnalysis.Remote
                 {
                     DisableGoToWorkspaceSymbols = true,
                     WorkspaceSymbolProvider = true,
+                    TextDocumentSync = new TextDocumentSyncOptions
+                    {
+                        Change = TextDocumentSyncKind.None
+                    }
                 }
             });
         }

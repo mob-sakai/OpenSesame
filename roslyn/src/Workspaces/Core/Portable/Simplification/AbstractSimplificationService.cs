@@ -14,9 +14,12 @@ using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Internal.Log;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.Shared.Collections;
-using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.CodeAnalysis.Text;
 using Roslyn.Utilities;
+
+#if DEBUG
+using Microsoft.CodeAnalysis.Shared.Extensions;
+#endif
 
 namespace Microsoft.CodeAnalysis.Simplification
 {
@@ -106,7 +109,7 @@ namespace Microsoft.CodeAnalysis.Simplification
             // prep namespace imports marked for simplification 
             var removeIfUnusedAnnotation = new SyntaxAnnotation();
             var originalRoot = root;
-            root = this.PrepareNamespaceImportsForRemovalIfUnused(document, root, removeIfUnusedAnnotation, isNodeOrTokenOutsideSimplifySpans);
+            root = PrepareNamespaceImportsForRemovalIfUnused(document, root, removeIfUnusedAnnotation, isNodeOrTokenOutsideSimplifySpans);
             var hasImportsToSimplify = root != originalRoot;
 
             if (hasImportsToSimplify)
@@ -273,7 +276,7 @@ namespace Microsoft.CodeAnalysis.Simplification
 
         // find any namespace imports / using directives marked for simplification in the specified spans
         // and add removeIfUnused annotation
-        private SyntaxNode PrepareNamespaceImportsForRemovalIfUnused(
+        private static SyntaxNode PrepareNamespaceImportsForRemovalIfUnused(
             Document document,
             SyntaxNode root,
             SyntaxAnnotation removeIfUnusedAnnotation,

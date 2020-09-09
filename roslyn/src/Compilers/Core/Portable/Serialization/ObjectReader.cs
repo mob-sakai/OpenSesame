@@ -35,7 +35,7 @@ namespace Roslyn.Utilities
         /// this version, just change VersionByte2.
         /// </summary>
         internal const byte VersionByte1 = 0b10101010;
-        internal const byte VersionByte2 = 0b00001001;
+        internal const byte VersionByte2 = 0b00001010;
 
         private readonly BinaryReader _reader;
         private readonly CancellationToken _cancellationToken;
@@ -249,7 +249,7 @@ namespace Roslyn.Utilities
         }
 
         /// <summary>
-        /// An reference-id to object map, that can share base data efficiently.
+        /// A reference-id to object map, that can share base data efficiently.
         /// </summary>
         private struct ReaderReferenceMap<T> : IDisposable
             where T : class

@@ -10,7 +10,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
@@ -58,8 +57,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ImplementInterface
             // high fan-out (like IDisposable.Dispose()).
             var findRefsOptions = FindReferencesSearchOptions.Default.WithCascade(false);
             var references = await SymbolFinder.FindReferencesAsync(
-                new SymbolAndProjectId(implMember, project.Id),
-                solution, findRefsOptions, cancellationToken).ConfigureAwait(false);
+                implMember, solution, findRefsOptions, cancellationToken).ConfigureAwait(false);
 
             var implReferences = references.FirstOrDefault();
             if (implReferences == null)
@@ -93,7 +91,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ImplementInterface
             }
         }
 
-        private void UpdateLocation(
+        private static void UpdateLocation(
             SemanticModel semanticModel, INamedTypeSymbol interfaceType,
             SyntaxEditor editor, ISyntaxFactsService syntaxFacts,
             Location location, CancellationToken cancellationToken)
@@ -110,7 +108,7 @@ namespace Microsoft.CodeAnalysis.CSharp.ImplementInterface
             if (syntaxFacts.IsInvocationExpression(node.Parent))
                 node = node.Parent;
 
-            var operation = semanticModel.GetOperation(node);
+            var operation = semanticModel.GetOperation(node, cancellationToken);
             var instance = operation switch
             {
                 IMemberReferenceOperation memberReference => memberReference.Instance,

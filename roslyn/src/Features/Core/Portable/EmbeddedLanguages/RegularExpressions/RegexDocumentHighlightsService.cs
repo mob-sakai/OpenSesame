@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.DocumentHighlighting;
 using Microsoft.CodeAnalysis.EmbeddedLanguages.Common;
 using Microsoft.CodeAnalysis.EmbeddedLanguages.RegularExpressions;
-using Microsoft.CodeAnalysis.EmbeddedLanguages.RegularExpressions.LanguageServices;
 using Microsoft.CodeAnalysis.EmbeddedLanguages.VirtualChars;
 using Microsoft.CodeAnalysis.Text;
 
@@ -99,16 +98,16 @@ namespace Microsoft.CodeAnalysis.Features.EmbeddedLanguages.RegularExpressions
             return ImmutableArray<HighlightSpan>.Empty;
         }
 
-        private ImmutableArray<HighlightSpan> CreateHighlights(
+        private static ImmutableArray<HighlightSpan> CreateHighlights(
             RegexEscapeNode node, TextSpan captureSpan)
         {
             return ImmutableArray.Create(CreateHighlightSpan(node.GetSpan()), CreateHighlightSpan(captureSpan));
         }
 
-        private HighlightSpan CreateHighlightSpan(TextSpan textSpan)
+        private static HighlightSpan CreateHighlightSpan(TextSpan textSpan)
             => new HighlightSpan(textSpan, HighlightSpanKind.None);
 
-        private RegexToken GetCaptureToken(RegexEscapeNode node)
+        private static RegexToken GetCaptureToken(RegexEscapeNode node)
             => node switch
             {
                 RegexBackreferenceEscapeNode backReference => backReference.NumberToken,

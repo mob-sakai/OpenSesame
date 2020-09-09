@@ -102,14 +102,14 @@ function InitializeDotNetCli([bool]$install) {
   }
 
   # Don't resolve runtime, shared framework, or SDK from other locations to ensure build determinism
-  $env:DOTNET_MULTILEVEL_LOOKUP = 0
+  $env:DOTNET_MULTILEVEL_LOOKUP=0
 
   # Disable first run since we do not need all ASP.NET packages restored.
-  $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = 1
+  $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
 
   # Disable telemetry on CI.
   if ($ci) {
-    $env:DOTNET_CLI_TELEMETRY_OPTOUT = 1
+    $env:DOTNET_CLI_TELEMETRY_OPTOUT=1
   }
 
   # Source Build uses DotNetCoreSdkDir variable
@@ -119,7 +119,9 @@ function InitializeDotNetCli([bool]$install) {
 
   # Find the first path on %PATH% that contains the dotnet.exe
   if ($useInstalledDotNetCli -and (-not $globalJsonHasRuntimes) -and ($env:DOTNET_INSTALL_DIR -eq $null)) {
-    $dotnetCmd = Get-Command "dotnet.exe" -ErrorAction SilentlyContinue
+    $dotnetExecutable = GetExecutableFileName 'dotnet'
+    $dotnetCmd = Get-Command $dotnetExecutable -ErrorAction SilentlyContinue
+
     if ($dotnetCmd -ne $null) {
       $env:DOTNET_INSTALL_DIR = Split-Path $dotnetCmd.Path -Parent
     }
@@ -194,7 +196,7 @@ function InstallDotNet([string] $dotnetRoot,
 
   $installScript = GetDotNetInstallScript $dotnetRoot
   $installParameters = @{
-    Version    = $version
+    Version = $version
     InstallDir = $dotnetRoot
   }
 
@@ -225,8 +227,7 @@ function InstallDotNet([string] $dotnetRoot,
         Write-PipelineTelemetryError -Category "InitializeToolset" -Message "Failed to install dotnet runtime '$runtime' from custom location '$runtimeSourceFeed'."
         ExitWithExitCode 1
       }
-    }
-    else {
+    } else {
       ExitWithExitCode 1
     }
   }
@@ -244,6 +245,10 @@ function InstallDotNet([string] $dotnetRoot,
 # Throws on failure.
 #
 function InitializeVisualStudioMSBuild([bool]$install, [object]$vsRequirements = $null) {
+  if (-not (IsWindowsPlatform)) {
+    throw "Cannot initialize Visual Studio on non-Windows"
+  }
+
   if (Test-Path variable:global:_MSBuildExe) {
     return $global:_MSBuildExe
   }
@@ -276,14 +281,12 @@ function InitializeVisualStudioMSBuild([bool]$install, [object]$vsRequirements =
     $vsMajorVersion = $vsInfo.installationVersion.Split('.')[0]
 
     InitializeVisualStudioEnvironmentVariables $vsInstallDir $vsMajorVersion
-  }
-  else {
+  } else {
 
     if (Get-Member -InputObject $GlobalJson.tools -Name "xcopy-msbuild") {
       $xcopyMSBuildVersion = $GlobalJson.tools.'xcopy-msbuild'
       $vsMajorVersion = $xcopyMSBuildVersion.Split('.')[0]
-    }
-    else {
+    } else {
       $vsMajorVersion = $vsMinVersion.Major
       $xcopyMSBuildVersion = "$vsMajorVersion.$($vsMinVersion.Minor).0-alpha"
     }
@@ -347,7 +350,11 @@ function InitializeXCopyMSBuild([string]$packageVersion, [bool]$install) {
 # or $null if no instance meeting the requirements is found on the machine.
 #
 function LocateVisualStudio([object]$vsRequirements = $null){
-  if (Get-Member -InputObject $GlobalJson.tools -Name "vswhere") {
+  if (-not (IsWindowsPlatform)) {
+    throw "Cannot run vswhere on non-Windows platforms."
+  }
+
+  if (Get-Member -InputObject $GlobalJson.tools -Name 'vswhere') {
     $vswhereVersion = $GlobalJson.tools.vswhere
   } else {
     $vswhereVersion = "2.5.2"
@@ -377,7 +384,7 @@ function LocateVisualStudio([object]$vsRequirements = $null){
     }
   }
 
-  $vsInfo = & $vsWhereExe $args | ConvertFrom-Json
+  $vsInfo =& $vsWhereExe $args | ConvertFrom-Json
 
   if ($lastExitCode -ne 0) {
     return $null
@@ -407,7 +414,8 @@ function InitializeBuildTool() {
       Write-PipelineTelemetryError -Category "InitializeToolset" -Message "/global.json must specify 'tools.dotnet'."
       ExitWithExitCode 1
     }
-    $buildTool = @{ Path = Join-Path $dotnetRoot "dotnet.exe"; Command = "msbuild"; Tool = "dotnet"; Framework = "netcoreapp2.1" }
+    $dotnetPath = Join-Path $dotnetRoot (GetExecutableFileName 'dotnet')
+    $buildTool = @{ Path = $dotnetPath; Command = 'msbuild'; Tool = 'dotnet'; Framework = 'netcoreapp2.1' }
   } elseif ($msbuildEngine -eq "vs") {
     try {
       $msbuildPath = InitializeVisualStudioMSBuild -install:$restore
@@ -611,6 +619,19 @@ function GetMSBuildBinaryLogCommandLineArgument($arguments) {
   }
 
   return $null
+}
+
+function GetExecutableFileName($baseName) {
+  if (IsWindowsPlatform) {
+    return "$baseName.exe"
+  }
+  else {
+    return $baseName
+  }
+}
+
+function IsWindowsPlatform() {
+  return [environment]::OSVersion.Platform -eq [PlatformID]::Win32NT
 }
 
 . $PSScriptRoot\pipeline-logging-functions.ps1

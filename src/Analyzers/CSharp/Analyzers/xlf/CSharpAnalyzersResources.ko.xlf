@@ -22,9 +22,19 @@
         <target state="translated">변수 선언 분해</target>
         <note />
       </trans-unit>
+      <trans-unit id="Delegate_invocation_can_be_simplified">
+        <source>Delegate invocation can be simplified.</source>
+        <target state="translated">대리자 호출을 간단하게 만들 수 있습니다.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="Indexing_can_be_simplified">
         <source>Indexing can be simplified</source>
         <target state="translated">인덱싱은 단순화될 수 있습니다.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Inline_variable_declaration">
+        <source>Inline variable declaration</source>
+        <target state="translated">인라인 변수 선언</target>
         <note />
       </trans-unit>
       <trans-unit id="Misplaced_using_directive">
@@ -52,6 +62,26 @@
         <target state="translated">로컬 함수를 '정적'으로 지정</target>
         <note />
       </trans-unit>
+      <trans-unit id="Negate_expression_changes_semantics">
+        <source>Negate expression (changes semantics)</source>
+        <target state="translated">식 부정(의미 체계를 변경함)</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Remove_operator_preserves_semantics">
+        <source>Remove operator (preserves semantics)</source>
+        <target state="translated">연산자 제거(의미 체계를 유지함)</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Remove_suppression_operators">
+        <source>Remove suppression operators</source>
+        <target state="translated">비표시 오류(Suppression) 연산자 제거</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Remove_unnecessary_suppression_operator">
+        <source>Remove unnecessary suppression operator</source>
+        <target state="translated">불필요한 비표시 오류(Suppression) 연산자 제거</target>
+        <note />
+      </trans-unit>
       <trans-unit id="Simplify_default_expression">
         <source>Simplify 'default' expression</source>
         <target state="translated">default' 식 단순화</target>
@@ -61,6 +91,11 @@
         <source>Struct contains assignment to 'this' outside of constructor. Make readonly fields writable</source>
         <target state="translated">Struct에서 'this'에 대한 할당이 생성자 외부에 있습니다. 읽기 전용 필드를 쓰기 가능으로 설정하세요.</target>
         <note>{Locked="Struct"}{Locked="this"} these are C#/VB keywords and should not be localized.</note>
+      </trans-unit>
+      <trans-unit id="Suppression_operator_has_no_effect_and_can_be_misinterpreted">
+        <source>Suppression operator has no effect and can be misinterpreted</source>
+        <target state="translated">비표시 오류(Suppression) 연산자는 아무런 영향을 주지 않으며 잘못 해석될 수 있습니다.</target>
+        <note />
       </trans-unit>
       <trans-unit id="Unreachable_code_detected">
         <source>Unreachable code detected</source>
@@ -162,6 +197,11 @@
         <target state="translated">is null' 검사 사용</target>
         <note />
       </trans-unit>
+      <trans-unit id="Use_local_function">
+        <source>Use local function</source>
+        <target state="translated">로컬 함수 사용</target>
+        <note />
+      </trans-unit>
       <trans-unit id="Use_pattern_matching">
         <source>Use pattern matching</source>
         <target state="translated">패턴 일치 사용</target>
@@ -195,6 +235,11 @@
       <trans-unit id="Variable_declaration_can_be_deconstructed">
         <source>Variable declaration can be deconstructed</source>
         <target state="translated">변수 선언을 분해할 수 있습니다.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Variable_declaration_can_be_inlined">
+        <source>Variable declaration can be inlined</source>
+        <target state="translated">변수 선언은 인라인될 수 있습니다.</target>
         <note />
       </trans-unit>
       <trans-unit id="Warning_colon_Moving_using_directives_may_change_code_meaning">

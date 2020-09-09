@@ -112,11 +112,6 @@
         <target state="translated">Não há suporte para a remoção do documento</target>
         <note />
       </trans-unit>
-      <trans-unit id="Rename_file">
-        <source>Rename _file</source>
-        <target state="translated">Renomear _arquivo</target>
-        <note />
-      </trans-unit>
       <trans-unit id="Rename_file_name_doesnt_match">
         <source>Rename _file (type does not match file name)</source>
         <target state="translated">Renomear _arquivo (o tipo não corresponde ao nome do arquivo)</target>
@@ -126,6 +121,11 @@
         <source>Rename _file (not allowed on partial types)</source>
         <target state="translated">Renomear _arquivo (não permitido em tipos parciais)</target>
         <note>Disabled text status for file rename</note>
+      </trans-unit>
+      <trans-unit id="Rename_symbols_file">
+        <source>Rename symbol's _file</source>
+        <target state="translated">Renomear o _arquivo do símbolo</target>
+        <note>Indicates that the file a symbol is defined in will also be renamed</note>
       </trans-unit>
       <trans-unit id="String_Escape_Character">
         <source>String - Escape Character</source>
@@ -487,11 +487,6 @@
         <target state="translated">Workspace fornecido não suporta Desfazer</target>
         <note />
       </trans-unit>
-      <trans-unit id="Document_must_be_contained_in_the_workspace_that_created_this_service">
-        <source>Document must be contained in the workspace that created this service</source>
-        <target state="translated">O Documento deve estar contido no workspace que criou este serviço</target>
-        <note />
-      </trans-unit>
       <trans-unit id="Searching">
         <source>Searching...</source>
         <target state="translated">Pesquisando...</target>
@@ -655,11 +650,6 @@
       <trans-unit id="external">
         <source>(external)</source>
         <target state="translated">(externo)</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="from_metadata">
-        <source>from metadata</source>
-        <target state="translated">de metadados</target>
         <note />
       </trans-unit>
       <trans-unit id="Automatic_Line_Ender">
@@ -1015,11 +1005,6 @@
       <trans-unit id="Peek">
         <source>Peek</source>
         <target state="translated">Espiada</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="symbol_cannot_be_a_namespace">
-        <source>'symbol' cannot be a namespace.</source>
-        <target state="translated">'"símbolo" não pode ser um namespace.</target>
         <note />
       </trans-unit>
       <trans-unit id="Apply1">

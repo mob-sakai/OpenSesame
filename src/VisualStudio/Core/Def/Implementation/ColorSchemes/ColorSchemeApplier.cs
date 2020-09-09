@@ -128,7 +128,7 @@ namespace Microsoft.VisualStudio.LanguageServices.ColorSchemes
             if (themeChanged)
             {
                 // Default Foreground colors if they match our theme colors.
-                _colorDefaulter.DefaultClassifications();
+                _colorDefaulter.DefaultClassifications(IsThemeCustomized());
             }
 
             // If the color scheme has updated, apply the scheme.
@@ -143,7 +143,7 @@ namespace Microsoft.VisualStudio.LanguageServices.ColorSchemes
         /// Returns true if the color scheme needs updating.
         /// </summary>
         /// <param name="colorScheme">The color scheme to update with.</param>
-        private bool TryGetUpdatedColorScheme([NotNullWhen(returnValue: true)]out SchemeName? colorScheme)
+        private bool TryGetUpdatedColorScheme([NotNullWhen(returnValue: true)] out SchemeName? colorScheme)
         {
             // The color scheme that is currently applied to the registry
             var appliedColorScheme = _settings.GetAppliedColorScheme();

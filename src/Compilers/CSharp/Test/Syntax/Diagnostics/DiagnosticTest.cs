@@ -31,6 +31,15 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
                 ErrorCode.Void,
                 ErrorCode.Unknown,
                 ErrorCode.WRN_ALinkWarn, // Not reported, but retained to allow configuring class of related warnings. See CSharpDiagnosticFilter.Filter.
+
+                // The following error codes are reserved by feature branches
+                ErrorCode.ERR_8813,
+                ErrorCode.ERR_8814,
+                ErrorCode.ERR_8815,
+                ErrorCode.ERR_8816,
+
+                ErrorCode.ERR_8820,
+                ErrorCode.ERR_8821,
             };
             foreach (ErrorCode code in Enum.GetValues(typeof(ErrorCode)))
             {
@@ -274,6 +283,7 @@ class X
                         case ErrorCode.WRN_DisallowNullAttributeForbidsMaybeNullAssignment:
                         case ErrorCode.WRN_NullabilityMismatchInTypeOnOverride:
                         case ErrorCode.WRN_NullabilityMismatchInReturnTypeOnOverride:
+                        case ErrorCode.WRN_NullabilityMismatchInReturnTypeOnPartial:
                         case ErrorCode.WRN_NullabilityMismatchInParameterTypeOnOverride:
                         case ErrorCode.WRN_NullabilityMismatchInParameterTypeOnPartial:
                         case ErrorCode.WRN_NullabilityMismatchInConstraintsOnPartialImplementation:
@@ -322,6 +332,8 @@ class X
                         case ErrorCode.WRN_GeneratorFailedDuringInitialization:
                         case ErrorCode.WRN_GeneratorFailedDuringGeneration:
                         case ErrorCode.WRN_ParameterDisallowsNull:
+                        case ErrorCode.WRN_GivenExpressionAlwaysMatchesPattern:
+                        case ErrorCode.WRN_IsPatternAlways:
                             Assert.Equal(1, ErrorFacts.GetWarningLevel(errorCode));
                             break;
                         case ErrorCode.WRN_InvalidVersionFormat:
@@ -365,7 +377,9 @@ class X
                     ErrorCode.WRN_MissingNonNullTypesContextForAnnotationInGeneratedCode,
                     ErrorCode.WRN_ImplicitCopyInReadOnlyMember,
                     ErrorCode.WRN_GeneratorFailedDuringInitialization,
-                    ErrorCode.WRN_GeneratorFailedDuringGeneration
+                    ErrorCode.WRN_GeneratorFailedDuringGeneration,
+                    ErrorCode.WRN_GivenExpressionAlwaysMatchesPattern,
+                    ErrorCode.WRN_IsPatternAlways,
                 };
 
                 Assert.Contains(error, nullableUnrelatedWarnings);

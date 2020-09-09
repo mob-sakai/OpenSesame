@@ -4,8 +4,6 @@
 
 #nullable enable
 
-using System.Collections.Immutable;
-
 namespace Microsoft.CodeAnalysis
 {
     internal partial class SolutionState

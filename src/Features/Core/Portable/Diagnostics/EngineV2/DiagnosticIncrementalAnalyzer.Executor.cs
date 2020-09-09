@@ -23,11 +23,47 @@ namespace Microsoft.CodeAnalysis.Diagnostics.EngineV2
     internal partial class DiagnosticIncrementalAnalyzer
     {
         /// <summary>
-        /// Return all local diagnostics (syntax, semantic) that belong to given document for the given StateSet (analyzer) either from cache or by calculating them
+        /// Return all cached local diagnostics (syntax, semantic) that belong to given document for the given StateSet (analyzer).
+        /// Also returns empty diagnostics for suppressed analyzer.
+        /// Returns null if the diagnostics need to be computed.
         /// </summary>
-        private async Task<DocumentAnalysisData> GetDocumentAnalysisDataAsync(
-            CompilationWithAnalyzers? compilation, Document document, StateSet stateSet, AnalysisKind kind, CancellationToken cancellationToken)
+        private async Task<DocumentAnalysisData?> TryGetCachedDocumentAnalysisDataAsync(
+            Document document, StateSet stateSet, AnalysisKind kind, CancellationToken cancellationToken)
         {
+            try
+            {
+                var version = await GetDiagnosticVersionAsync(document.Project, cancellationToken).ConfigureAwait(false);
+                var state = stateSet.GetOrCreateActiveFileState(document.Id);
+                var existingData = state.GetAnalysisData(kind);
+
+                if (existingData.Version == version)
+                {
+                    return existingData;
+                }
+
+                // Perf optimization: Check whether analyzer is suppressed and avoid getting diagnostics if suppressed.
+                if (DiagnosticAnalyzerInfoCache.IsAnalyzerSuppressed(stateSet.Analyzer, document.Project))
+                {
+                    return new DocumentAnalysisData(version, existingData.Items, ImmutableArray<DiagnosticData>.Empty);
+                }
+
+                return null;
+            }
+            catch (Exception e) when (FatalError.ReportUnlessCanceled(e))
+            {
+                throw ExceptionUtilities.Unreachable;
+            }
+        }
+
+        /// <summary>
+        /// Computes all local diagnostics (syntax, semantic) that belong to given document for the given StateSet (analyzer).
+        /// </summary>
+        private static async Task<DocumentAnalysisData> ComputeDocumentAnalysisDataAsync(
+            DocumentAnalysisExecutor executor, StateSet stateSet, CancellationToken cancellationToken)
+        {
+            var kind = executor.AnalysisScope.Kind;
+            var document = executor.AnalysisScope.Document;
+
             // get log title and functionId
             GetLogFunctionIdAndTitle(kind, out var functionId, out var title);
 
@@ -35,26 +71,15 @@ namespace Microsoft.CodeAnalysis.Diagnostics.EngineV2
             {
                 try
                 {
-                    var version = await GetDiagnosticVersionAsync(document.Project, cancellationToken).ConfigureAwait(false);
-                    var state = stateSet.GetOrCreateActiveFileState(document.Id);
-                    var existingData = state.GetAnalysisData(kind);
-
-                    if (existingData.Version == version)
-                    {
-                        return existingData;
-                    }
-
-                    // perf optimization. check whether analyzer is suppressed and avoid getting diagnostics if suppressed.
-                    if (DiagnosticAnalyzerInfoCache.IsAnalyzerSuppressed(stateSet.Analyzer, document.Project))
-                    {
-                        return new DocumentAnalysisData(version, existingData.Items, ImmutableArray<DiagnosticData>.Empty);
-                    }
-
-                    var diagnostics = await AnalyzerHelper.ComputeDiagnosticsAsync(stateSet.Analyzer, document, kind, compilation, GetOrCreateSkippedAnalyzersInfo, span: null, cancellationToken).ConfigureAwait(false);
+                    var diagnostics = await executor.ComputeDiagnosticsAsync(stateSet.Analyzer, cancellationToken).ConfigureAwait(false);
 
                     // this is no-op in product. only run in test environment
                     Logger.Log(functionId, (t, d, a, ds) => $"{GetDocumentLogMessage(t, d, a)}, {string.Join(Environment.NewLine, ds)}",
                         title, document, stateSet.Analyzer, diagnostics);
+
+                    var version = await GetDiagnosticVersionAsync(document.Project, cancellationToken).ConfigureAwait(false);
+                    var state = stateSet.GetOrCreateActiveFileState(document.Id);
+                    var existingData = state.GetAnalysisData(kind);
 
                     // we only care about local diagnostics
                     return new DocumentAnalysisData(version, existingData.Items, diagnostics.ToImmutableArrayOrEmpty());
@@ -130,7 +155,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics.EngineV2
             return false;
         }
 
-        private async Task<ImmutableDictionary<DiagnosticAnalyzer, DiagnosticAnalysisResult>> RemoveCompilerSemanticErrorsIfProjectNotLoadedAsync(
+        private static async Task<ImmutableDictionary<DiagnosticAnalyzer, DiagnosticAnalysisResult>> RemoveCompilerSemanticErrorsIfProjectNotLoadedAsync(
             ImmutableDictionary<DiagnosticAnalyzer, DiagnosticAnalysisResult> result, Project project, CancellationToken cancellationToken)
         {
             // see whether solution is loaded successfully
@@ -140,7 +165,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics.EngineV2
                 return result;
             }
 
-            var compilerAnalyzer = HostAnalyzers.GetCompilerDiagnosticAnalyzer(project.Language);
+            var compilerAnalyzer = project.Solution.State.Analyzers.GetCompilerDiagnosticAnalyzer(project.Language);
             if (compilerAnalyzer == null)
             {
                 // this language doesn't support compiler analyzer
@@ -176,7 +201,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics.EngineV2
                 if (compilation != null && compilation.Analyzers.Length != 0)
                 {
                     // calculate regular diagnostic analyzers diagnostics
-                    var resultMap = await _diagnosticAnalyzerRunner.AnalyzeAsync(compilation, project, GetOrCreateSkippedAnalyzersInfo, forcedAnalysis, cancellationToken).ConfigureAwait(false);
+                    var resultMap = await _diagnosticAnalyzerRunner.AnalyzeAsync(compilation, project, forcedAnalysis, cancellationToken).ConfigureAwait(false);
 
                     result = resultMap.AnalysisResult;
 
@@ -192,9 +217,6 @@ namespace Microsoft.CodeAnalysis.Diagnostics.EngineV2
                 throw ExceptionUtilities.Unreachable;
             }
         }
-
-        private ISkippedAnalyzersInfo GetOrCreateSkippedAnalyzersInfo(Project project)
-            => DiagnosticAnalyzerInfoCache.GetOrCreateSkippedAnalyzersInfo(project, HostAnalyzers);
 
         private async Task<ImmutableDictionary<DiagnosticAnalyzer, DiagnosticAnalysisResult>> ComputeDiagnosticsAsync(
             CompilationWithAnalyzers? compilation, Project project, IEnumerable<StateSet> stateSets, bool forcedAnalysis,
@@ -231,7 +253,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics.EngineV2
             }
         }
 
-        private ImmutableDictionary<DiagnosticAnalyzer, DiagnosticAnalysisResult> MergeExistingDiagnostics(
+        private static ImmutableDictionary<DiagnosticAnalyzer, DiagnosticAnalysisResult> MergeExistingDiagnostics(
             VersionStamp version, ImmutableDictionary<DiagnosticAnalyzer, DiagnosticAnalysisResult> existing, ImmutableDictionary<DiagnosticAnalyzer, DiagnosticAnalysisResult> result)
         {
             // quick bail out.
@@ -253,7 +275,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics.EngineV2
             return result;
         }
 
-        private bool TryReduceAnalyzersToRun(
+        private static bool TryReduceAnalyzersToRun(
             CompilationWithAnalyzers compilation, Project project, VersionStamp version,
             ImmutableDictionary<DiagnosticAnalyzer, DiagnosticAnalysisResult> existing,
             out ImmutableArray<DiagnosticAnalyzer> analyzers)
@@ -289,7 +311,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics.EngineV2
             return true;
         }
 
-        private async Task<ImmutableDictionary<DiagnosticAnalyzer, DiagnosticAnalysisResult>> MergeProjectDiagnosticAnalyzerDiagnosticsAsync(
+        private static async Task<ImmutableDictionary<DiagnosticAnalyzer, DiagnosticAnalysisResult>> MergeProjectDiagnosticAnalyzerDiagnosticsAsync(
             Project project,
             ImmutableArray<DiagnosticAnalyzer> ideAnalyzers,
             Compilation? compilation,
@@ -350,7 +372,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics.EngineV2
             }
         }
 
-        private async Task<(DiagnosticAnalysisResult loadDiagnostics, ImmutableHashSet<Document>? failedDocuments)> GetDocumentLoadFailuresAsync(Project project, VersionStamp version, CancellationToken cancellationToken)
+        private static async Task<(DiagnosticAnalysisResult loadDiagnostics, ImmutableHashSet<Document>? failedDocuments)> GetDocumentLoadFailuresAsync(Project project, VersionStamp version, CancellationToken cancellationToken)
         {
             ImmutableHashSet<Document>.Builder? failedDocuments = null;
             ImmutableDictionary<DocumentId, ImmutableArray<DiagnosticData>>.Builder? lazyLoadDiagnostics = null;
@@ -384,7 +406,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics.EngineV2
         {
             foreach (var (analyzer, telemetryInfo) in telemetry)
             {
-                bool isTelemetryCollectionAllowed = DiagnosticAnalyzerInfoCache.IsTelemetryCollectionAllowed(analyzer);
+                var isTelemetryCollectionAllowed = DiagnosticAnalyzerInfoCache.IsTelemetryCollectionAllowed(analyzer);
                 _telemetry.UpdateAnalyzerActionsTelemetry(analyzer, telemetryInfo, isTelemetryCollectionAllowed);
             }
         }

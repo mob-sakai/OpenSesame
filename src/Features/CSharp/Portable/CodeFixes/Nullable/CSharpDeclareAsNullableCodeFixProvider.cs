@@ -43,7 +43,8 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeFixes.DeclareAsNullable
         // warning CS8603: Possible null reference return.
         // warning CS8600: Converting null literal or possible null value to non-nullable type.
         // warning CS8625: Cannot convert null literal to non-nullable reference type.
-        public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create("CS8603", "CS8600", "CS8625");
+        // warning CS8618: Non-nullable property is uninitialized
+        public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create("CS8603", "CS8600", "CS8625", "CS8618");
 
         internal sealed override CodeFixCategory CodeFixCategory => CodeFixCategory.Compile;
 
@@ -76,7 +77,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeFixes.DeclareAsNullable
                 context.Diagnostics);
         }
 
-        private string GetEquivalenceKey(SyntaxNode node, SemanticModel model)
+        private static string GetEquivalenceKey(SyntaxNode node, SemanticModel model)
         {
             return IsRemoteApiUsage(node, model) ? AssigningNullLiteralRemotelyEquivalenceKey :
                 node.IsKind(SyntaxKind.ConditionalAccessExpression) ? ConditionalOperatorEquivalenceKey :
@@ -272,6 +273,21 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeFixes.DeclareAsNullable
                 return propertyDeclaration.Type;
             }
 
+            // string x { get; }
+            // Unassigned value that's not marked as null
+            if (node is PropertyDeclarationSyntax propertyDeclarationSyntax)
+            {
+                return propertyDeclarationSyntax.Type;
+            }
+
+            // string x;
+            // Unassigned value that's not marked as null
+            if (node is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Parent: FieldDeclarationSyntax _ } declarationSyntax } &&
+                declarationSyntax.Variables.Count == 1)
+            {
+                return declarationSyntax.Type;
+            }
+
             // void M(string x = null) { }
             if (node.Parent.IsParentKind(SyntaxKind.Parameter, out ParameterSyntax? optionalParameter))
             {
@@ -324,7 +340,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeFixes.DeclareAsNullable
             static TypeSyntax? TryGetParameterTypeSyntax(IParameterSymbol? parameterSymbol)
             {
                 if (parameterSymbol is object &&
-                    parameterSymbol.DeclaringSyntaxReferences[0].GetSyntax() is ParameterSyntax parameterSyntax &&
+                    parameterSymbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() is ParameterSyntax parameterSyntax &&
                     parameterSymbol.ContainingSymbol is IMethodSymbol method &&
                     method.GetAllMethodSymbolsOfPartialParts().Length == 1)
                 {
@@ -342,7 +358,9 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeFixes.DeclareAsNullable
                 SyntaxKind.DefaultExpression,
                 SyntaxKind.DefaultLiteralExpression,
                 SyntaxKind.ConditionalExpression,
-                SyntaxKind.ConditionalAccessExpression);
+                SyntaxKind.ConditionalAccessExpression,
+                SyntaxKind.PropertyDeclaration,
+                SyntaxKind.VariableDeclarator);
         }
 
         private class MyCodeAction : CodeAction.DocumentChangeAction

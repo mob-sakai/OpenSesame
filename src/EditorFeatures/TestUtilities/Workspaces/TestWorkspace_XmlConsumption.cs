@@ -19,6 +19,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Editor.UnitTests.Extensions;
 using Microsoft.CodeAnalysis.Host;
 using Microsoft.CodeAnalysis.Test.Utilities;
+using Microsoft.CodeAnalysis.Testing;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.UnitTests;
 using Microsoft.CodeAnalysis.VisualBasic;
@@ -465,7 +466,13 @@ namespace Microsoft.CodeAnalysis.Editor.UnitTests.Workspaces
 
         private static string GetLanguage(TestWorkspace workspace, XElement projectElement)
         {
-            var languageName = projectElement.Attribute(LanguageAttributeName).Value;
+            var languageAttribute = projectElement.Attribute(LanguageAttributeName);
+            if (languageAttribute == null)
+            {
+                throw new ArgumentException($"{projectElement} is missing a {LanguageAttributeName} attribute.");
+            }
+
+            var languageName = languageAttribute.Value;
 
             if (!workspace.Services.SupportedLanguages.Contains(languageName))
             {
@@ -735,8 +742,8 @@ namespace Microsoft.CodeAnalysis.Editor.UnitTests.Workspaces
             var contentTypeLanguageService = languageServiceProvider.GetService<IContentTypeLanguageService>();
             var contentType = contentTypeLanguageService.GetDefaultContentType();
 
-            MarkupTestFile.GetPositionAndSpans(markupCode,
-                out var code, out var cursorPosition, out IDictionary<string, ImmutableArray<TextSpan>> spans);
+            TestFileMarkupParser.GetPositionAndSpans(markupCode,
+                out var code, out int? cursorPosition, out ImmutableDictionary<string, ImmutableArray<TextSpan>> spans);
 
             var testDocumentServiceProvider = GetDocumentServiceProvider(documentElement);
 

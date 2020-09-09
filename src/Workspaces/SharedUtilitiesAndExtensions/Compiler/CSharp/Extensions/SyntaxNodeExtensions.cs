@@ -27,13 +27,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Extensions
         {
             if (node.IsKind(kind))
             {
-#if !CODE_STYLE
                 result = (TNode)node;
-#else
-                // The CodeStyle layer is referencing an older, unannotated version of Roslyn which doesn't know that IsKind guarantees the non-nullness
-                // of node. So we have to silence it here.
-                result = (TNode)node!;
-#endif
                 return true;
             }
 
@@ -132,6 +126,17 @@ namespace Microsoft.CodeAnalysis.CSharp.Extensions
             return csharpKind == kind1 || csharpKind == kind2 || csharpKind == kind3 || csharpKind == kind4 || csharpKind == kind5 || csharpKind == kind6 || csharpKind == kind7;
         }
 
+        public static bool IsKind([NotNullWhen(returnValue: true)] this SyntaxNode? node, SyntaxKind kind1, SyntaxKind kind2, SyntaxKind kind3, SyntaxKind kind4, SyntaxKind kind5, SyntaxKind kind6, SyntaxKind kind7, SyntaxKind kind8)
+        {
+            if (node == null)
+            {
+                return false;
+            }
+
+            var csharpKind = node.Kind();
+            return csharpKind == kind1 || csharpKind == kind2 || csharpKind == kind3 || csharpKind == kind4 || csharpKind == kind5 || csharpKind == kind6 || csharpKind == kind7 || csharpKind == kind8;
+        }
+
         public static bool IsKind([NotNullWhen(returnValue: true)] this SyntaxNode? node, SyntaxKind kind1, SyntaxKind kind2, SyntaxKind kind3, SyntaxKind kind4, SyntaxKind kind5, SyntaxKind kind6, SyntaxKind kind7, SyntaxKind kind8, SyntaxKind kind9, SyntaxKind kind10, SyntaxKind kind11)
         {
             if (node == null)
@@ -203,6 +208,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Extensions
                     return (switchExpression.OpenBraceToken, switchExpression.CloseBraceToken);
                 case PropertyPatternClauseSyntax property:
                     return (property.OpenBraceToken, property.CloseBraceToken);
+#if !CODE_STYLE
+                case WithExpressionSyntax withExpr:
+                    return (withExpr.Initializer.OpenBraceToken, withExpr.Initializer.CloseBraceToken);
+#endif
             }
 
             return default;
@@ -528,7 +537,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Extensions
             }
 
             var rewriter = new SingleLineRewriter(useElasticTrivia);
-            return (TNode)rewriter.Visit(node);
+            return (TNode?)rewriter.Visit(node);
         }
 
         /// <summary>
@@ -889,7 +898,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Extensions
                         break;
                     }
 
-                case GlobalStatementSyntax global:
+                case GlobalStatementSyntax _:
                     return true;
                 case ConstructorInitializerSyntax constructorInitializer:
                     return constructorInitializer.ContainsInArgument(span);
@@ -1025,6 +1034,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Extensions
             deconstructionLeft = null;
             return false;
         }
+
+        public static bool IsTopLevelOfUsingAliasDirective(this SyntaxToken node)
+            => node switch
+            {
+                { Parent: NameEqualsSyntax { Parent: UsingDirectiveSyntax _ } } => true,
+                { Parent: IdentifierNameSyntax { Parent: UsingDirectiveSyntax _ } } => true,
+                _ => false
+            };
 
         public static T WithCommentsFrom<T>(this T node, SyntaxToken leadingToken, SyntaxToken trailingToken)
             where T : SyntaxNode

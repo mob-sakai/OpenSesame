@@ -112,11 +112,6 @@
         <target state="translated">不支援移除文件</target>
         <note />
       </trans-unit>
-      <trans-unit id="Rename_file">
-        <source>Rename _file</source>
-        <target state="translated">重新命名檔案(_F)</target>
-        <note />
-      </trans-unit>
       <trans-unit id="Rename_file_name_doesnt_match">
         <source>Rename _file (type does not match file name)</source>
         <target state="translated">重新命名檔案 (類型不符合檔案名稱)(_F)</target>
@@ -126,6 +121,11 @@
         <source>Rename _file (not allowed on partial types)</source>
         <target state="translated">重新命名檔案 (在部分類型上不允許)(_F)</target>
         <note>Disabled text status for file rename</note>
+      </trans-unit>
+      <trans-unit id="Rename_symbols_file">
+        <source>Rename symbol's _file</source>
+        <target state="translated">為符號的檔案重新命名(_F)</target>
+        <note>Indicates that the file a symbol is defined in will also be renamed</note>
       </trans-unit>
       <trans-unit id="String_Escape_Character">
         <source>String - Escape Character</source>
@@ -487,11 +487,6 @@
         <target state="translated">指定的工作區不支援復原</target>
         <note />
       </trans-unit>
-      <trans-unit id="Document_must_be_contained_in_the_workspace_that_created_this_service">
-        <source>Document must be contained in the workspace that created this service</source>
-        <target state="translated">文件必須包含在此服務所建立的工作區中</target>
-        <note />
-      </trans-unit>
       <trans-unit id="Searching">
         <source>Searching...</source>
         <target state="translated">正在搜尋...</target>
@@ -655,11 +650,6 @@
       <trans-unit id="external">
         <source>(external)</source>
         <target state="translated">(外部)</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="from_metadata">
-        <source>from metadata</source>
-        <target state="translated">來自中繼資料</target>
         <note />
       </trans-unit>
       <trans-unit id="Automatic_Line_Ender">
@@ -1009,17 +999,12 @@
       </trans-unit>
       <trans-unit id="Loading_Peek_information">
         <source>Loading Peek information...</source>
-        <target state="translated">正在載入查看資訊...</target>
+        <target state="translated">正在載入瞄核資訊...</target>
         <note />
       </trans-unit>
       <trans-unit id="Peek">
         <source>Peek</source>
-        <target state="translated">查看</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="symbol_cannot_be_a_namespace">
-        <source>'symbol' cannot be a namespace.</source>
-        <target state="translated">'symbol' 不可為命名空間。</target>
+        <target state="translated">瞄核</target>
         <note />
       </trans-unit>
       <trans-unit id="Apply1">

@@ -4,13 +4,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.DocumentHighlighting;
 using Microsoft.CodeAnalysis.NavigateTo;
 using Microsoft.CodeAnalysis.Tags;
 using Microsoft.CodeAnalysis.Text;
+using Microsoft.VisualStudio.LanguageServer.Protocol;
 using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Utilities;
 using Roslyn.Utilities;
@@ -61,21 +61,11 @@ namespace Microsoft.CodeAnalysis.LanguageServer
             { WellKnownTags.NuGet, LSP.CompletionItemKind.Text }
         };
 
-        /// <summary>
-        /// Workaround for razor file paths being provided with a preceding slash on windows.
-        /// Long term fix in razor here - https://github.com/dotnet/aspnetcore/issues/19948
-        /// </summary>
         public static Uri GetUriFromFilePath(string filePath)
         {
             if (filePath is null)
             {
                 throw new ArgumentNullException(nameof(filePath));
-            }
-
-            // Remove preceding slash if we're on Window as it's an invalid URI.
-            if (filePath.StartsWith("/") && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                filePath = filePath.Substring(1);
             }
 
             return new Uri(filePath, UriKind.Absolute);
@@ -453,6 +443,20 @@ namespace Microsoft.CodeAnalysis.LanguageServer
             }
 
             return referenceKinds.ToArrayAndFree();
+        }
+
+        public static string ProjectIdToProjectContextId(ProjectId id)
+        {
+            return id.Id + "|" + id.DebugName;
+        }
+
+        public static ProjectId ProjectContextToProjectId(ProjectContext projectContext)
+        {
+            var delimiter = projectContext.Id.IndexOf('|');
+
+            return ProjectId.CreateFromSerialized(
+                Guid.Parse(projectContext.Id.Substring(0, delimiter)),
+                debugName: projectContext.Id.Substring(delimiter + 1));
         }
     }
 }

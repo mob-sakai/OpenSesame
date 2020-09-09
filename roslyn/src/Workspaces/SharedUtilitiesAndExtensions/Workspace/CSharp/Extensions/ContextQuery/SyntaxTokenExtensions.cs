@@ -5,7 +5,6 @@
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Symbols;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Shared.Extensions;
 
@@ -459,7 +458,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery
                     return true;
                 }
             }
-
 
             if (targetToken.Kind() == SyntaxKind.OpenParenToken ||
                 targetToken.Kind() == SyntaxKind.CommaToken)

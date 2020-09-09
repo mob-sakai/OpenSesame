@@ -7,7 +7,6 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Shared.Extensions;
 
@@ -26,12 +25,14 @@ namespace Microsoft.CodeAnalysis.CodeGeneration
         public INamedTypeSymbol ContainingType { get; protected set; }
 
         protected CodeGenerationSymbol(
+            IAssemblySymbol containingAssembly,
             INamedTypeSymbol containingType,
             ImmutableArray<AttributeData> attributes,
             Accessibility declaredAccessibility,
             DeclarationModifiers modifiers,
             string name)
         {
+            this.ContainingAssembly = containingAssembly;
             this.ContainingType = containingType;
             _attributes = attributes.NullToEmpty();
             this.DeclaredAccessibility = declaredAccessibility;
@@ -54,7 +55,7 @@ namespace Microsoft.CodeAnalysis.CodeGeneration
                 : AddAnnotationsTo(this, this.Clone(), annotations);
         }
 
-        private CodeGenerationSymbol AddAnnotationsTo(
+        private static CodeGenerationSymbol AddAnnotationsTo(
             CodeGenerationSymbol originalDefinition, CodeGenerationSymbol newDefinition, SyntaxAnnotation[] annotations)
         {
             annotationsTable.TryGetValue(originalDefinition, out var originalAnnotations);
@@ -71,9 +72,9 @@ namespace Microsoft.CodeAnalysis.CodeGeneration
 
         public virtual ISymbol ContainingSymbol => null;
 
-        public IAssemblySymbol ContainingAssembly => null;
+        public IAssemblySymbol ContainingAssembly { get; }
 
-        public IMethodSymbol ContainingMethod => null;
+        public static IMethodSymbol ContainingMethod => null;
 
         public IModuleSymbol ContainingModule => null;
 
@@ -135,7 +136,7 @@ namespace Microsoft.CodeAnalysis.CodeGeneration
             }
         }
 
-        public ImmutableArray<SyntaxNode> DeclaringSyntaxNodes
+        public static ImmutableArray<SyntaxNode> DeclaringSyntaxNodes
         {
             get
             {

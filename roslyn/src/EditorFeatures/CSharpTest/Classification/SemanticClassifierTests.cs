@@ -1186,7 +1186,6 @@ class C
                 Class("C"));
         }
 
-
         [Fact, Trait(Traits.Feature, Traits.Features.Classification)]
         public async Task TypesOfClassMembers()
         {
@@ -3878,6 +3877,90 @@ class X
             Delegate("Func"),
             Keyword("_"),
             Keyword("_"));
+        }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.Classification)]
+        public async Task NativeInteger()
+        {
+            await TestInMethodAsync(
+                code: @"nint i = 0; nuint i2 = 0;",
+                expected: Classifications(Keyword("nint"), Keyword("nuint")));
+        }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.Classification)]
+        public async Task NotNativeInteger()
+        {
+            await TestInMethodAsync("nint", "M",
+                code: @"nint i = 0;",
+                expected: Classifications(Class("nint")));
+        }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.Classification)]
+        public async Task NotNativeUnsignedInteger()
+        {
+            await TestInMethodAsync("nuint", "M",
+                code: @"nuint i = 0;",
+                expected: Classifications(Class("nuint")));
+        }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.Classification)]
+        public async Task StaticBoldingMethodName()
+        {
+            await TestAsync(
+@"class C
+{
+    public static void Method()
+    {
+        System.Action action = Method;
+    }
+}",
+            Namespace("System"),
+            Delegate("Action"),
+            Method("Method"),
+            Static("Method"));
+        }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.Classification)]
+        public async Task StaticBoldingMethodNameNestedInNameof()
+        {
+            await TestAsync(
+@"class C
+{
+    public static void Method()
+    {
+        _ = nameof(Method);
+    }
+}",
+            Keyword("_"),
+            Keyword("nameof"),
+            Static("Method"),
+            Method("Method"));
+        }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.Classification)]
+        public async Task BoldingMethodNameStaticAndNot()
+        {
+            await TestAsync(
+    @"class C
+{
+    public static void Method()
+    {
+        
+    }
+
+    public void Method(int x) 
+    {
+
+    }
+
+    public void Test() {
+        _ = nameof(Method);
+    }
+}",
+            Keyword("_"),
+            Keyword("nameof"),
+            Static("Method"),
+            Method("Method"));
         }
     }
 }

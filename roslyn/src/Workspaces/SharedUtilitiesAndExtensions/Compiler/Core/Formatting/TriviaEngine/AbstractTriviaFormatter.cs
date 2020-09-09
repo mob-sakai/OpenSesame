@@ -2,10 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+#nullable enable
+
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -124,7 +126,7 @@ namespace Microsoft.CodeAnalysis.Formatting
         /// <summary>
         /// check whether given string is either null or whitespace
         /// </summary>
-        protected bool IsNullOrWhitespace(string text)
+        protected bool IsNullOrWhitespace([NotNullWhen(true)] string? text)
         {
             if (text == null)
             {
@@ -245,7 +247,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             return new SyntaxTriviaList(triviaList);
         }
 
-        private void AddRange(ArrayBuilder<SyntaxTrivia> result, SyntaxTriviaList triviaList)
+        private static void AddRange(ArrayBuilder<SyntaxTrivia> result, SyntaxTriviaList triviaList)
         {
             foreach (var trivia in triviaList)
                 result.Add(trivia);
@@ -408,8 +410,7 @@ namespace Microsoft.CodeAnalysis.Formatting
                 return defaultRule;
             }
 
-            if (spaceOperation != null &&
-                spaceOperation.Option == AdjustSpacesOption.DefaultSpacesIfOnSingleLine &&
+            if (spaceOperation.Option == AdjustSpacesOption.DefaultSpacesIfOnSingleLine &&
                 spaceOperation.Space == 1)
             {
                 return defaultRule;
@@ -431,7 +432,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             }
             else if (trivia1.HasStructure)
             {
-                var lastToken = trivia1.GetStructure().GetLastToken(includeZeroWidth: true);
+                var lastToken = trivia1.GetStructure()!.GetLastToken(includeZeroWidth: true);
                 if (ContainsOnlyWhitespace(lastToken.Span.End, lastToken.FullSpan.End))
                 {
                     token1 = lastToken;
@@ -445,7 +446,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             }
             else if (trivia2.HasStructure)
             {
-                var firstToken = trivia2.GetStructure().GetFirstToken(includeZeroWidth: true);
+                var firstToken = trivia2.GetStructure()!.GetFirstToken(includeZeroWidth: true);
                 if (ContainsOnlyWhitespace(firstToken.FullSpan.Start, firstToken.SpanStart))
                 {
                     token2 = firstToken;
@@ -514,7 +515,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             }
 
             var lines = GetRuleLines(rule, lineColumnAfterTrivia1, existingWhitespaceBetween);
-            var spaceOrIndentations = GetRuleSpacesOrIndentation(lineColumnBeforeTrivia1, trivia1, lineColumnAfterTrivia1, existingWhitespaceBetween, trivia2, rule);
+            var spaceOrIndentations = GetRuleSpacesOrIndentation(lineColumnBeforeTrivia1, lineColumnAfterTrivia1, existingWhitespaceBetween, trivia2, rule);
 
             return new LineColumnDelta(
                 lines,
@@ -524,7 +525,7 @@ namespace Microsoft.CodeAnalysis.Formatting
         }
 
         private int GetRuleSpacesOrIndentation(
-            LineColumn lineColumnBeforeTrivia1, SyntaxTrivia trivia1, LineColumn lineColumnAfterTrivia1, LineColumnDelta existingWhitespaceBetween, SyntaxTrivia trivia2, LineColumnRule rule)
+            LineColumn lineColumnBeforeTrivia1, LineColumn lineColumnAfterTrivia1, LineColumnDelta existingWhitespaceBetween, SyntaxTrivia trivia2, LineColumnRule rule)
         {
             var lineColumnAfterExistingWhitespace = lineColumnAfterTrivia1.With(existingWhitespaceBetween);
 
@@ -551,7 +552,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             };
         }
 
-        private int GetRuleLines(LineColumnRule rule, LineColumn lineColumnAfterTrivia1, LineColumnDelta existingWhitespaceBetween)
+        private static int GetRuleLines(LineColumnRule rule, LineColumn lineColumnAfterTrivia1, LineColumnDelta existingWhitespaceBetween)
         {
             var adjustedRuleLines = Math.Max(0, rule.Lines - GetTrailingLinesAtEndOfTrivia1(lineColumnAfterTrivia1));
 
@@ -580,7 +581,7 @@ namespace Microsoft.CodeAnalysis.Formatting
         /// this is based on our structured trivia's implementation detail that some structured trivia can have
         /// one new line at the end of the trivia
         /// </summary>
-        private int GetTrailingLinesAtEndOfTrivia1(LineColumn lineColumnAfterTrivia1)
+        private static int GetTrailingLinesAtEndOfTrivia1(LineColumn lineColumnAfterTrivia1)
             => (lineColumnAfterTrivia1.Column == 0 && lineColumnAfterTrivia1.Line > 0) ? 1 : 0;
 
         private void AddExtraLines(int linesBetweenTokens, ArrayBuilder<SyntaxTrivia> changes)
@@ -651,7 +652,7 @@ namespace Microsoft.CodeAnalysis.Formatting
             if (TryGetMatchingChangeIndex(changes, out var index))
             {
                 // already change exist at same position that contains only whitespace
-                var delta = GetLineColumnDelta(0, changes[index].NewText);
+                var delta = GetLineColumnDelta(0, changes[index].NewText ?? "");
 
                 changes[index] = GetWhitespaceTextChange(
                     LineColumn.Default,

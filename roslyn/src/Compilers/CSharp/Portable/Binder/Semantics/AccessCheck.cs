@@ -47,7 +47,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         /// <summary>
         /// Checks if 'symbol' is accessible from within type 'within', with
-        /// an qualifier of type "throughTypeOpt". Sets "failedThroughTypeCheck" to true
+        /// a qualifier of type "throughTypeOpt". Sets "failedThroughTypeCheck" to true
         /// if it failed the "through type" check.
         /// </summary>
         public static bool IsSymbolAccessible(
@@ -168,6 +168,23 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SymbolKind.Discard:
                     return IsSymbolAccessibleCore(((DiscardSymbol)symbol).TypeWithAnnotations.Type, within, null, out failedThroughTypeCheck, compilation, ref useSiteDiagnostics, basesBeingResolved);
 
+                case SymbolKind.FunctionPointerType:
+                    var funcPtr = (FunctionPointerTypeSymbol)symbol;
+                    if (!IsSymbolAccessibleCore(funcPtr.Signature.ReturnType, within, throughTypeOpt: null, out failedThroughTypeCheck, compilation, ref useSiteDiagnostics, basesBeingResolved))
+                    {
+                        return false;
+                    }
+
+                    foreach (var param in funcPtr.Signature.Parameters)
+                    {
+                        if (!IsSymbolAccessibleCore(param.Type, within, throughTypeOpt: null, out failedThroughTypeCheck, compilation, ref useSiteDiagnostics, basesBeingResolved))
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+
                 case SymbolKind.ErrorType:
                     // Always assume that error types are accessible.
                     return true;
@@ -181,6 +198,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SymbolKind.Assembly:
                 case SymbolKind.NetModule:
                 case SymbolKind.RangeVariable:
+                case SymbolKind.Method when ((MethodSymbol)symbol).MethodKind == MethodKind.LocalFunction:
                     // These types of symbols are always accessible (if visible).
                     return true;
 

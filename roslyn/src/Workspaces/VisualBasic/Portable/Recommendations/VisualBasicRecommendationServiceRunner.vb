@@ -8,7 +8,6 @@ Imports System.Threading
 Imports Microsoft.CodeAnalysis
 Imports Microsoft.CodeAnalysis.Recommendations
 Imports Microsoft.CodeAnalysis.VisualBasic.Extensions.ContextQuery
-Imports Microsoft.CodeAnalysis.VisualBasic.Symbols
 Imports Microsoft.CodeAnalysis.VisualBasic.Syntax
 
 Namespace Microsoft.CodeAnalysis.VisualBasic.Recommendations
@@ -142,7 +141,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Recommendations
             Return symbols.WhereAsArray(Function(s) FilterEventsAndGeneratedSymbols(Nothing, s))
         End Function
 
-        Private Function IsInEligibleDelegate(s As ISymbol) As Boolean
+        Private Shared Function IsInEligibleDelegate(s As ISymbol) As Boolean
             If s.IsDelegateType() Then
                 Dim typeSymbol = DirectCast(s, ITypeSymbol)
                 Return typeSymbol.SpecialType <> SpecialType.System_Delegate

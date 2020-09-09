@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+#nullable enable
+
 using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -86,7 +88,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
             return new ComplexTrivia(this.Options, this.TreeInfo, token1, token2);
         }
 
-        private bool ContainsOnlyWhitespace(Analyzer.AnalysisResult result)
+        private static bool ContainsOnlyWhitespace(Analyzer.AnalysisResult result)
         {
             return
                 !result.HasComments &&
@@ -96,7 +98,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
                 !result.HasConflictMarker;
         }
 
-        private TriviaData GetWhitespaceOnlyTriviaInfo(SyntaxToken token1, SyntaxToken token2, Analyzer.AnalysisResult result)
+        private TriviaData? GetWhitespaceOnlyTriviaInfo(SyntaxToken token1, SyntaxToken token2, Analyzer.AnalysisResult result)
         {
             if (!ContainsOnlyWhitespace(result))
             {
@@ -181,7 +183,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
             return (canUseTriviaAsItIs: true, result.LineBreaks, indentation);
         }
 
-        private int GetSpaceOnSingleLine(Analyzer.AnalysisResult result)
+        private static int GetSpaceOnSingleLine(Analyzer.AnalysisResult result)
         {
             if (result.HasTrailingSpace || result.HasUnknownWhitespace || result.LineBreaks > 0 || result.Tab > 0)
             {

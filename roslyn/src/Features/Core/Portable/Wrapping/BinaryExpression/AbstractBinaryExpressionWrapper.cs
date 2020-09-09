@@ -3,11 +3,14 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.LanguageServices;
 using Microsoft.CodeAnalysis.PooledObjects;
+
+#if DEBUG
+using System.Diagnostics;
+#endif
 
 namespace Microsoft.CodeAnalysis.Wrapping.BinaryExpression
 {
@@ -96,9 +99,9 @@ namespace Microsoft.CodeAnalysis.Wrapping.BinaryExpression
         private ImmutableArray<SyntaxNodeOrToken> GetExpressionsAndOperators(
             PrecedenceKind precedence, TBinaryExpressionSyntax binaryExpr)
         {
-            var result = ArrayBuilder<SyntaxNodeOrToken>.GetInstance();
+            using var _ = ArrayBuilder<SyntaxNodeOrToken>.GetInstance(out var result);
             AddExpressionsAndOperators(precedence, binaryExpr, result);
-            return result.ToImmutableAndFree();
+            return result.ToImmutable();
         }
 
         private void AddExpressionsAndOperators(

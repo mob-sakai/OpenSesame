@@ -35,9 +35,9 @@ namespace Microsoft.CodeAnalysis.CSharp
         protected override string RegularFileExtension { get { return ".cs"; } }
         protected override string ScriptFileExtension { get { return ".csx"; } }
 
-        internal sealed override CommandLineArguments CommonParse(IEnumerable<string> args, string baseDirectory, string? sdkDirectoryOpt, string additionalReferenceDirectories)
+        internal sealed override CommandLineArguments CommonParse(IEnumerable<string> args, string baseDirectory, string? sdkDirectory, string? additionalReferenceDirectories)
         {
-            return Parse(args, baseDirectory, sdkDirectoryOpt, additionalReferenceDirectories);
+            return Parse(args, baseDirectory, sdkDirectory, additionalReferenceDirectories);
         }
 
         /// <summary>
@@ -189,6 +189,28 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     case "version":
                         displayVersion = true;
+                        continue;
+
+                    case "langversion":
+                        value = RemoveQuotesAndSlashes(value);
+                        if (RoslynString.IsNullOrEmpty(value))
+                        {
+                            AddDiagnostic(diagnostics, ErrorCode.ERR_SwitchNeedsString, MessageID.IDS_Text.Localize(), "/langversion:");
+                        }
+                        else if (value.StartsWith("0", StringComparison.Ordinal))
+                        {
+                            // This error was added in 7.1 to stop parsing versions as ints (behaviour in previous Roslyn compilers), and explicitly
+                            // treat them as identifiers (behaviour in native compiler). This error helps users identify that breaking change.
+                            AddDiagnostic(diagnostics, ErrorCode.ERR_LanguageVersionCannotHaveLeadingZeroes, value);
+                        }
+                        else if (value == "?")
+                        {
+                            displayLangVersions = true;
+                        }
+                        else if (!LanguageVersionFacts.TryParse(value, out languageVersion))
+                        {
+                            AddDiagnostic(diagnostics, ErrorCode.ERR_BadCompatMode, value);
+                        }
                         continue;
 
                     case "r":
@@ -915,28 +937,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                             allowUnsafe = false;
                             continue;
 
-                        case "langversion":
-                            value = RemoveQuotesAndSlashes(value);
-                            if (RoslynString.IsNullOrEmpty(value))
-                            {
-                                AddDiagnostic(diagnostics, ErrorCode.ERR_SwitchNeedsString, MessageID.IDS_Text.Localize(), "/langversion:");
-                            }
-                            else if (value.StartsWith("0", StringComparison.Ordinal))
-                            {
-                                // This error was added in 7.1 to stop parsing versions as ints (behaviour in previous Roslyn compilers), and explicitly
-                                // treat them as identifiers (behaviour in native compiler). This error helps users identify that breaking change.
-                                AddDiagnostic(diagnostics, ErrorCode.ERR_LanguageVersionCannotHaveLeadingZeroes, value);
-                            }
-                            else if (value == "?")
-                            {
-                                displayLangVersions = true;
-                            }
-                            else if (!LanguageVersionFacts.TryParse(value, out languageVersion))
-                            {
-                                AddDiagnostic(diagnostics, ErrorCode.ERR_BadCompatMode, value);
-                            }
-                            continue;
-
                         case "delaysign":
                         case "delaysign+":
                             if (value != null)
@@ -1441,7 +1441,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 runtimeMetadataVersion: runtimeMetadataVersion,
                 instrumentationKinds: instrumentationKinds.ToImmutableAndFree(),
                 // TODO: set from /checksumalgorithm (see https://github.com/dotnet/roslyn/issues/24735)
-                pdbChecksumAlgorithm: HashAlgorithmName.SHA256
+                pdbChecksumAlgorithm: HashAlgorithmName.SHA256,
+                defaultSourceFileEncoding: codepage
             );
 
             // add option incompatibility errors if any

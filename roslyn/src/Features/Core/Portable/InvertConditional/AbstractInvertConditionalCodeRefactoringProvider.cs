@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.Editing;
-using Microsoft.CodeAnalysis.LanguageServices;
 using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.CodeAnalysis.Text;
 
@@ -40,7 +39,7 @@ namespace Microsoft.CodeAnalysis.InvertConditional
             Document document, TextSpan span, CancellationToken cancellationToken)
             => await document.TryGetRelevantNodeAsync<TConditionalExpressionSyntax>(span, cancellationToken).ConfigureAwait(false);
 
-        private async Task<Document> InvertConditionalAsync(
+        private static async Task<Document> InvertConditionalAsync(
             Document document, TextSpan span, CancellationToken cancellationToken)
         {
             var conditional = await FindConditionalAsync(document, span, cancellationToken).ConfigureAwait(false);

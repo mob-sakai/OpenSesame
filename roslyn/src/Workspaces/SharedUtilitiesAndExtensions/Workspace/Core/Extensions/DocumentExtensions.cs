@@ -6,8 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +15,11 @@ using Microsoft.CodeAnalysis.LanguageServices;
 using Microsoft.CodeAnalysis.SemanticModelWorkspaceService;
 using Microsoft.CodeAnalysis.Text;
 using Roslyn.Utilities;
+
+#if DEBUG
+using System.Collections.Immutable;
+using System.Diagnostics;
+#endif
 
 namespace Microsoft.CodeAnalysis.Shared.Extensions
 {
@@ -54,7 +57,6 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             return root ?? throw new InvalidOperationException(string.Format(WorkspaceExtensionsResources.SyntaxTree_is_required_to_accomplish_the_task_but_is_not_supported_by_document_0, document.Name));
         }
-
 
         public static bool IsOpen(this Document document)
         {
@@ -175,17 +177,11 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
         }
 #endif
 
-        public async static Task<bool> IsGeneratedCodeAsync(this Document document, CancellationToken cancellationToken)
+        public static async Task<bool> IsGeneratedCodeAsync(this Document document, CancellationToken cancellationToken)
         {
             var generatedCodeRecognitionService = document.GetLanguageService<IGeneratedCodeRecognitionService>();
             return generatedCodeRecognitionService != null &&
                 await generatedCodeRecognitionService.IsGeneratedCodeAsync(document, cancellationToken).ConfigureAwait(false);
-        }
-
-        public static async Task<SemanticModel> RequireSemanticModelAsync(this Document document, CancellationToken cancellationToken)
-        {
-            var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-            return model ?? throw new InvalidOperationException();
         }
 
         public static IEnumerable<Document> GetLinkedDocuments(this Document document)

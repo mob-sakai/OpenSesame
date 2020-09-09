@@ -17,7 +17,6 @@ using Microsoft.CodeAnalysis.Diagnostics.Telemetry;
 using Microsoft.CodeAnalysis.ErrorReporting;
 using Microsoft.CodeAnalysis.Internal.Log;
 using Microsoft.CodeAnalysis.Options;
-using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.CodeAnalysis.Text;
 using Roslyn.Utilities;
 
@@ -25,8 +24,6 @@ namespace Microsoft.CodeAnalysis.Diagnostics
 {
     internal static partial class AnalyzerHelper
     {
-        private const string CSharpCompilerAnalyzerTypeName = "Microsoft.CodeAnalysis.Diagnostics.CSharp.CSharpCompilerDiagnosticAnalyzer";
-        private const string VisualBasicCompilerAnalyzerTypeName = "Microsoft.CodeAnalysis.Diagnostics.VisualBasic.VisualBasicCompilerDiagnosticAnalyzer";
 
         // These are the error codes of the compiler warnings. 
         // Keep the ids the same so that de-duplication against compiler errors
@@ -63,23 +60,6 @@ namespace Microsoft.CodeAnalysis.Diagnostics
             return options == null
                 ? descriptor.DefaultSeverity.ToReportDiagnostic()
                 : descriptor.GetEffectiveSeverity(options);
-        }
-
-        public static bool IsCompilerAnalyzer(this DiagnosticAnalyzer analyzer)
-        {
-            // TODO: find better way.
-            var typeString = analyzer.GetType().FullName;
-            if (typeString == CSharpCompilerAnalyzerTypeName)
-            {
-                return true;
-            }
-
-            if (typeString == VisualBasicCompilerAnalyzerTypeName)
-            {
-                return true;
-            }
-
-            return false;
         }
 
         public static (string analyzerId, VersionStamp version) GetAnalyzerIdAndVersion(this DiagnosticAnalyzer analyzer)
@@ -240,7 +220,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
                 warningLevel: 0,
                 projectId: projectId,
                 customTags: ImmutableArray<string>.Empty,
-                properties: ImmutableDictionary<string, string>.Empty,
+                properties: ImmutableDictionary<string, string?>.Empty,
                 language: language);
         }
 
@@ -316,115 +296,6 @@ namespace Microsoft.CodeAnalysis.Diagnostics
             // given compilation must be from given project.
             Contract.ThrowIfFalse(project.TryGetCompilation(out var compilation2));
             Contract.ThrowIfFalse(compilation1 == compilation2);
-        }
-
-        /// <summary>
-        /// Return all local diagnostics (syntax, semantic) that belong to given document for the given StateSet (analyzer) by calculating them
-        /// </summary>
-        public static async Task<IEnumerable<DiagnosticData>> ComputeDiagnosticsAsync(
-            DiagnosticAnalyzer analyzer,
-            Document document,
-            AnalysisKind kind,
-            CompilationWithAnalyzers? compilationWithAnalyzers,
-            Func<Project, ISkippedAnalyzersInfo>? getSkippedAnalyzersInfo,
-            TextSpan? span,
-            CancellationToken cancellationToken)
-        {
-            var loadDiagnostic = await document.State.GetLoadDiagnosticAsync(cancellationToken).ConfigureAwait(false);
-
-            if (analyzer == FileContentLoadAnalyzer.Instance)
-            {
-                return loadDiagnostic != null ?
-                    SpecializedCollections.SingletonEnumerable(DiagnosticData.Create(loadDiagnostic, document)) :
-                    SpecializedCollections.EmptyEnumerable<DiagnosticData>();
-            }
-
-            if (loadDiagnostic != null)
-            {
-                return SpecializedCollections.EmptyEnumerable<DiagnosticData>();
-            }
-
-            if (analyzer is DocumentDiagnosticAnalyzer documentAnalyzer)
-            {
-                var diagnostics = await ComputeDocumentDiagnosticAnalyzerDiagnosticsAsync(
-                    documentAnalyzer, document, kind, compilationWithAnalyzers?.Compilation, cancellationToken).ConfigureAwait(false);
-
-                return diagnostics.ConvertToLocalDiagnostics(document);
-            }
-
-            // quick optimization to reduce allocations.
-            if (compilationWithAnalyzers == null || !analyzer.SupportAnalysisKind(kind))
-            {
-                if (kind == AnalysisKind.Syntax)
-                {
-                    Logger.Log(FunctionId.Diagnostics_SyntaxDiagnostic,
-                        (r, d, a, k) => $"Driver: {r != null}, {d.Id}, {d.Project.Id}, {a}, {k}", compilationWithAnalyzers, document, analyzer, kind);
-                }
-
-                return SpecializedCollections.EmptyEnumerable<DiagnosticData>();
-            }
-
-            // if project is not loaded successfully then, we disable semantic errors for compiler analyzers
-            if (kind != AnalysisKind.Syntax && analyzer.IsCompilerAnalyzer())
-            {
-                var isEnabled = await document.Project.HasSuccessfullyLoadedAsync(cancellationToken).ConfigureAwait(false);
-
-                Logger.Log(FunctionId.Diagnostics_SemanticDiagnostic, (a, d, e) => $"{a}, ({d.Id}, {d.Project.Id}), Enabled:{e}", analyzer, document, isEnabled);
-
-                if (!isEnabled)
-                {
-                    return SpecializedCollections.EmptyEnumerable<DiagnosticData>();
-                }
-            }
-
-            // REVIEW: more unnecessary allocations just to get diagnostics per analyzer
-            var singleAnalyzer = ImmutableArray.Create(analyzer);
-            var skippedAnalyzerInfo = getSkippedAnalyzersInfo?.Invoke(document.Project) ?? SkippedHostAnalyzersInfo.Default;
-            ImmutableArray<string> filteredIds;
-
-            switch (kind)
-            {
-                case AnalysisKind.Syntax:
-                    var tree = await document.GetSyntaxTreeAsync(cancellationToken).ConfigureAwait(false);
-                    if (tree == null)
-                    {
-                        return SpecializedCollections.EmptyEnumerable<DiagnosticData>();
-                    }
-
-                    var diagnostics = await compilationWithAnalyzers.GetAnalyzerSyntaxDiagnosticsAsync(tree, singleAnalyzer, cancellationToken).ConfigureAwait(false);
-
-                    if (diagnostics.IsDefaultOrEmpty)
-                    {
-                        Logger.Log(FunctionId.Diagnostics_SyntaxDiagnostic, (d, a, t) => $"{d.Id}, {d.Project.Id}, {a}, {t.Length}", document, analyzer, tree);
-                    }
-                    else if (skippedAnalyzerInfo.FilteredDiagnosticIdsForAnalyzers.TryGetValue(analyzer, out filteredIds))
-                    {
-                        diagnostics = diagnostics.Filter(filteredIds);
-                    }
-
-                    Debug.Assert(diagnostics.Length == CompilationWithAnalyzers.GetEffectiveDiagnostics(diagnostics, compilationWithAnalyzers.Compilation).Count());
-                    return diagnostics.ConvertToLocalDiagnostics(document);
-
-                case AnalysisKind.Semantic:
-                    var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-                    if (model == null)
-                    {
-                        return SpecializedCollections.EmptyEnumerable<DiagnosticData>();
-                    }
-
-                    diagnostics = await compilationWithAnalyzers.GetAnalyzerSemanticDiagnosticsAsync(model, span, singleAnalyzer, cancellationToken).ConfigureAwait(false);
-
-                    if (skippedAnalyzerInfo.FilteredDiagnosticIdsForAnalyzers.TryGetValue(analyzer, out filteredIds))
-                    {
-                        diagnostics = diagnostics.Filter(filteredIds);
-                    }
-
-                    Debug.Assert(diagnostics.Length == CompilationWithAnalyzers.GetEffectiveDiagnostics(diagnostics, compilationWithAnalyzers.Compilation).Count());
-                    return diagnostics.ConvertToLocalDiagnostics(document);
-
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(kind);
-            }
         }
 
         public static async Task<ImmutableArray<Diagnostic>> ComputeDocumentDiagnosticAnalyzerDiagnosticsAsync(
@@ -504,6 +375,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         private static bool IsCanceled(Exception ex, CancellationToken cancellationToken)
             => (ex as OperationCanceledException)?.CancellationToken == cancellationToken;
 
+#if DEBUG
         private static async Task VerifyDiagnosticLocationsAsync(ImmutableArray<Diagnostic> diagnostics, Project project, CancellationToken cancellationToken)
         {
             foreach (var diagnostic in diagnostics)
@@ -584,6 +456,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
                 return null;
             }
         }
+#endif
 
         public static IEnumerable<DiagnosticData> ConvertToLocalDiagnostics(this IEnumerable<Diagnostic> diagnostics, Document targetDocument, TextSpan? span = null)
         {
@@ -641,6 +514,37 @@ namespace Microsoft.CodeAnalysis.Diagnostics
                 }
             }
         }
+
+#if DEBUG
+        internal static bool AreEquivalent(Diagnostic[] diagnosticsA, Diagnostic[] diagnosticsB)
+        {
+            var set = new HashSet<Diagnostic>(diagnosticsA, DiagnosticComparer.Instance);
+            return set.SetEquals(diagnosticsB);
+        }
+
+        private sealed class DiagnosticComparer : IEqualityComparer<Diagnostic?>
+        {
+            internal static readonly DiagnosticComparer Instance = new DiagnosticComparer();
+
+            public bool Equals(Diagnostic? x, Diagnostic? y)
+            {
+                if (x is null)
+                    return y is null;
+                else if (y is null)
+                    return false;
+
+                return x.Id == y.Id && x.Location == y.Location;
+            }
+
+            public int GetHashCode(Diagnostic? obj)
+            {
+                if (obj is null)
+                    return 0;
+
+                return Hash.Combine(obj.Id.GetHashCode(), obj.Location.GetHashCode());
+            }
+        }
+#endif
 
         public static bool? IsCompilationEndAnalyzer(this DiagnosticAnalyzer analyzer, Project project, Compilation? compilation)
         {

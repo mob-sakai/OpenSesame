@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.AddImport;
 using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Formatting.Rules;
 using Microsoft.CodeAnalysis.Options;
@@ -65,7 +64,7 @@ namespace Microsoft.CodeAnalysis.AddMissingImports
             return newDocument.Project;
         }
 
-        private bool DoesNotAddReference(AddImportFixData fixData, ProjectId currentProjectId)
+        private static bool DoesNotAddReference(AddImportFixData fixData, ProjectId currentProjectId)
         {
             return (fixData.ProjectReferenceToAdd is null || fixData.ProjectReferenceToAdd == currentProjectId)
                 && (fixData.PortableExecutableReferenceProjectId is null || fixData.PortableExecutableReferenceProjectId == currentProjectId)
@@ -85,7 +84,7 @@ namespace Microsoft.CodeAnalysis.AddMissingImports
                 .ToImmutableArray();
         }
 
-        private async Task<ImmutableArray<AddImportFixData>> GetUnambiguousFixesAsync(Document document, ImmutableArray<Diagnostic> diagnostics, CancellationToken cancellationToken)
+        private static async Task<ImmutableArray<AddImportFixData>> GetUnambiguousFixesAsync(Document document, ImmutableArray<Diagnostic> diagnostics, CancellationToken cancellationToken)
         {
             var solution = document.Project.Solution;
             var symbolSearchService = solution.Workspace.Services.GetService<ISymbolSearchService>();
@@ -100,7 +99,7 @@ namespace Microsoft.CodeAnalysis.AddMissingImports
                     .GetFixesForDiagnosticsAsync(document, diagnosticsForSourceSpan.Key, diagnosticsForSourceSpan.AsImmutable(),
                         maxResultsPerDiagnostic: 2, symbolSearchService, searchReferenceAssemblies: true, packageSources, cancellationToken));
 
-            var fixes = ArrayBuilder<AddImportFixData>.GetInstance();
+            using var _ = ArrayBuilder<AddImportFixData>.GetInstance(out var fixes);
             foreach (var getFixesForDiagnosticsTask in getFixesForDiagnosticsTasks)
             {
                 var fixesForDiagnostics = await getFixesForDiagnosticsTask.ConfigureAwait(false);
@@ -113,16 +112,14 @@ namespace Microsoft.CodeAnalysis.AddMissingImports
                     // fix this diagnostic and instead leave it for the user to resolve since they
                     // will have more context for determining the proper fix.
                     if (fixesForDiagnostic.Fixes.Length == 1)
-                    {
                         fixes.Add(fixesForDiagnostic.Fixes[0]);
-                    }
                 }
             }
 
-            return fixes.ToImmutableAndFree();
+            return fixes.ToImmutable();
         }
 
-        private async Task<Document> ApplyFixesAsync(Document document, ImmutableArray<AddImportFixData> fixes, CancellationToken cancellationToken)
+        private static async Task<Document> ApplyFixesAsync(Document document, ImmutableArray<AddImportFixData> fixes, CancellationToken cancellationToken)
         {
             if (fixes.IsEmpty)
             {
@@ -184,7 +181,7 @@ namespace Microsoft.CodeAnalysis.AddMissingImports
             return await CleanUpNewLinesAsync(newDocument, insertSpans, cancellationToken).ConfigureAwait(false);
         }
 
-        private async Task<Document> CleanUpNewLinesAsync(Document document, IEnumerable<TextSpan> insertSpans, CancellationToken cancellationToken)
+        private static async Task<Document> CleanUpNewLinesAsync(Document document, IEnumerable<TextSpan> insertSpans, CancellationToken cancellationToken)
         {
             var languageFormatter = document.GetLanguageService<ISyntaxFormattingService>();
             var options = await document.GetOptionsAsync(cancellationToken).ConfigureAwait(false);
@@ -202,7 +199,7 @@ namespace Microsoft.CodeAnalysis.AddMissingImports
             return newDocument;
         }
 
-        private async Task<Document> CleanUpNewLinesAsync(Document document, TextSpan insertSpan, ISyntaxFormattingService languageFormatter, OptionSet optionSet, CancellationToken cancellationToken)
+        private static async Task<Document> CleanUpNewLinesAsync(Document document, TextSpan insertSpan, ISyntaxFormattingService languageFormatter, OptionSet optionSet, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             var text = await document.GetTextAsync(cancellationToken).ConfigureAwait(false);
@@ -210,7 +207,7 @@ namespace Microsoft.CodeAnalysis.AddMissingImports
             var shouldUseFormattingSpanCollapse = optionSet.GetOption(FormattingOptions.AllowDisjointSpanMerging);
             var options = optionSet.AsAnalyzerConfigOptions(optionService, root.Language);
 
-            var textChanges = languageFormatter.Format(root, new[] { insertSpan }, shouldUseFormattingSpanCollapse, options, new[] { new CleanUpNewLinesFormatter(text) }, cancellationToken).GetTextChanges();
+            var textChanges = languageFormatter.Format(root, new[] { insertSpan }, shouldUseFormattingSpanCollapse, options, new[] { new CleanUpNewLinesFormatter(text) }, cancellationToken).GetTextChanges(cancellationToken);
 
             // If there are no changes then, do less work.
             if (textChanges.Count == 0)
@@ -231,7 +228,7 @@ namespace Microsoft.CodeAnalysis.AddMissingImports
             return document.WithText(newText);
         }
 
-        private async Task<(ProjectChanges, IEnumerable<TextChange>)> GetChangesForCodeActionAsync(
+        private static async Task<(ProjectChanges, IEnumerable<TextChange>)> GetChangesForCodeActionAsync(
             Document document,
             CodeAction codeAction,
             ProgressTracker progressTracker,
@@ -257,7 +254,7 @@ namespace Microsoft.CodeAnalysis.AddMissingImports
             public CleanUpNewLinesFormatter(SourceText text)
                 => _text = text;
 
-            public override AdjustNewLinesOperation GetAdjustNewLinesOperation(SyntaxToken previousToken, SyntaxToken currentToken, AnalyzerConfigOptions options, in NextGetAdjustNewLinesOperation nextOperation)
+            public override AdjustNewLinesOperation GetAdjustNewLinesOperation(in SyntaxToken previousToken, in SyntaxToken currentToken, in NextGetAdjustNewLinesOperation nextOperation)
             {
                 // Since we know the general shape of these new import statements, we simply look for where
                 // tokens are not on the same line and force them to only be separated by a single newline.

@@ -63,14 +63,19 @@ namespace Microsoft.CodeAnalysis
         public string? OutputRefFilePath => Attributes.OutputRefFilePath;
 
         /// <summary>
+        /// The path to the compiler output file (module or assembly).
+        /// </summary>
+        public CompilationOutputInfo CompilationOutputInfo => Attributes.CompilationOutputInfo;
+
+        /// <summary>
         /// The default namespace of the project ("" if not defined, which means global namespace),
-        /// or null if it is unknown or not applicable. 
+        /// or null if it is unknown or not applicable.
         /// </summary>
         /// <remarks>
-        /// Right now VB doesn't have the concept of "default namespace", but we conjure one in workspace 
-        /// by assigning the value of the project's root namespace to it. So various features can choose to 
+        /// Right now VB doesn't have the concept of "default namespace", but we conjure one in workspace
+        /// by assigning the value of the project's root namespace to it. So various features can choose to
         /// use it for their own purpose.
-        /// In the future, we might consider officially exposing "default namespace" for VB project 
+        /// In the future, we might consider officially exposing "default namespace" for VB project
         /// (e.g. through a "defaultnamespace" msbuild property)
         /// </remarks>
         internal string? DefaultNamespace => Attributes.DefaultNamespace;
@@ -222,16 +227,18 @@ namespace Microsoft.CodeAnalysis
                     filePath,
                     outputFilePath,
                     outputRefFilePath,
+                    compilationOutputFilePaths: default,
                     defaultNamespace: null,
                     isSubmission,
                     hasAllInformation: true,
-                    runAnalyzers: true),
+                    runAnalyzers: true,
+                    telemetryId: default),
                 compilationOptions,
                 parseOptions,
                 PublicContract.ToBoxedImmutableArrayWithDistinctNonNullItems(documents, nameof(documents)),
                 PublicContract.ToBoxedImmutableArrayWithDistinctNonNullItems(projectReferences, nameof(projectReferences)),
                 PublicContract.ToBoxedImmutableArrayWithDistinctNonNullItems(metadataReferences, nameof(metadataReferences)),
-                PublicContract.ToBoxedImmutableArrayWithNonNullItems(analyzerReferences, nameof(analyzerReferences)),
+                PublicContract.ToBoxedImmutableArrayWithDistinctNonNullItems(analyzerReferences, nameof(analyzerReferences)),
                 PublicContract.ToBoxedImmutableArrayWithDistinctNonNullItems(additionalDocuments, nameof(additionalDocuments)),
                 analyzerConfigDocuments: SpecializedCollections.EmptyBoxedImmutableArray<DocumentInfo>(),
                 hostObjectType);
@@ -305,6 +312,9 @@ namespace Microsoft.CodeAnalysis
         public ProjectInfo WithOutputRefFilePath(string? outputRefFilePath)
             => With(attributes: Attributes.With(outputRefPath: outputRefFilePath));
 
+        public ProjectInfo WithCompilationOutputInfo(in CompilationOutputInfo info)
+            => With(attributes: Attributes.With(compilationOutputInfo: info));
+
         public ProjectInfo WithDefaultNamespace(string? defaultNamespace)
             => With(attributes: Attributes.With(defaultNamespace: defaultNamespace));
 
@@ -336,7 +346,12 @@ namespace Microsoft.CodeAnalysis
             => With(metadataReferences: PublicContract.ToBoxedImmutableArrayWithDistinctNonNullItems(metadataReferences, nameof(metadataReferences)));
 
         public ProjectInfo WithAnalyzerReferences(IEnumerable<AnalyzerReference>? analyzerReferences)
-            => With(analyzerReferences: PublicContract.ToBoxedImmutableArrayWithNonNullItems(analyzerReferences, nameof(analyzerReferences)));
+            => With(analyzerReferences: PublicContract.ToBoxedImmutableArrayWithDistinctNonNullItems(analyzerReferences, nameof(analyzerReferences)));
+
+        internal ProjectInfo WithTelemetryId(Guid telemetryId)
+        {
+            return With(attributes: Attributes.With(telemetryId: telemetryId));
+        }
 
         internal string GetDebuggerDisplay()
             => nameof(ProjectInfo) + " " + Name + (!string.IsNullOrWhiteSpace(FilePath) ? " " + FilePath : "");
@@ -390,6 +405,11 @@ namespace Microsoft.CodeAnalysis
             public string? OutputRefFilePath { get; }
 
             /// <summary>
+            /// Paths to the compiler output files.
+            /// </summary>
+            public CompilationOutputInfo CompilationOutputInfo { get; }
+
+            /// <summary>
             /// The default namespace of the project.
             /// </summary>
             public string? DefaultNamespace { get; }
@@ -411,6 +431,11 @@ namespace Microsoft.CodeAnalysis
             /// </summary>
             public bool RunAnalyzers { get; }
 
+            /// <summary>
+            /// The id report during telemetry events.
+            /// </summary>
+            public Guid TelemetryId { get; }
+
             public ProjectAttributes(
                 ProjectId id,
                 VersionStamp version,
@@ -420,10 +445,12 @@ namespace Microsoft.CodeAnalysis
                 string? filePath,
                 string? outputFilePath,
                 string? outputRefFilePath,
+                CompilationOutputInfo compilationOutputFilePaths,
                 string? defaultNamespace,
                 bool isSubmission,
                 bool hasAllInformation,
-                bool runAnalyzers)
+                bool runAnalyzers,
+                Guid telemetryId)
             {
                 Id = id;
                 Name = name;
@@ -434,10 +461,12 @@ namespace Microsoft.CodeAnalysis
                 FilePath = filePath;
                 OutputFilePath = outputFilePath;
                 OutputRefFilePath = outputRefFilePath;
+                CompilationOutputInfo = compilationOutputFilePaths;
                 DefaultNamespace = defaultNamespace;
                 IsSubmission = isSubmission;
                 HasAllInformation = hasAllInformation;
                 RunAnalyzers = runAnalyzers;
+                TelemetryId = telemetryId;
             }
 
             public ProjectAttributes With(
@@ -448,10 +477,12 @@ namespace Microsoft.CodeAnalysis
                 Optional<string?> filePath = default,
                 Optional<string?> outputPath = default,
                 Optional<string?> outputRefPath = default,
+                Optional<CompilationOutputInfo> compilationOutputInfo = default,
                 Optional<string?> defaultNamespace = default,
                 Optional<bool> isSubmission = default,
                 Optional<bool> hasAllInformation = default,
-                Optional<bool> runAnalyzers = default)
+                Optional<bool> runAnalyzers = default,
+                Optional<Guid> telemetryId = default)
             {
                 var newVersion = version ?? Version;
                 var newName = name ?? Name;
@@ -460,10 +491,12 @@ namespace Microsoft.CodeAnalysis
                 var newFilepath = filePath.HasValue ? filePath.Value : FilePath;
                 var newOutputPath = outputPath.HasValue ? outputPath.Value : OutputFilePath;
                 var newOutputRefPath = outputRefPath.HasValue ? outputRefPath.Value : OutputRefFilePath;
+                var newCompilationOutputPaths = compilationOutputInfo.HasValue ? compilationOutputInfo.Value : CompilationOutputInfo;
                 var newDefaultNamespace = defaultNamespace.HasValue ? defaultNamespace.Value : DefaultNamespace;
                 var newIsSubmission = isSubmission.HasValue ? isSubmission.Value : IsSubmission;
                 var newHasAllInformation = hasAllInformation.HasValue ? hasAllInformation.Value : HasAllInformation;
                 var newRunAnalyzers = runAnalyzers.HasValue ? runAnalyzers.Value : RunAnalyzers;
+                var newTelemetryId = telemetryId.HasValue ? telemetryId.Value : TelemetryId;
 
                 if (newVersion == Version &&
                     newName == Name &&
@@ -472,10 +505,12 @@ namespace Microsoft.CodeAnalysis
                     newFilepath == FilePath &&
                     newOutputPath == OutputFilePath &&
                     newOutputRefPath == OutputRefFilePath &&
+                    newCompilationOutputPaths == CompilationOutputInfo &&
                     newDefaultNamespace == DefaultNamespace &&
                     newIsSubmission == IsSubmission &&
                     newHasAllInformation == HasAllInformation &&
-                    newRunAnalyzers == RunAnalyzers)
+                    newRunAnalyzers == RunAnalyzers &&
+                    newTelemetryId == TelemetryId)
                 {
                     return this;
                 }
@@ -489,10 +524,12 @@ namespace Microsoft.CodeAnalysis
                     newFilepath,
                     newOutputPath,
                     newOutputRefPath,
+                    newCompilationOutputPaths,
                     newDefaultNamespace,
                     newIsSubmission,
                     newHasAllInformation,
-                    newRunAnalyzers);
+                    newRunAnalyzers,
+                    newTelemetryId);
             }
 
             bool IObjectWritable.ShouldReuseInSerialization => true;
@@ -510,10 +547,12 @@ namespace Microsoft.CodeAnalysis
                 writer.WriteString(FilePath);
                 writer.WriteString(OutputFilePath);
                 writer.WriteString(OutputRefFilePath);
+                CompilationOutputInfo.WriteTo(writer);
                 writer.WriteString(DefaultNamespace);
                 writer.WriteBoolean(IsSubmission);
                 writer.WriteBoolean(HasAllInformation);
                 writer.WriteBoolean(RunAnalyzers);
+                writer.WriteGuid(TelemetryId);
 
                 // TODO: once CompilationOptions, ParseOptions, ProjectReference, MetadataReference, AnalyzerReference supports
                 //       serialization, we should include those here as well.
@@ -530,12 +569,28 @@ namespace Microsoft.CodeAnalysis
                 var filePath = reader.ReadString();
                 var outputFilePath = reader.ReadString();
                 var outputRefFilePath = reader.ReadString();
+                var compilationOutputFilePaths = CompilationOutputInfo.ReadFrom(reader);
                 var defaultNamespace = reader.ReadString();
                 var isSubmission = reader.ReadBoolean();
                 var hasAllInformation = reader.ReadBoolean();
                 var runAnalyzers = reader.ReadBoolean();
+                var telemetryId = reader.ReadGuid();
 
-                return new ProjectAttributes(projectId, VersionStamp.Create(), name, assemblyName, language, filePath, outputFilePath, outputRefFilePath, defaultNamespace, isSubmission, hasAllInformation, runAnalyzers);
+                return new ProjectAttributes(
+                    projectId,
+                    VersionStamp.Create(),
+                    name,
+                    assemblyName,
+                    language,
+                    filePath,
+                    outputFilePath,
+                    outputRefFilePath,
+                    compilationOutputFilePaths,
+                    defaultNamespace,
+                    isSubmission,
+                    hasAllInformation,
+                    runAnalyzers,
+                    telemetryId);
             }
 
             Checksum IChecksummedObject.Checksum

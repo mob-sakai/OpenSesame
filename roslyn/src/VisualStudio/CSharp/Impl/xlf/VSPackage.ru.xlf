@@ -78,12 +78,13 @@ prefer throwing properties;
 prefer auto properties;
 regex;
 regular expression;
-Use enhanced colors;</source>
-        <target state="translated">показывать диагностику для закрытых файлов;
+Use enhanced colors;
+Editor Color Scheme;</source>
+        <target state="translated">Показывать диагностику для закрытых файлов;
 выделить регулярные выражения цветом; 
 выделить связанные компоненты под курсором; 
 сообщать о недопустимых регулярных выражениях;
- включить полный анализ решения;
+включить полный анализ решения;
 выполнить анализ функций редактора во внешнем процессе;
 включить переход к декомпилированным источникам;
 директивы using;
@@ -124,7 +125,8 @@ Use enhanced colors;</source>
 предпочитать автосвойства;
 регулярное выражение;
 регулярное выражение;
-использовать расширенные цвета;</target>
+использовать расширенные цвета;
+цветовая схема редактора;</target>
         <note>C# Advanced options page keywords</note>
       </trans-unit>
       <trans-unit id="307">

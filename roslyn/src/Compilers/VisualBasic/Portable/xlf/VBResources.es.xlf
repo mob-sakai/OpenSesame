@@ -776,6 +776,11 @@
         <target state="translated">El carácter no es válido.</target>
         <note />
       </trans-unit>
+      <trans-unit id="ERR_StdInOptionProvidedButConsoleInputIsNotRedirected">
+        <source>stdin argument '-' is specified, but input has not been redirected from the standard input stream.</source>
+        <target state="translated">Se ha especificado el argumento stdin "-", pero la entrada no se ha redirigido desde el flujo de entrada estándar.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="ERR_StrictDisallowsObjectOperand1">
         <source>Option Strict On prohibits operands of type Object for operator '{0}'.</source>
         <target state="translated">Option Strict On prohíbe operandos de tipo Object para el operador '{0}'.</target>

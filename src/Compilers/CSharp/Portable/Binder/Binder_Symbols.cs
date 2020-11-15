@@ -488,16 +488,27 @@ namespace Microsoft.CodeAnalysis.CSharp
             void reportNullableReferenceTypesIfNeeded(SyntaxToken questionToken, TypeWithAnnotations typeArgument = default)
             {
                 bool isNullableEnabled = AreNullableAnnotationsEnabled(questionToken);
+                bool isGeneratedCode = IsGeneratedCode(questionToken);
                 var location = questionToken.GetLocation();
 
                 // Inside a method body or other executable code, we can question IsValueType without causing cycles.
                 if (typeArgument.HasType && !ShouldCheckConstraints)
                 {
-                    LazyMissingNonNullTypesContextDiagnosticInfo.AddAll(isNullableEnabled, typeArgument, location, diagnostics);
+                    LazyMissingNonNullTypesContextDiagnosticInfo.AddAll(
+                        isNullableEnabled,
+                        isGeneratedCode,
+                        typeArgument,
+                        location,
+                        diagnostics);
                 }
                 else
                 {
-                    LazyMissingNonNullTypesContextDiagnosticInfo.ReportNullableReferenceTypesIfNeeded(isNullableEnabled, typeArgument, location, diagnostics);
+                    LazyMissingNonNullTypesContextDiagnosticInfo.ReportNullableReferenceTypesIfNeeded(
+                        isNullableEnabled,
+                        isGeneratedCode,
+                        typeArgument,
+                        location,
+                        diagnostics);
                 }
             }
 
@@ -512,7 +523,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 if (!ShouldCheckConstraints)
                 {
-                    diagnostics.Add(new LazyUseSiteDiagnosticsInfoForNullableType(constructedType), syntax.GetLocation());
+                    diagnostics.Add(new LazyUseSiteDiagnosticsInfoForNullableType(Compilation.LanguageVersion, constructedType), syntax.GetLocation());
                 }
                 else if (constructedType.IsNullableType())
                 {
@@ -521,9 +532,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                     var location = syntax.Location;
                     type.CheckConstraints(new ConstraintsHelper.CheckConstraintsArgs(this.Compilation, this.Conversions, includeNullability: true, location, diagnostics));
                 }
-                else if (constructedType.Type.IsTypeParameterDisallowingAnnotation())
+                else if (GetNullableUnconstrainedTypeParameterDiagnosticIfNecessary(Compilation.LanguageVersion, constructedType) is { } diagnosticInfo)
                 {
-                    diagnostics.Add(ErrorCode.ERR_NullableUnconstrainedTypeParameter, syntax.Location);
+                    diagnostics.Add(diagnosticInfo, syntax.Location);
                 }
 
                 return constructedType;
@@ -570,6 +581,21 @@ namespace Microsoft.CodeAnalysis.CSharp
                 diagnostics.Add(ErrorCode.ERR_TypeExpected, syntax.GetLocation());
                 return TypeWithAnnotations.Create(CreateErrorType());
             }
+        }
+
+        internal static CSDiagnosticInfo? GetNullableUnconstrainedTypeParameterDiagnosticIfNecessary(LanguageVersion languageVersion, in TypeWithAnnotations type)
+        {
+            if (type.Type.IsTypeParameterDisallowingAnnotationInCSharp8())
+            {
+                // Check IDS_FeatureDefaultTypeParameterConstraint feature since `T?` and `where ... : default`
+                // are treated as a single feature, even though the errors reported for the two cases are distinct.
+                var requiredVersion = MessageID.IDS_FeatureDefaultTypeParameterConstraint.RequiredVersion();
+                if (requiredVersion > languageVersion)
+                {
+                    return new CSDiagnosticInfo(ErrorCode.ERR_NullableUnconstrainedTypeParameter, new CSharpRequiredLanguageVersion(requiredVersion));
+                }
+            }
+            return null;
         }
 #nullable restore
 
@@ -888,7 +914,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         }
 
         /// <summary>
-        /// If the node is "nint" or "nuint", return the corresponding native integer symbol.
+        /// If the node is "nint" or "nuint" and not alone inside nameof, return the corresponding native integer symbol.
         /// Otherwise return null.
         /// </summary>
         private NamedTypeSymbol BindNativeIntegerSymbolIfAny(IdentifierNameSyntax node, DiagnosticBag diagnostics)
@@ -905,6 +931,15 @@ namespace Microsoft.CodeAnalysis.CSharp
                 default:
                     return null;
             }
+
+            if (IsInsideNameof && node.Parent is ArgumentSyntax &&
+                node.Parent?.Parent?.Parent is InvocationExpressionSyntax invocation &&
+                (invocation.Expression as IdentifierNameSyntax)?.Identifier.ContextualKind() == SyntaxKind.NameOfKeyword)
+            {
+                // Don't bind nameof(nint) or nameof(nuint) so that ERR_NameNotInContext is reported.
+                return null;
+            }
+
             CheckFeatureAvailability(node, MessageID.IDS_FeatureNativeInt, diagnostics);
             return this.GetSpecialType(specialType, diagnostics, node).AsNativeInteger();
         }
@@ -1505,9 +1540,9 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// This is a layer on top of the Compilation version that generates a diagnostic if the well-known
         /// type isn't found.
         /// </summary>
-        internal NamedTypeSymbol GetWellKnownType(CSharpCompilation compilation, WellKnownType type, DiagnosticBag diagnostics, SyntaxNode node)
+        internal static NamedTypeSymbol GetWellKnownType(CSharpCompilation compilation, WellKnownType type, DiagnosticBag diagnostics, SyntaxNode node)
         {
-            return GetWellKnownType(this.Compilation, type, diagnostics, node.Location);
+            return GetWellKnownType(compilation, type, diagnostics, node.Location);
         }
 
         internal static NamedTypeSymbol GetWellKnownType(CSharpCompilation compilation, WellKnownType type, DiagnosticBag diagnostics, Location location)

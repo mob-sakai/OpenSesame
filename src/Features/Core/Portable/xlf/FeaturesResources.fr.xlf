@@ -162,7 +162,7 @@ Veillez à utiliser le spécificateur "tt" pour les langues où il est nécessai
       </trans-unit>
       <trans-unit id="ChangeSignature_NewParameterInferValue">
         <source>&lt;infer&gt;</source>
-        <target state="translated">&lt;inférence&gt;</target>
+        <target state="translated">&lt;déduire&gt;</target>
         <note />
       </trans-unit>
       <trans-unit id="ChangeSignature_NewParameterIntroduceTODOVariable">
@@ -345,6 +345,11 @@ Veillez à utiliser le spécificateur "tt" pour les langues où il est nécessai
         <target state="translated">Exemples :</target>
         <note>Plural form when we have multiple examples to show.</note>
       </trans-unit>
+      <trans-unit id="Extract_base_class">
+        <source>Extract base class...</source>
+        <target state="translated">Extraire la classe de base...</target>
+        <note />
+      </trans-unit>
       <trans-unit id="Extract_interface">
         <source>Extract interface...</source>
         <target state="translated">Extraire l'interface...</target>
@@ -495,6 +500,16 @@ Veillez à utiliser le spécificateur "tt" pour les langues où il est nécessai
         <target state="translated">Mettre en retrait les paramètres enveloppés</target>
         <note />
       </trans-unit>
+      <trans-unit id="Inline_0">
+        <source>Inline '{0}'</source>
+        <target state="translated">Inline '{0}'</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Inline_and_keep_0">
+        <source>Inline and keep '{0}'</source>
+        <target state="translated">Inline et conserver '{0}'</target>
+        <note />
+      </trans-unit>
       <trans-unit id="Insufficient_hexadecimal_digits">
         <source>Insufficient hexadecimal digits</source>
         <target state="translated">Chiffres hexadécimaux insuffisants</target>
@@ -524,6 +539,11 @@ Veillez à utiliser le spécificateur "tt" pour les langues où il est nécessai
         <source>Invalid group name: Group names must begin with a word character</source>
         <target state="translated">Nom de groupe non valide : les noms de groupe doivent commencer par un caractère alphabétique</target>
         <note>This is an error message shown to the user when they write an invalid Regular Expression. Example: (?&lt;a &gt;a)</note>
+      </trans-unit>
+      <trans-unit id="Make_class_abstract">
+        <source>Make class 'abstract'</source>
+        <target state="translated">Rendre la classe 'abstract'</target>
+        <note />
       </trans-unit>
       <trans-unit id="Make_member_static">
         <source>Make static</source>
@@ -585,6 +605,21 @@ Veillez à utiliser le spécificateur "tt" pour les langues où il est nécessai
         <target state="translated">La modification de '{0}', qui contient une expression de switch, va empêcher la session de débogage de se poursuivre.</target>
         <note />
       </trans-unit>
+      <trans-unit id="Modifying_body_of_member_will_prevent_the_debug_session_from_continuing_because_the_body_has_too_many_statements">
+        <source>Modifying the body of '{0}' will prevent the debug session from continuing because the body has too many statements.</source>
+        <target state="translated">Le fait de modifier le corps de '{0}' empêche la session de débogage de se poursuivre, car le corps contient trop d'instructions.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Modifying_body_of_member_will_prevent_the_debug_session_from_continuing_due_to_internal_error">
+        <source>Modifying the body of '{0}' will prevent the debug session from continuing due to internal error: {1}</source>
+        <target state="translated">Le fait de modifier le corps de '{0}' empêche la session de débogage de se poursuivre en raison d'une erreur interne : {1}</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Modifying_source_file_will_prevent_the_debug_session_from_continuing_because_the_file_is_too_big">
+        <source>Modifying source file '{0}' will prevent the debug session from continuing because the file is too big.</source>
+        <target state="translated">Le fait de modifier le fichier source '{0}' empêche la session de débogage de se poursuivre, car le fichier est trop volumineux.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="Move_contents_to_namespace">
         <source>Move contents to namespace...</source>
         <target state="translated">Déplacer le contenu vers un espace de noms...</target>
@@ -606,8 +641,8 @@ Veillez à utiliser le spécificateur "tt" pour les langues où il est nécessai
         <note />
       </trans-unit>
       <trans-unit id="Modifying_source_file_will_prevent_the_debug_session_from_continuing_due_to_internal_error">
-        <source>Modifying source file {0} will prevent the debug session from continuing due to internal error: {1}.</source>
-        <target state="translated">Le fait de modifier le fichier source {0} empêche la session de débogage de se poursuivre en raison de l’erreur interne : {1}.</target>
+        <source>Modifying source file '{0}' will prevent the debug session from continuing due to internal error: {1}</source>
+        <target state="translated">Le fait de modifier le fichier source '{0}' empêche la session de débogage de se poursuivre en raison d'une erreur interne : {1}</target>
         <note />
       </trans-unit>
       <trans-unit id="Nested_quantifier_0">
@@ -638,6 +673,11 @@ Veillez à utiliser le spécificateur "tt" pour les langues où il est nécessai
       <trans-unit id="Pull_members_up_to_base_type">
         <source>Pull members up to base type...</source>
         <target state="translated">Tirer les membres jusqu'au type de base...</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Pull_members_up_to_new_base_class">
+        <source>Pull member(s) up to new base class...</source>
+        <target state="translated">Tirer (pull) le ou les membres jusqu'à la nouvelle classe de base...</target>
         <note />
       </trans-unit>
       <trans-unit id="Quantifier_x_y_following_nothing">
@@ -1785,6 +1825,11 @@ Les assertions arrière positives de largeur nulle sont généralement utilisée
         <target state="translated">Les signatures de méthode associées dans les métadonnées ne sont pas mises à jour.</target>
         <note />
       </trans-unit>
+      <trans-unit id="Remove_async_modifier">
+        <source>Remove 'async' modifier</source>
+        <target state="translated">Supprimer le modificateur 'async'</target>
+        <note />
+      </trans-unit>
       <trans-unit id="Replace_0_with_1">
         <source>Replace '{0}' with '{1}' </source>
         <target state="translated">Remplacer '{0}' par '{1}'</target>
@@ -1833,6 +1878,11 @@ Les assertions arrière positives de largeur nulle sont généralement utilisée
       <trans-unit id="Target_type_matches">
         <source>Target type matches</source>
         <target state="translated">Cibler les correspondances de types</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="The_assembly_0_containing_type_1_references_NET_Framework">
+        <source>The assembly '{0}' containing type '{1}' references .NET Framework, which is not supported.</source>
+        <target state="new">The assembly '{0}' containing type '{1}' references .NET Framework, which is not supported.</target>
         <note />
       </trans-unit>
       <trans-unit id="The_selection_contains_a_local_function_call_without_its_declaration">
@@ -2871,7 +2921,7 @@ Si le spécificateur de format "g" est utilisé sans autres spécificateurs de f
       </trans-unit>
       <trans-unit id="generating_source_for_symbols_of_this_type_is_not_supported">
         <source>generating source for symbols of this type is not supported</source>
-        <target state="translated">La génération de code source pour les symboles de ce type n'est pas prise en charge.</target>
+        <target state="translated">La génération de code source pour les symboles de ce type n'est pas prise en charge</target>
         <note />
       </trans-unit>
       <trans-unit id="Assembly">

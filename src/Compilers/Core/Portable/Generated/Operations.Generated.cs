@@ -20,8 +20,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Invalid"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IInvalidOperation : IOperation
     {
@@ -35,8 +39,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Block"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IBlockOperation : IOperation
     {
@@ -62,8 +70,12 @@ namespace Microsoft.CodeAnalysis.Operations
     ///   (6) VB Using statement
     /// </para>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.VariableDeclarationGroup"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IVariableDeclarationGroupOperation : IOperation
     {
@@ -84,8 +96,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Switch"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ISwitchOperation : IOperation
     {
@@ -115,8 +131,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ILoopOperation : IOperation
     {
@@ -150,8 +166,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IForEachLoopOperation : ILoopOperation
     {
@@ -182,8 +198,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IForLoopOperation : ILoopOperation
     {
@@ -214,8 +230,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IForToLoopOperation : ILoopOperation
     {
@@ -254,8 +270,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IWhileLoopOperation : ILoopOperation
     {
@@ -289,8 +305,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Labeled"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ILabeledOperation : IOperation
     {
@@ -312,8 +332,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Branch"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IBranchOperation : IOperation
     {
@@ -334,8 +358,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Empty"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IEmptyOperation : IOperation
     {
@@ -349,8 +377,14 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Return"/></description></item>
+    /// <item><description><see cref="OperationKind.YieldBreak"/></description></item>
+    /// <item><description><see cref="OperationKind.YieldReturn"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IReturnOperation : IOperation
     {
@@ -368,8 +402,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Lock"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ILockOperation : IOperation
     {
@@ -391,8 +429,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Try"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ITryOperation : IOperation
     {
@@ -422,8 +464,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Using"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IUsingOperation : IOperation
     {
@@ -454,8 +500,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.ExpressionStatement"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IExpressionStatementOperation : IOperation
     {
@@ -472,8 +522,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.LocalFunction"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ILocalFunctionOperation : IOperation
     {
@@ -501,8 +555,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Stop"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IStopOperation : IOperation
     {
@@ -515,8 +573,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.End"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IEndOperation : IOperation
     {
@@ -529,8 +591,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.RaiseEvent"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IRaiseEventOperation : IOperation
     {
@@ -556,8 +622,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Literal"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ILiteralOperation : IOperation
     {
@@ -571,8 +641,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Conversion"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IConversionOperation : IOperation
     {
@@ -619,8 +693,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Invocation"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IInvocationOperation : IOperation
     {
@@ -654,8 +732,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.ArrayElementReference"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IArrayElementReferenceOperation : IOperation
     {
@@ -677,8 +759,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.LocalReference"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ILocalReferenceOperation : IOperation
     {
@@ -701,8 +787,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.ParameterReference"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IParameterReferenceOperation : IOperation
     {
@@ -720,8 +810,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IMemberReferenceOperation : IOperation
     {
@@ -743,8 +833,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.FieldReference"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IFieldReferenceOperation : IMemberReferenceOperation
     {
@@ -770,8 +864,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.MethodReference"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IMethodReferenceOperation : IMemberReferenceOperation
     {
@@ -793,8 +891,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.PropertyReference"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IPropertyReferenceOperation : IMemberReferenceOperation
     {
@@ -820,8 +922,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.EventReference"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IEventReferenceOperation : IMemberReferenceOperation
     {
@@ -839,8 +945,13 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Unary"/></description></item>
+    /// <item><description><see cref="OperationKind.UnaryOperator"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IUnaryOperation : IOperation
     {
@@ -877,8 +988,13 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Binary"/></description></item>
+    /// <item><description><see cref="OperationKind.BinaryOperator"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IBinaryOperation : IOperation
     {
@@ -926,8 +1042,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Conditional"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IConditionalOperation : IOperation
     {
@@ -959,8 +1079,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Coalesce"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ICoalesceOperation : IOperation
     {
@@ -989,8 +1113,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.AnonymousFunction"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IAnonymousFunctionOperation : IOperation
     {
@@ -1012,8 +1140,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.ObjectCreation"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IObjectCreationOperation : IOperation
     {
@@ -1043,8 +1175,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.TypeParameterObjectCreation"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ITypeParameterObjectCreationOperation : IOperation
     {
@@ -1062,8 +1198,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.ArrayCreation"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IArrayCreationOperation : IOperation
     {
@@ -1087,8 +1227,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.InstanceReference"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IInstanceReferenceOperation : IOperation
     {
@@ -1106,8 +1250,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.IsType"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IIsTypeOperation : IOperation
     {
@@ -1135,8 +1283,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Await"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IAwaitOperation : IOperation
     {
@@ -1154,8 +1306,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IAssignmentOperation : IOperation
     {
@@ -1177,8 +1329,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.SimpleAssignment"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ISimpleAssignmentOperation : IAssignmentOperation
     {
@@ -1196,8 +1352,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.CompoundAssignment"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ICompoundAssignmentOperation : IAssignmentOperation
     {
@@ -1235,8 +1395,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Parenthesized"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IParenthesizedOperation : IOperation
     {
@@ -1254,8 +1418,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.EventAssignment"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IEventAssignmentOperation : IOperation
     {
@@ -1282,8 +1450,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.ConditionalAccess"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IConditionalAccessOperation : IOperation
     {
@@ -1307,8 +1479,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.ConditionalAccessInstance"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IConditionalAccessInstanceOperation : IOperation
     {
@@ -1322,8 +1498,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.InterpolatedString"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IInterpolatedStringOperation : IOperation
     {
@@ -1341,8 +1521,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.AnonymousObjectCreation"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IAnonymousObjectCreationOperation : IOperation
     {
@@ -1364,8 +1548,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.ObjectOrCollectionInitializer"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IObjectOrCollectionInitializerOperation : IOperation
     {
@@ -1384,8 +1572,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.MemberInitializer"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IMemberInitializerOperation : IOperation
     {
@@ -1407,8 +1599,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.CollectionElementInitializer"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     [Obsolete("ICollectionElementInitializerOperation has been replaced with " + nameof(IInvocationOperation) + " and " + nameof(IDynamicInvocationOperation), error: true)]
     public interface ICollectionElementInitializerOperation : IOperation
@@ -1426,8 +1622,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.NameOf"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface INameOfOperation : IOperation
     {
@@ -1445,8 +1645,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Tuple"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ITupleOperation : IOperation
     {
@@ -1470,8 +1674,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.DynamicObjectCreation"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IDynamicObjectCreationOperation : IOperation
     {
@@ -1493,8 +1701,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.DynamicMemberReference"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IDynamicMemberReferenceOperation : IOperation
     {
@@ -1531,8 +1743,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.DynamicInvocation"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IDynamicInvocationOperation : IOperation
     {
@@ -1553,8 +1769,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.DynamicIndexerAccess"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IDynamicIndexerAccessOperation : IOperation
     {
@@ -1581,8 +1801,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.TranslatedQuery"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ITranslatedQueryOperation : IOperation
     {
@@ -1600,8 +1824,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.DelegateCreation"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IDelegateCreationOperation : IOperation
     {
@@ -1618,8 +1846,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.DefaultValue"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IDefaultValueOperation : IOperation
     {
@@ -1633,8 +1865,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.TypeOf"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ITypeOfOperation : IOperation
     {
@@ -1651,8 +1887,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.SizeOf"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ISizeOfOperation : IOperation
     {
@@ -1669,8 +1909,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.AddressOf"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IAddressOfOperation : IOperation
     {
@@ -1687,8 +1931,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.IsPattern"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IIsPatternOperation : IOperation
     {
@@ -1711,8 +1959,13 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Increment"/></description></item>
+    /// <item><description><see cref="OperationKind.Decrement"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IIncrementOrDecrementOperation : IOperation
     {
@@ -1750,8 +2003,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Throw"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IThrowOperation : IOperation
     {
@@ -1768,8 +2025,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.DeconstructionAssignment"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IDeconstructionAssignmentOperation : IAssignmentOperation
     {
@@ -1785,8 +2046,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.DeclarationExpression"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IDeclarationExpressionOperation : IOperation
     {
@@ -1803,8 +2068,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.OmittedArgument"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IOmittedArgumentOperation : IOperation
     {
@@ -1818,8 +2087,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ISymbolInitializerOperation : IOperation
     {
@@ -1841,8 +2110,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.FieldInitializer"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IFieldInitializerOperation : ISymbolInitializerOperation
     {
@@ -1860,8 +2133,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.VariableInitializer"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IVariableInitializerOperation : ISymbolInitializerOperation
     {
@@ -1875,8 +2152,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.PropertyInitializer"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IPropertyInitializerOperation : ISymbolInitializerOperation
     {
@@ -1894,8 +2175,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.ParameterInitializer"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IParameterInitializerOperation : ISymbolInitializerOperation
     {
@@ -1913,8 +2198,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.ArrayInitializer"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IArrayInitializerOperation : IOperation
     {
@@ -1936,8 +2225,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// <remarks>
     /// In VB, the initializer for this node is only ever used for explicit array bounds initializers. This node corresponds to
     /// the VariableDeclaratorSyntax in C# and the ModifiedIdentifierSyntax in VB.
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.VariableDeclarator"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IVariableDeclaratorOperation : IOperation
     {
@@ -1975,8 +2268,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// be initializers in both locations except in invalid code scenarios.
     /// In C#, this node will never have an initializer.
     /// This corresponds to the VariableDeclarationSyntax in C#, and the VariableDeclaratorSyntax in Visual Basic.
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.VariableDeclaration"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IVariableDeclarationOperation : IOperation
     {
@@ -2010,8 +2307,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Argument"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IArgumentOperation : IOperation
     {
@@ -2045,8 +2346,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.CatchClause"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ICatchClauseOperation : IOperation
     {
@@ -2084,8 +2389,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.SwitchCase"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ISwitchCaseOperation : IOperation
     {
@@ -2111,8 +2420,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ICaseClauseOperation : IOperation
     {
@@ -2134,8 +2443,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IDefaultCaseClauseOperation : ICaseClauseOperation
     {
@@ -2148,8 +2457,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IPatternCaseClauseOperation : ICaseClauseOperation
     {
@@ -2175,8 +2484,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IRangeCaseClauseOperation : ICaseClauseOperation
     {
@@ -2197,8 +2506,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IRelationalCaseClauseOperation : ICaseClauseOperation
     {
@@ -2220,8 +2529,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ISingleValueCaseClauseOperation : ICaseClauseOperation
     {
@@ -2239,8 +2548,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IInterpolatedStringContentOperation : IOperation
     {
@@ -2254,8 +2563,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.InterpolatedStringText"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IInterpolatedStringTextOperation : IInterpolatedStringContentOperation
     {
@@ -2273,8 +2586,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Interpolation"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IInterpolationOperation : IInterpolatedStringContentOperation
     {
@@ -2299,8 +2616,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IPatternOperation : IOperation
     {
@@ -2308,6 +2625,10 @@ namespace Microsoft.CodeAnalysis.Operations
         /// The input type to the pattern-matching operation.
         /// </summary>
         ITypeSymbol InputType { get; }
+        /// <summary>
+        /// The narrowed type of the pattern-matching operation.
+        /// </summary>
+        ITypeSymbol NarrowedType { get; }
     }
     /// <summary>
     /// Represents a pattern with a constant value.
@@ -2317,8 +2638,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.ConstantPattern"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IConstantPatternOperation : IPatternOperation
     {
@@ -2335,8 +2660,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.DeclarationPattern"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IDeclarationPatternOperation : IPatternOperation
     {
@@ -2363,8 +2692,13 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.TupleBinary"/></description></item>
+    /// <item><description><see cref="OperationKind.TupleBinaryOperator"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ITupleBinaryOperation : IOperation
     {
@@ -2389,8 +2723,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IMethodBodyBaseOperation : IOperation
     {
@@ -2411,8 +2745,13 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.MethodBody"/></description></item>
+    /// <item><description><see cref="OperationKind.MethodBodyOperation"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IMethodBodyOperation : IMethodBodyBaseOperation
     {
@@ -2425,8 +2764,13 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.ConstructorBody"/></description></item>
+    /// <item><description><see cref="OperationKind.ConstructorBodyOperation"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IConstructorBodyOperation : IMethodBodyBaseOperation
     {
@@ -2446,8 +2790,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Discard"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IDiscardOperation : IOperation
     {
@@ -2467,8 +2815,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.CoalesceAssignment"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ICoalesceAssignmentOperation : IAssignmentOperation
     {
@@ -2481,8 +2833,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.Range"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IRangeOperation : IOperation
     {
@@ -2515,8 +2871,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.ReDim"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IReDimOperation : IOperation
     {
@@ -2537,8 +2897,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.ReDimClause"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IReDimClauseOperation : IOperation
     {
@@ -2555,8 +2919,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// Represents a C# recursive pattern.
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.RecursivePattern"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IRecursivePatternOperation : IPatternOperation
     {
@@ -2590,8 +2958,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.DiscardPattern"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IDiscardPatternOperation : IPatternOperation
     {
@@ -2604,8 +2976,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.SwitchExpression"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ISwitchExpressionOperation : IOperation
     {
@@ -2622,8 +2998,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// Represents one arm of a switch expression.
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.SwitchExpressionArm"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ISwitchExpressionArmOperation : IOperation
     {
@@ -2649,8 +3029,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// pattern to match it against.
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.PropertySubpattern"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IPropertySubpatternOperation : IOperation
     {
@@ -2668,8 +3052,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// Represents a standalone VB query Aggregate operation with more than one item in Into clause.
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     internal interface IAggregateQueryOperation : IOperation
     {
@@ -2680,8 +3064,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// Represents a C# fixed statement.
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     internal interface IFixedOperation : IOperation
     {
@@ -2707,8 +3091,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     internal interface INoPiaObjectCreationOperation : IOperation
     {
@@ -2722,8 +3106,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// A placeholder is an expression whose meaning is inferred from context.
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     internal interface IPlaceholderOperation : IOperation
     {
@@ -2737,8 +3121,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     internal interface IPointerIndirectionReferenceOperation : IOperation
     {
@@ -2755,8 +3139,8 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     internal interface IWithStatementOperation : IOperation
     {
@@ -2778,8 +3162,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.UsingDeclaration"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IUsingDeclarationOperation : IOperation
     {
@@ -2800,8 +3188,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.NegatedPattern"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface INegatedPatternOperation : IPatternOperation
     {
@@ -2818,8 +3210,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.BinaryPattern"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IBinaryPatternOperation : IPatternOperation
     {
@@ -2844,8 +3240,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.TypePattern"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface ITypePatternOperation : IPatternOperation
     {
@@ -2862,8 +3262,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.RelationalPattern"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IRelationalPatternOperation : IPatternOperation
     {
@@ -2884,8 +3288,12 @@ namespace Microsoft.CodeAnalysis.Operations
     /// </para>
     /// </summary>
     /// <remarks>
-    /// This interface is reserved for implementation by its associated APIs. We reserve the right to
-    /// change it in the future.
+    /// <para>This node is associated with the following operation kinds:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="OperationKind.With"/></description></item>
+    /// </list>
+    /// <para>This interface is reserved for implementation by its associated APIs. We reserve the right to
+    /// change it in the future.</para>
     /// </remarks>
     public interface IWithOperation : IOperation
     {
@@ -7166,17 +7574,19 @@ namespace Microsoft.CodeAnalysis.Operations
     }
     internal abstract partial class BasePatternOperation : Operation, IPatternOperation
     {
-        protected BasePatternOperation(ITypeSymbol inputType, OperationKind kind, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+        protected BasePatternOperation(ITypeSymbol inputType, ITypeSymbol narrowedType, OperationKind kind, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
             : base(kind, semanticModel, syntax, type, constantValue, isImplicit)
         {
             InputType = inputType;
+            NarrowedType = narrowedType;
         }
         public ITypeSymbol InputType { get; }
+        public ITypeSymbol NarrowedType { get; }
     }
     internal abstract partial class BaseConstantPatternOperation : BasePatternOperation, IConstantPatternOperation
     {
-        internal BaseConstantPatternOperation(ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(inputType, OperationKind.ConstantPattern, semanticModel, syntax, type, constantValue, isImplicit) { }
+        internal BaseConstantPatternOperation(ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(inputType, narrowedType, OperationKind.ConstantPattern, semanticModel, syntax, type, constantValue, isImplicit) { }
         public abstract IOperation Value { get; }
         public override IEnumerable<IOperation> Children
         {
@@ -7190,8 +7600,8 @@ namespace Microsoft.CodeAnalysis.Operations
     }
     internal sealed partial class ConstantPatternOperation : BaseConstantPatternOperation, IConstantPatternOperation
     {
-        internal ConstantPatternOperation(IOperation value, ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(inputType, semanticModel, syntax, type, constantValue, isImplicit)
+        internal ConstantPatternOperation(IOperation value, ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(inputType, narrowedType, semanticModel, syntax, type, constantValue, isImplicit)
         {
             Value = SetParentOperation(value, this);
         }
@@ -7200,8 +7610,8 @@ namespace Microsoft.CodeAnalysis.Operations
     internal abstract partial class LazyConstantPatternOperation : BaseConstantPatternOperation, IConstantPatternOperation
     {
         private IOperation _lazyValue = s_unset;
-        internal LazyConstantPatternOperation(ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(inputType, semanticModel, syntax, type, constantValue, isImplicit){ }
+        internal LazyConstantPatternOperation(ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(inputType, narrowedType, semanticModel, syntax, type, constantValue, isImplicit){ }
         protected abstract IOperation CreateValue();
         public override IOperation Value
         {
@@ -7219,8 +7629,8 @@ namespace Microsoft.CodeAnalysis.Operations
     }
     internal sealed partial class DeclarationPatternOperation : BasePatternOperation, IDeclarationPatternOperation
     {
-        internal DeclarationPatternOperation(ITypeSymbol matchedType, bool matchesNull, ISymbol declaredSymbol, ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(inputType, OperationKind.DeclarationPattern, semanticModel, syntax, type, constantValue, isImplicit)
+        internal DeclarationPatternOperation(ITypeSymbol matchedType, bool matchesNull, ISymbol declaredSymbol, ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(inputType, narrowedType, OperationKind.DeclarationPattern, semanticModel, syntax, type, constantValue, isImplicit)
         {
             MatchedType = matchedType;
             MatchesNull = matchesNull;
@@ -7745,8 +8155,8 @@ namespace Microsoft.CodeAnalysis.Operations
     }
     internal abstract partial class BaseRecursivePatternOperation : BasePatternOperation, IRecursivePatternOperation
     {
-        internal BaseRecursivePatternOperation(ITypeSymbol matchedType, ISymbol deconstructSymbol, ISymbol declaredSymbol, ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(inputType, OperationKind.RecursivePattern, semanticModel, syntax, type, constantValue, isImplicit)
+        internal BaseRecursivePatternOperation(ITypeSymbol matchedType, ISymbol deconstructSymbol, ISymbol declaredSymbol, ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(inputType, narrowedType, OperationKind.RecursivePattern, semanticModel, syntax, type, constantValue, isImplicit)
         {
             MatchedType = matchedType;
             DeconstructSymbol = deconstructSymbol;
@@ -7776,8 +8186,8 @@ namespace Microsoft.CodeAnalysis.Operations
     }
     internal sealed partial class RecursivePatternOperation : BaseRecursivePatternOperation, IRecursivePatternOperation
     {
-        internal RecursivePatternOperation(ITypeSymbol matchedType, ISymbol deconstructSymbol, ImmutableArray<IPatternOperation> deconstructionSubpatterns, ImmutableArray<IPropertySubpatternOperation> propertySubpatterns, ISymbol declaredSymbol, ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(matchedType, deconstructSymbol, declaredSymbol, inputType, semanticModel, syntax, type, constantValue, isImplicit)
+        internal RecursivePatternOperation(ITypeSymbol matchedType, ISymbol deconstructSymbol, ImmutableArray<IPatternOperation> deconstructionSubpatterns, ImmutableArray<IPropertySubpatternOperation> propertySubpatterns, ISymbol declaredSymbol, ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(matchedType, deconstructSymbol, declaredSymbol, inputType, narrowedType, semanticModel, syntax, type, constantValue, isImplicit)
         {
             DeconstructionSubpatterns = SetParentOperation(deconstructionSubpatterns, this);
             PropertySubpatterns = SetParentOperation(propertySubpatterns, this);
@@ -7789,8 +8199,8 @@ namespace Microsoft.CodeAnalysis.Operations
     {
         private ImmutableArray<IPatternOperation> _lazyDeconstructionSubpatterns;
         private ImmutableArray<IPropertySubpatternOperation> _lazyPropertySubpatterns;
-        internal LazyRecursivePatternOperation(ITypeSymbol matchedType, ISymbol deconstructSymbol, ISymbol declaredSymbol, ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(matchedType, deconstructSymbol, declaredSymbol, inputType, semanticModel, syntax, type, constantValue, isImplicit){ }
+        internal LazyRecursivePatternOperation(ITypeSymbol matchedType, ISymbol deconstructSymbol, ISymbol declaredSymbol, ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(matchedType, deconstructSymbol, declaredSymbol, inputType, narrowedType, semanticModel, syntax, type, constantValue, isImplicit){ }
         protected abstract ImmutableArray<IPatternOperation> CreateDeconstructionSubpatterns();
         public override ImmutableArray<IPatternOperation> DeconstructionSubpatterns
         {
@@ -7822,8 +8232,8 @@ namespace Microsoft.CodeAnalysis.Operations
     }
     internal sealed partial class DiscardPatternOperation : BasePatternOperation, IDiscardPatternOperation
     {
-        internal DiscardPatternOperation(ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(inputType, OperationKind.DiscardPattern, semanticModel, syntax, type, constantValue, isImplicit) { }
+        internal DiscardPatternOperation(ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(inputType, narrowedType, OperationKind.DiscardPattern, semanticModel, syntax, type, constantValue, isImplicit) { }
         public override IEnumerable<IOperation> Children => Array.Empty<IOperation>();
         public override void Accept(OperationVisitor visitor) => visitor.VisitDiscardPattern(this);
         public override TResult Accept<TArgument, TResult>(OperationVisitor<TArgument, TResult> visitor, TArgument argument) => visitor.VisitDiscardPattern(this, argument);
@@ -8386,8 +8796,8 @@ namespace Microsoft.CodeAnalysis.Operations
     }
     internal abstract partial class BaseNegatedPatternOperation : BasePatternOperation, INegatedPatternOperation
     {
-        internal BaseNegatedPatternOperation(ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(inputType, OperationKind.NegatedPattern, semanticModel, syntax, type, constantValue, isImplicit) { }
+        internal BaseNegatedPatternOperation(ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(inputType, narrowedType, OperationKind.NegatedPattern, semanticModel, syntax, type, constantValue, isImplicit) { }
         public abstract IPatternOperation Pattern { get; }
         public override IEnumerable<IOperation> Children
         {
@@ -8401,8 +8811,8 @@ namespace Microsoft.CodeAnalysis.Operations
     }
     internal sealed partial class NegatedPatternOperation : BaseNegatedPatternOperation, INegatedPatternOperation
     {
-        internal NegatedPatternOperation(IPatternOperation pattern, ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(inputType, semanticModel, syntax, type, constantValue, isImplicit)
+        internal NegatedPatternOperation(IPatternOperation pattern, ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(inputType, narrowedType, semanticModel, syntax, type, constantValue, isImplicit)
         {
             Pattern = SetParentOperation(pattern, this);
         }
@@ -8411,8 +8821,8 @@ namespace Microsoft.CodeAnalysis.Operations
     internal abstract partial class LazyNegatedPatternOperation : BaseNegatedPatternOperation, INegatedPatternOperation
     {
         private IPatternOperation _lazyPattern = s_unsetPattern;
-        internal LazyNegatedPatternOperation(ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(inputType, semanticModel, syntax, type, constantValue, isImplicit){ }
+        internal LazyNegatedPatternOperation(ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(inputType, narrowedType, semanticModel, syntax, type, constantValue, isImplicit){ }
         protected abstract IPatternOperation CreatePattern();
         public override IPatternOperation Pattern
         {
@@ -8430,8 +8840,8 @@ namespace Microsoft.CodeAnalysis.Operations
     }
     internal abstract partial class BaseBinaryPatternOperation : BasePatternOperation, IBinaryPatternOperation
     {
-        internal BaseBinaryPatternOperation(BinaryOperatorKind operatorKind, ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(inputType, OperationKind.BinaryPattern, semanticModel, syntax, type, constantValue, isImplicit)
+        internal BaseBinaryPatternOperation(BinaryOperatorKind operatorKind, ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(inputType, narrowedType, OperationKind.BinaryPattern, semanticModel, syntax, type, constantValue, isImplicit)
         {
             OperatorKind = operatorKind;
         }
@@ -8451,8 +8861,8 @@ namespace Microsoft.CodeAnalysis.Operations
     }
     internal sealed partial class BinaryPatternOperation : BaseBinaryPatternOperation, IBinaryPatternOperation
     {
-        internal BinaryPatternOperation(BinaryOperatorKind operatorKind, IPatternOperation leftPattern, IPatternOperation rightPattern, ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(operatorKind, inputType, semanticModel, syntax, type, constantValue, isImplicit)
+        internal BinaryPatternOperation(BinaryOperatorKind operatorKind, IPatternOperation leftPattern, IPatternOperation rightPattern, ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(operatorKind, inputType, narrowedType, semanticModel, syntax, type, constantValue, isImplicit)
         {
             LeftPattern = SetParentOperation(leftPattern, this);
             RightPattern = SetParentOperation(rightPattern, this);
@@ -8464,8 +8874,8 @@ namespace Microsoft.CodeAnalysis.Operations
     {
         private IPatternOperation _lazyLeftPattern = s_unsetPattern;
         private IPatternOperation _lazyRightPattern = s_unsetPattern;
-        internal LazyBinaryPatternOperation(BinaryOperatorKind operatorKind, ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(operatorKind, inputType, semanticModel, syntax, type, constantValue, isImplicit){ }
+        internal LazyBinaryPatternOperation(BinaryOperatorKind operatorKind, ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(operatorKind, inputType, narrowedType, semanticModel, syntax, type, constantValue, isImplicit){ }
         protected abstract IPatternOperation CreateLeftPattern();
         public override IPatternOperation LeftPattern
         {
@@ -8497,8 +8907,8 @@ namespace Microsoft.CodeAnalysis.Operations
     }
     internal sealed partial class TypePatternOperation : BasePatternOperation, ITypePatternOperation
     {
-        internal TypePatternOperation(ITypeSymbol matchedType, ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(inputType, OperationKind.TypePattern, semanticModel, syntax, type, constantValue, isImplicit)
+        internal TypePatternOperation(ITypeSymbol matchedType, ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(inputType, narrowedType, OperationKind.TypePattern, semanticModel, syntax, type, constantValue, isImplicit)
         {
             MatchedType = matchedType;
         }
@@ -8509,8 +8919,8 @@ namespace Microsoft.CodeAnalysis.Operations
     }
     internal abstract partial class BaseRelationalPatternOperation : BasePatternOperation, IRelationalPatternOperation
     {
-        internal BaseRelationalPatternOperation(BinaryOperatorKind operatorKind, ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(inputType, OperationKind.RelationalPattern, semanticModel, syntax, type, constantValue, isImplicit)
+        internal BaseRelationalPatternOperation(BinaryOperatorKind operatorKind, ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(inputType, narrowedType, OperationKind.RelationalPattern, semanticModel, syntax, type, constantValue, isImplicit)
         {
             OperatorKind = operatorKind;
         }
@@ -8528,8 +8938,8 @@ namespace Microsoft.CodeAnalysis.Operations
     }
     internal sealed partial class RelationalPatternOperation : BaseRelationalPatternOperation, IRelationalPatternOperation
     {
-        internal RelationalPatternOperation(BinaryOperatorKind operatorKind, IOperation value, ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(operatorKind, inputType, semanticModel, syntax, type, constantValue, isImplicit)
+        internal RelationalPatternOperation(BinaryOperatorKind operatorKind, IOperation value, ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(operatorKind, inputType, narrowedType, semanticModel, syntax, type, constantValue, isImplicit)
         {
             Value = SetParentOperation(value, this);
         }
@@ -8538,8 +8948,8 @@ namespace Microsoft.CodeAnalysis.Operations
     internal abstract partial class LazyRelationalPatternOperation : BaseRelationalPatternOperation, IRelationalPatternOperation
     {
         private IOperation _lazyValue = s_unset;
-        internal LazyRelationalPatternOperation(BinaryOperatorKind operatorKind, ITypeSymbol inputType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
-            : base(operatorKind, inputType, semanticModel, syntax, type, constantValue, isImplicit){ }
+        internal LazyRelationalPatternOperation(BinaryOperatorKind operatorKind, ITypeSymbol inputType, ITypeSymbol narrowedType, SemanticModel semanticModel, SyntaxNode syntax, ITypeSymbol type, ConstantValue constantValue, bool isImplicit)
+            : base(operatorKind, inputType, narrowedType, semanticModel, syntax, type, constantValue, isImplicit){ }
         protected abstract IOperation CreateValue();
         public override IOperation Value
         {

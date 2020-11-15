@@ -32,6 +32,11 @@
         <target state="translated">Appliquer les préférences de corps d'expression/de bloc</target>
         <note />
       </trans-unit>
+      <trans-unit id="Apply_file_header_preferences">
+        <source>Apply file header preferences</source>
+        <target state="translated">Appliquer les préférences d'en-tête de fichier</target>
+        <note />
+      </trans-unit>
       <trans-unit id="Apply_implicit_explicit_type_preferences">
         <source>Apply implicit/explicit type preferences</source>
         <target state="translated">Appliquer les préférences de type implicite/explicite</target>
@@ -289,7 +294,7 @@
       </trans-unit>
       <trans-unit id="Selection_does_not_contain_a_valid_node">
         <source>Selection does not contain a valid node</source>
-        <target state="translated">La sélection ne contient pas un nœud valide.</target>
+        <target state="translated">La sélection ne contient pas un nœud valide</target>
         <note />
       </trans-unit>
       <trans-unit id="Invalid_selection">

@@ -127,6 +127,7 @@
                                   both mean SARIF version 2.1.0.
 -reportanalyzer                   Report additional analyzer information, such as
                                   execution time.
+-skipanalyzers[+|-]               Skip execution of diagnostic analyzers.
 
                                   - LANGUAGE -
 -define:&lt;symbol_list&gt;             Declare global conditional compilation
@@ -239,7 +240,7 @@
                                   l'assembly spécifié. (Forme abrégée : -r)
 -analyzer:&lt;liste_fichiers&gt;        Exécuter les analyseurs à partir de cet assembly
                                   (Forme abrégée : -a)
--additionalfile:&lt;liste_fich.&gt;     Fichiers supplémentaires qui n'affectent pas directement
+-additionalfile:&lt;liste_fichiers&gt;     Fichiers supplémentaires qui n'affectent pas directement
                                   la génération de code mais qui peuvent être utilisés par les analyseurs pour produire
                                   des erreurs ou des avertissements.
 
@@ -290,6 +291,7 @@
                                   Les deux signifient SARIF version 2.1.0.
 -reportanalyzer                   Signaler des informations supplémentaires sur l'analyseur, par exemple
                                   la durée d'exécution.
+-skipanalyzers[+|-]               Ignorer l'exécution des analyseurs de diagnostic.
 
                                   - LANGAGE -
 -define:&lt;liste_symboles&gt;          Déclarer des symboles de compilation

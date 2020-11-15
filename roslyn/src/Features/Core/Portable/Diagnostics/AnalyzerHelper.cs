@@ -15,7 +15,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics.Telemetry;
 using Microsoft.CodeAnalysis.ErrorReporting;
-using Microsoft.CodeAnalysis.Internal.Log;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.Text;
 using Roslyn.Utilities;
@@ -34,6 +33,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         internal const string WRN_NoAnalyzerInAssemblyIdVB = "BC42377";
         internal const string WRN_UnableToLoadAnalyzerIdCS = "CS8034";
         internal const string WRN_UnableToLoadAnalyzerIdVB = "BC42378";
+        internal const string WRN_AnalyzerReferencesNetFrameworkIdCS = "CS8850";
 
         // Shared with Compiler
         internal const string AnalyzerExceptionDiagnosticId = "AD0001";
@@ -43,6 +43,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         internal const string WRN_AnalyzerCannotBeCreatedId = "AD1000";
         internal const string WRN_NoAnalyzerInAssemblyId = "AD1001";
         internal const string WRN_UnableToLoadAnalyzerId = "AD1002";
+        internal const string WRN_AnalyzerReferencesNetFrameworkId = "AD1003";
 
         private const string AnalyzerExceptionDiagnosticCategory = "Intellisense";
 
@@ -200,6 +201,12 @@ namespace Microsoft.CodeAnalysis.Diagnostics
                     id = GetLanguageSpecificId(language, WRN_NoAnalyzerInAssemblyId, WRN_NoAnalyzerInAssemblyIdCS, WRN_NoAnalyzerInAssemblyIdVB);
                     messageFormat = FeaturesResources.The_assembly_0_does_not_contain_any_analyzers;
                     message = string.Format(FeaturesResources.The_assembly_0_does_not_contain_any_analyzers, fullPath);
+                    break;
+
+                case AnalyzerLoadFailureEventArgs.FailureErrorCode.ReferencesFramework:
+                    id = GetLanguageSpecificId(language, WRN_AnalyzerReferencesNetFrameworkId, WRN_AnalyzerReferencesNetFrameworkIdCS, WRN_AnalyzerReferencesNetFrameworkId /*Not supported by VB*/);
+                    messageFormat = FeaturesResources.The_assembly_0_containing_type_1_references_NET_Framework;
+                    message = string.Format(FeaturesResources.The_assembly_0_containing_type_1_references_NET_Framework, fullPath, e.TypeName);
                     break;
 
                 default:
@@ -458,60 +465,38 @@ namespace Microsoft.CodeAnalysis.Diagnostics
         }
 #endif
 
-        public static IEnumerable<DiagnosticData> ConvertToLocalDiagnostics(this IEnumerable<Diagnostic> diagnostics, Document targetDocument, TextSpan? span = null)
+        public static IEnumerable<DiagnosticData> ConvertToLocalDiagnostics(this IEnumerable<Diagnostic> diagnostics, TextDocument targetTextDocument, TextSpan? span = null)
         {
-            var project = targetDocument.Project;
-
-            if (project.SupportsCompilation)
+            foreach (var diagnostic in diagnostics)
             {
-                return ConvertToLocalDiagnosticsWithCompilation();
+                if (!IsReportedInDocument(diagnostic, targetTextDocument))
+                {
+                    continue;
+                }
+
+                if (span.HasValue && !span.Value.IntersectsWith(diagnostic.Location.SourceSpan))
+                {
+                    continue;
+                }
+
+                yield return DiagnosticData.Create(diagnostic, targetTextDocument);
             }
 
-            return ConvertToLocalDiagnosticsWithoutCompilation();
-
-            IEnumerable<DiagnosticData> ConvertToLocalDiagnosticsWithoutCompilation()
+            static bool IsReportedInDocument(Diagnostic diagnostic, TextDocument targetTextDocument)
             {
-                Contract.ThrowIfTrue(project.SupportsCompilation);
-
-                foreach (var diagnostic in diagnostics)
+                if (diagnostic.Location.SourceTree != null)
                 {
-                    var location = diagnostic.Location;
-                    if (location.Kind != LocationKind.ExternalFile)
-                    {
-                        continue;
-                    }
-
-                    var lineSpan = location.GetLineSpan();
-
-                    var documentIds = project.Solution.GetDocumentIdsWithFilePath(lineSpan.Path);
-                    if (documentIds.IsEmpty || documentIds.All(id => id != targetDocument.Id))
-                    {
-                        continue;
-                    }
-
-                    yield return DiagnosticData.Create(diagnostic, targetDocument);
+                    return targetTextDocument.Project.GetDocument(diagnostic.Location.SourceTree) == targetTextDocument;
                 }
-            }
-
-            IEnumerable<DiagnosticData> ConvertToLocalDiagnosticsWithCompilation()
-            {
-                Contract.ThrowIfFalse(project.SupportsCompilation);
-
-                foreach (var diagnostic in diagnostics)
+                else if (diagnostic.Location.Kind == LocationKind.ExternalFile)
                 {
-                    var document = project.GetDocument(diagnostic.Location.SourceTree);
-                    if (document == null || document != targetDocument)
-                    {
-                        continue;
-                    }
+                    var lineSpan = diagnostic.Location.GetLineSpan();
 
-                    if (span.HasValue && !span.Value.IntersectsWith(diagnostic.Location.SourceSpan))
-                    {
-                        continue;
-                    }
-
-                    yield return DiagnosticData.Create(diagnostic, document);
+                    var documentIds = targetTextDocument.Project.Solution.GetDocumentIdsWithFilePath(lineSpan.Path);
+                    return documentIds.Any(id => id == targetTextDocument.Id);
                 }
+
+                return false;
             }
         }
 
@@ -545,125 +530,5 @@ namespace Microsoft.CodeAnalysis.Diagnostics
             }
         }
 #endif
-
-        public static bool? IsCompilationEndAnalyzer(this DiagnosticAnalyzer analyzer, Project project, Compilation? compilation)
-        {
-            if (!project.SupportsCompilation)
-            {
-                return false;
-            }
-
-            Contract.ThrowIfNull(compilation);
-
-            try
-            {
-                // currently, this is only way to see whether analyzer has compilation end analysis or not.
-                // also, analyzer being compilation end analyzer or not is dynamic. so this can return different value based on
-                // given compilation or options.
-                //
-                // but for now, this is what we decided in design meeting until we decide how to deal with compilation end analyzer
-                // long term
-                var context = new CollectCompilationActionsContext(compilation, project.AnalyzerOptions);
-                analyzer.Initialize(context);
-
-                return context.IsCompilationEndAnalyzer;
-            }
-            catch
-            {
-                // analyzer.initialize can throw. when that happens, we will try again next time.
-                // we are not logging anything here since it will be logged by CompilationWithAnalyzer later
-                // in the error list
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Right now, there is no API compiler will tell us whether DiagnosticAnalyzer has compilation end analysis or not
-        /// 
-        /// </summary>
-        private class CollectCompilationActionsContext : AnalysisContext
-        {
-            private readonly Compilation _compilation;
-            private readonly AnalyzerOptions _analyzerOptions;
-
-            public CollectCompilationActionsContext(Compilation compilation, AnalyzerOptions analyzerOptions)
-            {
-                _compilation = compilation;
-                _analyzerOptions = analyzerOptions;
-            }
-
-            public bool IsCompilationEndAnalyzer { get; private set; } = false;
-
-            public override void RegisterCompilationAction(Action<CompilationAnalysisContext> action)
-            {
-                if (action == null)
-                {
-                    return;
-                }
-
-                IsCompilationEndAnalyzer = true;
-            }
-
-            public override void RegisterCompilationStartAction(Action<CompilationStartAnalysisContext> action)
-            {
-                if (action == null)
-                {
-                    return;
-                }
-
-                var nestedContext = new CollectNestedCompilationContext(_compilation, _analyzerOptions, CancellationToken.None);
-                action(nestedContext);
-
-                IsCompilationEndAnalyzer |= nestedContext.IsCompilationEndAnalyzer;
-            }
-
-            #region not used
-            public override void RegisterCodeBlockAction(Action<CodeBlockAnalysisContext> action) { }
-            public override void RegisterCodeBlockStartAction<TLanguageKindEnum>(Action<CodeBlockStartAnalysisContext<TLanguageKindEnum>> action) { }
-            public override void RegisterSemanticModelAction(Action<SemanticModelAnalysisContext> action) { }
-            public override void RegisterSymbolAction(Action<SymbolAnalysisContext> action, ImmutableArray<SymbolKind> symbolKinds) { }
-            public override void RegisterSyntaxNodeAction<TLanguageKindEnum>(Action<SyntaxNodeAnalysisContext> action, ImmutableArray<TLanguageKindEnum> syntaxKinds) { }
-            public override void RegisterSyntaxTreeAction(Action<SyntaxTreeAnalysisContext> action) { }
-            public override void ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags analysisMode) { }
-            public override void EnableConcurrentExecution() { }
-            public override void RegisterOperationAction(Action<OperationAnalysisContext> action, ImmutableArray<OperationKind> operationKinds) { }
-            public override void RegisterOperationBlockAction(Action<OperationBlockAnalysisContext> action) { }
-            public override void RegisterOperationBlockStartAction(Action<OperationBlockStartAnalysisContext> action) { }
-            public override void RegisterSymbolStartAction(Action<SymbolStartAnalysisContext> action, SymbolKind symbolKind) { }
-            #endregion
-
-            private class CollectNestedCompilationContext : CompilationStartAnalysisContext
-            {
-                public bool IsCompilationEndAnalyzer { get; private set; } = false;
-
-                public CollectNestedCompilationContext(Compilation compilation, AnalyzerOptions options, CancellationToken cancellationToken)
-                    : base(compilation, options, cancellationToken)
-                {
-                }
-
-                public override void RegisterCompilationEndAction(Action<CompilationAnalysisContext> action)
-                {
-                    if (action == null)
-                    {
-                        return;
-                    }
-
-                    IsCompilationEndAnalyzer = true;
-                }
-
-                #region not used
-                public override void RegisterCodeBlockAction(Action<CodeBlockAnalysisContext> action) { }
-                public override void RegisterCodeBlockStartAction<TLanguageKindEnum>(Action<CodeBlockStartAnalysisContext<TLanguageKindEnum>> action) { }
-                public override void RegisterSemanticModelAction(Action<SemanticModelAnalysisContext> action) { }
-                public override void RegisterSymbolAction(Action<SymbolAnalysisContext> action, ImmutableArray<SymbolKind> symbolKinds) { }
-                public override void RegisterSyntaxNodeAction<TLanguageKindEnum>(Action<SyntaxNodeAnalysisContext> action, ImmutableArray<TLanguageKindEnum> syntaxKinds) { }
-                public override void RegisterSyntaxTreeAction(Action<SyntaxTreeAnalysisContext> action) { }
-                public override void RegisterOperationAction(Action<OperationAnalysisContext> action, ImmutableArray<OperationKind> operationKinds) { }
-                public override void RegisterOperationBlockAction(Action<OperationBlockAnalysisContext> action) { }
-                public override void RegisterOperationBlockStartAction(Action<OperationBlockStartAnalysisContext> action) { }
-                public override void RegisterSymbolStartAction(Action<SymbolStartAnalysisContext> action, SymbolKind symbolKind) { }
-                #endregion
-            }
-        }
     }
 }

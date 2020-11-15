@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
-  <file datatype="xml" source-language="en" target-language="zh-Hant" original="../VSPackage.resx">
+  <file datatype="xml" source-language="en" target-language="zh-HANT" original="../VSPackage.resx">
     <body>
       <trans-unit id="101">
         <source>C#</source>
@@ -33,7 +33,8 @@
         <note>"C#" node help text in profile Import/Export.</note>
       </trans-unit>
       <trans-unit id="306">
-        <source>Show diagnostics for closed files;
+        <source>Display inline parameter name hints;
+Show diagnostics for closed files;
 Colorize regular expression; 
 Highlight related components under cursor; 
 Report invalid regular expressions;
@@ -80,9 +81,10 @@ regex;
 regular expression;
 Use enhanced colors;
 Editor Color Scheme;</source>
-        <target state="translated">顯示已關閉檔案的診斷;
+        <target state="translated">顯示內嵌參數名稱提示;
+顯示已關閉檔案的診斷;
 為規則運算式標示色彩; 
-醒目提示游標下的相關元件; 
+醒目提示資料指標下的相關元件; 
 回報無效的規則運算式;
 啟用完整解決方案分析;
 在外部處理序中執行編輯器功能分析;
@@ -93,8 +95,8 @@ using 指示詞;
 為參考組件中的類型建議 using;
 為 NuGet 套件中的類型建議 using;
 醒目提示;
-醒目提示游標下的符號參考;
-醒目提示游標下的相關關鍵字;
+醒目提示資料指標下的符號參考;
+醒目提示資料指標下的相關關鍵字;
 大綱;
 在檔案開啟時進入大綱模式;
 顯示程序行分隔符號;

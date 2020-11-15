@@ -6,9 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
-using Microsoft.CodeAnalysis.CSharp.Emit;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.PooledObjects;
 using Microsoft.CodeAnalysis.Text;
@@ -106,7 +104,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
         }
 
-        protected override (TypeWithAnnotations ReturnType, ImmutableArray<ParameterSymbol> Parameters, bool IsVararg, ImmutableArray<TypeParameterConstraintClause> DeclaredConstraintsForOverrideOrImplement) MakeParametersAndBindReturnType(DiagnosticBag diagnostics)
+        protected override (TypeWithAnnotations ReturnType, ImmutableArray<ParameterSymbol> Parameters, bool IsVararg, ImmutableArray<TypeParameterConstraintClause> DeclaredConstraintsForOverrideOrImplementation) MakeParametersAndBindReturnType(DiagnosticBag diagnostics)
         {
             var syntax = GetSyntax();
             var withTypeParamsBinder = this.DeclaringCompilation.GetBinderFactory(syntax.SyntaxTree).GetBinder(syntax.ReturnType, syntax, this);
@@ -155,9 +153,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 // When a generic method overrides a generic method declared in a base class, or is an 
                 // explicit interface member implementation of a method in a base interface, the method
-                // shall not specify any type-parameter-constraints-clauses, except for a struct constraint, or a class constraint.
+                // shall not specify any type-parameter-constraints-clauses, except for a struct, class, or default constraint.
                 // In these cases, the type parameters of the method inherit constraints from the method being overridden or 
-                // implemented
+                // implemented.
                 if (syntax.ConstraintClauses.Count > 0)
                 {
                     Binder.CheckFeatureAvailability(syntax.SyntaxTree, MessageID.IDS_OverrideWithConstraints, diagnostics,
@@ -166,6 +164,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     IReadOnlyDictionary<TypeParameterSymbol, bool> isValueTypeOverride = null;
                     declaredConstraints = signatureBinder.WithAdditionalFlags(BinderFlags.GenericConstraintsClause | BinderFlags.SuppressConstraintChecks).
                                               BindTypeParameterConstraintClauses(this, TypeParameters, syntax.TypeParameterList, syntax.ConstraintClauses,
+                                                                                 canIgnoreNullableContext: false,
                                                                                  ref isValueTypeOverride,
                                                                                  diagnostics, isForOverride: true);
                 }
@@ -188,15 +187,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     if (type.DefaultType is TypeParameterSymbol typeParameterSymbol && typeParameterSymbol.DeclaringMethod == (object)args.method)
                     {
-                        if (!args.declaredConstraints.IsDefault &&
-                            (args.declaredConstraints[typeParameterSymbol.Ordinal].Constraints & TypeParameterConstraintKind.ReferenceType) != 0)
-                        {
-                            type.TryForceResolveAsNullableReferenceType();
-                        }
-                        else
-                        {
-                            type.TryForceResolveAsNullableValueType();
-                        }
+                        var asValueType = args.declaredConstraints.IsDefault ||
+                            (args.declaredConstraints[typeParameterSymbol.Ordinal].Constraints & (TypeParameterConstraintKind.ReferenceType | TypeParameterConstraintKind.Default)) == 0;
+                        type.TryForceResolve(asValueType);
                     }
                     return false;
                 }, typePredicate: null, arg: (method, declaredConstraints), canDigThroughNullable: false, useDefaultType: true);
@@ -288,9 +281,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
         }
 
-        public override ImmutableArray<TypeParameterConstraintClause> GetTypeParameterConstraintClauses()
+        public override ImmutableArray<TypeParameterConstraintClause> GetTypeParameterConstraintClauses(bool canIgnoreNullableContext)
         {
-            if (_lazyTypeParameterConstraints.IsDefault)
+            if (!_lazyTypeParameterConstraints.HasValue(canIgnoreNullableContext))
             {
                 var diagnostics = DiagnosticBag.GetInstance();
                 var syntax = GetSyntax();
@@ -303,9 +296,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     TypeParameters,
                     syntax.TypeParameterList,
                     syntax.ConstraintClauses,
-                    syntax.Identifier.GetLocation(),
+                    canIgnoreNullableContext,
                     diagnostics);
-                if (ImmutableInterlocked.InterlockedInitialize(ref _lazyTypeParameterConstraints, constraints))
+                if (TypeParameterConstraintClauseExtensions.InterlockedUpdate(ref _lazyTypeParameterConstraints, constraints) &&
+                    _lazyTypeParameterConstraints.HasValue(canIgnoreNullableContext: false))
                 {
                     this.AddDeclarationDiagnostics(diagnostics);
                 }
@@ -526,6 +520,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         break;
                     }
                 }
+
+                SourceMemberContainerTypeSymbol.ReportTypeNamedRecord(identifier.Text, this.DeclaringCompilation, diagnostics, location);
 
                 var tpEnclosing = ContainingType.FindEnclosingTypeParameter(name);
                 if ((object)tpEnclosing != null)

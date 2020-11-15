@@ -37,6 +37,16 @@
         <target state="translated">続行しますか。破損状態のコードが生成される可能性があります。</target>
         <note />
       </trans-unit>
+      <trans-unit id="Error_creating_instance_of_CodeFixProvider">
+        <source>Error creating instance of CodeFixProvider</source>
+        <target state="translated">CodeFixProvider のインスタンスの作成でエラーが発生しました</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Error_creating_instance_of_CodeFixProvider_0">
+        <source>Error creating instance of CodeFixProvider '{0}'</source>
+        <target state="translated">CodeFixProvider '{0}' のインスタンスの作成でエラーが発生しました</target>
+        <note />
+      </trans-unit>
       <trans-unit id="Expander_display_text">
         <source>items from unimported namespaces</source>
         <target state="translated">インポートされていない名前空間の項目</target>
@@ -65,6 +75,11 @@
       <trans-unit id="Go_To_Base">
         <source>Go To Base</source>
         <target state="translated">基本へ移動</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Inline_Parameter_Name_Hints">
+        <source>Inline Parameter Name Hints</source>
+        <target state="translated">インライン パラメーター名のヒント</target>
         <note />
       </trans-unit>
       <trans-unit id="Invalid_assembly_name">
@@ -619,7 +634,7 @@
       </trans-unit>
       <trans-unit id="Rename_operation_was_cancelled_or_is_not_valid">
         <source>Rename operation was cancelled or is not valid</source>
-        <target state="translated">名前の変更操作は取り消されたか、または検証されていません。</target>
+        <target state="translated">名前の変更操作は取り消されたか、または検証されていません</target>
         <note />
       </trans-unit>
       <trans-unit id="Rename_Symbol">
@@ -639,7 +654,7 @@
       </trans-unit>
       <trans-unit id="Rename_0_to_1">
         <source>Rename '{0}' to '{1}'</source>
-        <target state="translated">{0}' を '{1}' に名前変更</target>
+        <target state="translated">'{0}' を '{1}' に名前変更</target>
         <note />
       </trans-unit>
       <trans-unit id="Preview_Warning">
@@ -1086,7 +1101,7 @@ Do you want to proceed?</source>
       </trans-unit>
       <trans-unit id="Rename_0_to_1_colon">
         <source>Rename '{0}' to '{1}':</source>
-        <target state="translated">{0}' の名前を '{1}' に変更します。</target>
+        <target state="translated">'{0}' の名前を '{1}' に変更します:</target>
         <note />
       </trans-unit>
       <trans-unit id="Encapsulate_Field_colon">
@@ -1101,7 +1116,7 @@ Do you want to proceed?</source>
       </trans-unit>
       <trans-unit id="Calls_To_0">
         <source>Calls To '{0}'</source>
-        <target state="translated">{0}' への呼び出し</target>
+        <target state="translated">'{0}' への呼び出し</target>
         <note />
       </trans-unit>
       <trans-unit id="Calls_To_Base_Member_0">
@@ -1121,7 +1136,7 @@ Do you want to proceed?</source>
       </trans-unit>
       <trans-unit id="Implements_0">
         <source>Implements '{0}'</source>
-        <target state="translated">{0}' を実装します</target>
+        <target state="translated">'{0}' を実装します</target>
         <note />
       </trans-unit>
       <trans-unit id="Initializers">
@@ -1141,7 +1156,7 @@ Do you want to proceed?</source>
       </trans-unit>
       <trans-unit id="Preview_changes1">
         <source>_Preview changes</source>
-        <target state="translated">プレビューの変更(_P)</target>
+        <target state="translated">変更のプレビュー(_P)</target>
         <note />
       </trans-unit>
       <trans-unit id="Apply3">
@@ -1192,11 +1207,6 @@ Do you want to proceed?</source>
       <trans-unit id="Brace_Completion">
         <source>Brace Completion</source>
         <target state="translated">かっこ完了</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="Fix_all_occurrences_in">
-        <source>Fix all occurrences in</source>
-        <target state="translated">次の場所のすべての出現箇所を修正します</target>
         <note />
       </trans-unit>
       <trans-unit id="Cannot_apply_operation_while_a_rename_session_is_active">

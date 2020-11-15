@@ -13,11 +13,17 @@ using Microsoft.CodeAnalysis.Test.Utilities;
 using Roslyn.Test.Utilities;
 using Roslyn.Utilities;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.CodeAnalysis.Editor.CSharp.UnitTests.Diagnostics.GenerateMethod
 {
     public class GenerateMethodTests : AbstractCSharpDiagnosticProviderBasedUserDiagnosticTest
     {
+        public GenerateMethodTests(ITestOutputHelper logger)
+             : base(logger)
+        {
+        }
+
         internal override (DiagnosticAnalyzer, CodeFixProvider) CreateDiagnosticProviderAndFixer(Workspace workspace)
             => (null, new GenerateMethodCodeFixProvider());
 
@@ -8802,6 +8808,111 @@ class Class
     }
 
     private unsafe void M2(delegate*<int, float> y)
+    {
+        throw new NotImplementedException();
+    }
+}");
+        }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.CodeActionsGenerateMethod)]
+        public async Task TestWithFunctionPointerUnmanagedConvention()
+        {
+            await TestInRegularAndScriptAsync(
+@"
+using System;
+
+class Class
+{
+    unsafe void M()
+    {
+        delegate* unmanaged<int, float> y;
+        [|M2(y)|];
+    }
+}",
+@"
+using System;
+
+class Class
+{
+    unsafe void M()
+    {
+        delegate* unmanaged<int, float> y;
+        [|M2(y)|];
+    }
+
+    private unsafe void M2(delegate* unmanaged<int, float> y)
+    {
+        throw new NotImplementedException();
+    }
+}");
+        }
+
+        [Theory, Trait(Traits.Feature, Traits.Features.CodeActionsGenerateMethod)]
+        [InlineData("Cdecl")]
+        [InlineData("Fastcall")]
+        [InlineData("Thiscall")]
+        [InlineData("Stdcall")]
+        [InlineData("Thiscall, Stdcall")]
+        [InlineData("Bad")] // Bad conventions should still be generatable
+        public async Task TestWithFunctionPointerUnmanagedSpecificConvention(string convention)
+        {
+            await TestInRegularAndScriptAsync(
+$@"
+using System;
+
+class Class
+{{
+    unsafe void M()
+    {{
+        delegate* unmanaged[{convention}]<int, float> y;
+        [|M2(y)|];
+    }}
+}}",
+$@"
+using System;
+
+class Class
+{{
+    unsafe void M()
+    {{
+        delegate* unmanaged[{convention}]<int, float> y;
+        [|M2(y)|];
+    }}
+
+    private unsafe void M2(delegate* unmanaged[{convention}]<int, float> y)
+    {{
+        throw new NotImplementedException();
+    }}
+}}");
+        }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.CodeActionsGenerateMethod)]
+        public async Task TestWithFunctionPointerUnmanagedMissingConvention()
+        {
+            await TestInRegularAndScriptAsync(
+@"
+using System;
+
+class Class
+{
+    unsafe void M()
+    {
+        delegate* unmanaged[]<int, float> y;
+        [|M2(y)|];
+    }
+}",
+@"
+using System;
+
+class Class
+{
+    unsafe void M()
+    {
+        delegate* unmanaged[]<int, float> y;
+        [|M2(y)|];
+    }
+
+    private unsafe void M2(delegate* unmanaged<int, float> y)
     {
         throw new NotImplementedException();
     }

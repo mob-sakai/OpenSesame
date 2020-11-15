@@ -66,7 +66,7 @@ namespace Microsoft.CodeAnalysis
         public abstract string CodePrefix { get; }
 
         /// <summary>
-        /// Get the warning level for warnings (e.g., 1 through 4 for C#). VB does not have warning
+        /// Get the warning level for warnings (e.g., 1 or greater for C#). VB does not have warning
         /// levels and always uses 1. Errors should return 0.
         /// </summary>
         public abstract int GetWarningLevel(int code);
@@ -170,6 +170,7 @@ namespace Microsoft.CodeAnalysis
         public abstract int INF_UnableToLoadSomeTypesInAnalyzer { get; }
         public abstract int WRN_AnalyzerCannotBeCreated { get; }
         public abstract int WRN_NoAnalyzerInAssembly { get; }
+        public abstract int WRN_AnalyzerReferencesFramework { get; }
         public abstract int ERR_CantReadRulesetFile { get; }
         public abstract int ERR_CompileCancelled { get; }
 

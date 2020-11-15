@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.Editor.UnitTests.Workspaces;
 using Microsoft.CodeAnalysis.Test.Utilities;
 using Roslyn.Test.Utilities;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.CodeAnalysis.Editor.CSharp.UnitTests.Diagnostics.MockDiagnosticAnalyzer
 {
@@ -39,6 +40,11 @@ namespace Microsoft.CodeAnalysis.Editor.CSharp.UnitTests.Diagnostics.MockDiagnos
             }
         }
 
+        public MockDiagnosticAnalyzerTests(ITestOutputHelper logger)
+           : base(logger)
+        {
+        }
+
         internal override (DiagnosticAnalyzer, CodeFixProvider) CreateDiagnosticProviderAndFixer(Workspace workspace)
             => (new MockDiagnosticAnalyzer(), null);
 
@@ -46,7 +52,7 @@ namespace Microsoft.CodeAnalysis.Editor.CSharp.UnitTests.Diagnostics.MockDiagnos
              string source,
              params DiagnosticDescription[] expectedDiagnostics)
         {
-            using var workspace = TestWorkspace.CreateCSharp(source);
+            using var workspace = TestWorkspace.CreateCSharp(source, composition: GetComposition());
             var actualDiagnostics = await this.GetDiagnosticsAsync(workspace, new TestParameters());
             actualDiagnostics.Verify(expectedDiagnostics);
         }

@@ -156,7 +156,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             return new BoundBadExpression(syntax,
                 resultKind,
                 symbols,
-                ImmutableArray.Create(childNode),
+                ImmutableArray.Create(BindToTypeForErrorRecovery(childNode)),
                 CreateErrorType());
         }
 
@@ -214,7 +214,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
         }
 
-        internal TypeSymbol CreateErrorType(string name = "")
+        internal NamedTypeSymbol CreateErrorType(string name = "")
         {
             return new ExtendedErrorTypeSymbol(this.Compilation, name, arity: 0, errorInfo: null, unreported: false);
         }
@@ -275,6 +275,9 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         internal BoundExpression BindToNaturalType(BoundExpression expression, DiagnosticBag diagnostics, bool reportNoTargetType = true)
         {
+            if (!expression.NeedsToBeConverted())
+                return expression;
+
             BoundExpression result;
             switch (expression)
             {
@@ -290,6 +293,32 @@ namespace Microsoft.CodeAnalysis.CSharp
                             hasErrors = true;
                         }
                         result = ConvertSwitchExpression(expr, commonType, conversionIfTargetTyped: null, diagnostics, hasErrors);
+                    }
+                    break;
+                case BoundUnconvertedConditionalOperator op:
+                    {
+                        TypeSymbol type = op.Type;
+                        bool hasErrors = op.HasErrors;
+                        if (type is null)
+                        {
+                            Debug.Assert(op.NoCommonTypeError != 0);
+                            type = CreateErrorType();
+                            hasErrors = true;
+                            object trueArg = op.Consequence.Display;
+                            object falseArg = op.Alternative.Display;
+                            if (op.NoCommonTypeError == ErrorCode.ERR_InvalidQM && trueArg is Symbol trueSymbol && falseArg is Symbol falseSymbol)
+                            {
+                                // ERR_InvalidQM is an error that there is no conversion between the two types. They might be the same
+                                // type name from different assemblies, so we disambiguate the display.
+                                SymbolDistinguisher distinguisher = new SymbolDistinguisher(this.Compilation, trueSymbol, falseSymbol);
+                                trueArg = distinguisher.First;
+                                falseArg = distinguisher.Second;
+                            }
+
+                            diagnostics.Add(op.NoCommonTypeError, op.Syntax.Location, trueArg, falseArg);
+                        }
+
+                        result = ConvertConditionalExpression(op, type, conversionIfTargetTyped: null, diagnostics, hasErrors);
                     }
                     break;
                 case BoundTupleLiteral sourceTuple:
@@ -327,10 +356,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                     }
                     break;
                 case BoundStackAllocArrayCreation { Type: null } boundStackAlloc:
-                    // This is a context in which the stackalloc could be either a pointer
-                    // or a span.  For backward compatibility we treat it as a pointer.
-                    var type = new PointerTypeSymbol(TypeWithAnnotations.Create(boundStackAlloc.ElementType));
-                    result = GenerateConversionForAssignment(type, boundStackAlloc, diagnostics);
+                    {
+                        // This is a context in which the stackalloc could be either a pointer
+                        // or a span.  For backward compatibility we treat it as a pointer.
+                        var type = new PointerTypeSymbol(TypeWithAnnotations.Create(boundStackAlloc.ElementType));
+                        result = GenerateConversionForAssignment(type, boundStackAlloc, diagnostics);
+                    }
                     break;
                 case BoundUnconvertedObjectCreationExpression expr:
                     {
@@ -496,7 +527,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SyntaxKind.AnonymousMethodExpression:
                 case SyntaxKind.ParenthesizedLambdaExpression:
                 case SyntaxKind.SimpleLambdaExpression:
-                    return BindAnonymousFunction(node, diagnostics);
+                    return BindAnonymousFunction((AnonymousFunctionExpressionSyntax)node, diagnostics);
                 case SyntaxKind.ThisExpression:
                     return BindThis((ThisExpressionSyntax)node, diagnostics);
                 case SyntaxKind.BaseExpression:
@@ -1286,7 +1317,17 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <returns>true if managed type-related errors were found, otherwise false.</returns>
         internal static bool CheckManagedAddr(CSharpCompilation compilation, TypeSymbol type, Location location, DiagnosticBag diagnostics)
         {
-            switch (type.ManagedKind)
+            HashSet<DiagnosticInfo>? useSiteDiagnostics = null;
+            var managedKind = type.GetManagedKind(ref useSiteDiagnostics);
+            diagnostics.Add(location, useSiteDiagnostics);
+
+            return CheckManagedAddr(compilation, type, managedKind, location, diagnostics);
+        }
+
+        /// <returns>true if managed type-related errors were found, otherwise false.</returns>
+        internal static bool CheckManagedAddr(CSharpCompilation compilation, TypeSymbol type, ManagedKind managedKind, Location location, DiagnosticBag diagnostics)
+        {
+            switch (managedKind)
             {
                 case ManagedKind.Managed:
                     diagnostics.Add(ErrorCode.ERR_ManagedAddr, location, type);
@@ -1294,6 +1335,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case ManagedKind.UnmanagedWithGenerics when MessageID.IDS_FeatureUnmanagedConstructedTypes.GetFeatureAvailabilityDiagnosticInfo(compilation) is CSDiagnosticInfo diagnosticInfo:
                     diagnostics.Add(diagnosticInfo, location);
                     return true;
+                case ManagedKind.Unknown:
+                    throw ExceptionUtilities.UnexpectedValue(managedKind);
                 default:
                     return false;
             }
@@ -1384,12 +1427,9 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (lookupResult.Kind != LookupResultKind.Empty)
             {
                 // have we detected an error with the current node?
-                bool isError = false;
-                bool wasError;
+                bool isError;
                 var members = ArrayBuilder<Symbol>.GetInstance();
-                Symbol symbol = GetSymbolOrMethodOrPropertyGroup(lookupResult, node, name, node.Arity, members, diagnostics, out wasError);  // reports diagnostics in result.
-
-                isError |= wasError;
+                Symbol symbol = GetSymbolOrMethodOrPropertyGroup(lookupResult, node, name, node.Arity, members, diagnostics, out isError);  // reports diagnostics in result.
 
                 if ((object)symbol == null)
                 {
@@ -1493,7 +1533,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             bool isDiscard = containingDeconstruction != null || IsOutVarDiscardIdentifier(node);
             if (isDiscard)
             {
-                CheckFeatureAvailability(node, MessageID.IDS_FeatureTuples, diagnostics);
+                CheckFeatureAvailability(node, MessageID.IDS_FeatureDiscards, diagnostics);
             }
 
             return isDiscard;
@@ -2382,6 +2422,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         Error(diagnostics, ErrorCode.ERR_StackAllocConversionNotPossible, syntax, stackAllocExpression.ElementType, targetType);
                         return;
                     }
+                case BoundKind.UnconvertedConditionalOperator when operand.Type is null:
                 case BoundKind.UnconvertedSwitchExpression when operand.Type is null:
                     {
                         GenerateImplicitConversionError(diagnostics, operand.Syntax, conversion, operand, targetType);
@@ -3123,6 +3164,10 @@ namespace Microsoft.CodeAnalysis.CSharp
                         Error(diagnostics, ErrorCode.ERR_NegativeArraySize, dimension);
                         hasErrors = true;
                     }
+                }
+                else
+                {
+                    size = BindToTypeForErrorRecovery(size);
                 }
 
                 return size;
@@ -4183,7 +4228,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 hasErrors = true;
             }
 
-            BoundExpression argument = BindToNaturalType(analyzedArguments.Arguments.Count >= 1 ? analyzedArguments.Arguments[0] : null, diagnostics);
+            BoundExpression argument = analyzedArguments.Arguments.Count >= 1 ? BindToNaturalType(analyzedArguments.Arguments[0], diagnostics) : null;
 
             if (hasErrors)
             {
@@ -4286,7 +4331,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         Debug.Assert(!conv.IsExtensionMethod);
                         Debug.Assert(conv.IsValid); // i.e. if it exists, then it is valid.
 
-                        if (!this.MethodGroupConversionHasErrors(argument.Syntax, conv, argument, conv.IsExtensionMethod, type, diagnostics))
+                        if (!this.MethodGroupConversionHasErrors(argument.Syntax, conv, argument, conv.IsExtensionMethod, isAddressOf: false, type, diagnostics))
                         {
                             // we do not place the "Invoke" method in the node, indicating that it did not appear in source.
                             return new BoundDelegateCreationExpression(node, argument, methodOpt: null, isExtensionMethod: false, type: type);
@@ -4687,7 +4732,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 argsToParamsOpt,
                 resultKind,
                 implicitReceiver.Type,
-                binderOpt: this,
+                binder: this,
                 type: boundMember.Type,
                 hasErrors: hasErrors);
         }
@@ -5937,7 +5982,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // If Goo itself is a dynamic thing (e.g. in `x.Goo.Bar`, `x` is dynamic, and we're
                 // currently checking Bar), then CheckValue will do nothing.
                 boundLeft = CheckValue(boundLeft, BindValueKind.RValue, diagnostics);
-                boundLeft = BindToNaturalType(boundLeft, diagnostics);
                 return BindDynamicMemberAccess(node, boundLeft, right, invoked, indexed, diagnostics);
             }
 
@@ -5965,6 +6009,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return BadExpression(node, boundLeft);
             }
 
+            boundLeft = BindToNaturalType(boundLeft, diagnostics);
+            leftType = boundLeft.Type;
             var lookupResult = LookupResult.GetInstance();
             try
             {
@@ -6170,7 +6216,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return BindIndexedPropertyAccess((BoundPropertyGroup)expr, mustHaveAllOptionalParameters: false, diagnostics: diagnostics);
 
                 default:
-                    return expr;
+                    return BindToNaturalType(expr, diagnostics);
             }
         }
 
@@ -6571,7 +6617,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             return result;
         }
 
-        private MethodGroupResolution BindExtensionMethod(
+        protected MethodGroupResolution BindExtensionMethod(
             SyntaxNode expression,
             string methodName,
             AnalyzedArguments analyzedArguments,
@@ -8019,12 +8065,12 @@ namespace Microsoft.CodeAnalysis.CSharp
             RefKind returnRefKind = default,
             TypeSymbol returnType = null,
             bool isFunctionPointerResolution = false,
-            Cci.CallingConvention callingConvention = Cci.CallingConvention.Default)
+            in CallingConventionInfo callingConventionInfo = default)
         {
             return ResolveMethodGroup(
                 node, node.Syntax, node.Name, analyzedArguments, isMethodGroupConversion, ref useSiteDiagnostics,
                 inferWithDynamic: inferWithDynamic, returnRefKind: returnRefKind, returnType: returnType,
-                isFunctionPointerResolution: isFunctionPointerResolution, callingConvention: callingConvention);
+                isFunctionPointerResolution: isFunctionPointerResolution, callingConventionInfo: callingConventionInfo);
         }
 
         internal MethodGroupResolution ResolveMethodGroup(
@@ -8039,13 +8085,13 @@ namespace Microsoft.CodeAnalysis.CSharp
             RefKind returnRefKind = default,
             TypeSymbol returnType = null,
             bool isFunctionPointerResolution = false,
-            Cci.CallingConvention callingConvention = Cci.CallingConvention.Default)
+            in CallingConventionInfo callingConventionInfo = default)
         {
             var methodResolution = ResolveMethodGroupInternal(
                 node, expression, methodName, analyzedArguments, isMethodGroupConversion, ref useSiteDiagnostics,
                 inferWithDynamic: inferWithDynamic, allowUnexpandedForm: allowUnexpandedForm,
                 returnRefKind: returnRefKind, returnType: returnType,
-                isFunctionPointerResolution: isFunctionPointerResolution, callingConvention: callingConvention);
+                isFunctionPointerResolution: isFunctionPointerResolution, callingConvention: callingConventionInfo);
             if (methodResolution.IsEmpty && !methodResolution.HasAnyErrors)
             {
                 Debug.Assert(node.LookupError == null);
@@ -8065,7 +8111,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             AnalyzedArguments analyzedArguments,
             TypeSymbol returnType,
             RefKind returnRefKind,
-            Cci.CallingConvention callingConvention,
+            in CallingConventionInfo callingConventionInfo,
             ref HashSet<DiagnosticInfo> useSiteDiagnostics)
         {
             return ResolveDefaultMethodGroup(
@@ -8078,7 +8124,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 returnRefKind,
                 returnType,
                 isFunctionPointerResolution: true,
-                callingConvention);
+                callingConventionInfo);
         }
 
         private MethodGroupResolution ResolveMethodGroupInternal(
@@ -8093,7 +8139,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             RefKind returnRefKind = default,
             TypeSymbol returnType = null,
             bool isFunctionPointerResolution = false,
-            Cci.CallingConvention callingConvention = Cci.CallingConvention.Default)
+            in CallingConventionInfo callingConvention = default)
         {
             var methodResolution = ResolveDefaultMethodGroup(
                 methodGroup, analyzedArguments, isMethodGroupConversion, ref useSiteDiagnostics,
@@ -8165,7 +8211,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             RefKind returnRefKind = default,
             TypeSymbol returnType = null,
             bool isFunctionPointerResolution = false,
-            Cci.CallingConvention callingConvention = Cci.CallingConvention.Default)
+            in CallingConventionInfo callingConvention = default)
         {
             var methods = node.Methods;
             if (methods.Length == 0)

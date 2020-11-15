@@ -44,9 +44,6 @@ namespace Microsoft.VisualStudio.LanguageServices.SymbolSearch
         private readonly IPackageInstallerService _installerService;
         private readonly string _localSettingsDirectory;
         private readonly LogService _logService;
-        private readonly ISymbolSearchProgressService _progressService;
-
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         [ImportingConstructor]
         [Obsolete(MefConstruction.ImportingConstructorMessage, error: true)]
@@ -63,7 +60,6 @@ namespace Microsoft.VisualStudio.LanguageServices.SymbolSearch
             _localSettingsDirectory = new ShellSettingsManager(serviceProvider).GetApplicationDataFolder(ApplicationDataFolder.LocalSettings);
 
             _logService = new LogService(threadingContext, (IVsActivityLog)serviceProvider.GetService(typeof(SVsActivityLog)));
-            _progressService = workspace.Services.GetService<ISymbolSearchProgressService>();
         }
 
         protected override void EnableService()
@@ -89,13 +85,13 @@ namespace Microsoft.VisualStudio.LanguageServices.SymbolSearch
             using (await _gate.DisposableWaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 return _lazyUpdateEngine ??= await SymbolSearchUpdateEngineFactory.CreateEngineAsync(
-                    _workspace, _logService, _progressService, cancellationToken).ConfigureAwait(false);
+                    _workspace, _logService, cancellationToken).ConfigureAwait(false);
             }
         }
 
         private async Task UpdateSourceInBackgroundAsync(string sourceName)
         {
-            var engine = await GetEngineAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+            var engine = await GetEngineAsync(this.ThreadingContext.DisposalToken).ConfigureAwait(false);
             await engine.UpdateContinuouslyAsync(sourceName, _localSettingsDirectory).ConfigureAwait(false);
         }
 

@@ -9,11 +9,17 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Editor.CSharp.UnitTests.Diagnostics;
 using Microsoft.CodeAnalysis.Test.Utilities;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.CodeAnalysis.Editor.CSharp.UnitTests.RemoveUnreachableCode
 {
     public class RemoveUnreachableCodeTests : AbstractCSharpDiagnosticProviderBasedUserDiagnosticTest
     {
+        public RemoveUnreachableCodeTests(ITestOutputHelper logger)
+          : base(logger)
+        {
+        }
+
         internal override (DiagnosticAnalyzer, CodeFixProvider) CreateDiagnosticProviderAndFixer(Workspace workspace)
             => (new CSharpRemoveUnreachableCodeDiagnosticAnalyzer(), new CSharpRemoveUnreachableCodeCodeFixProvider());
 
@@ -68,9 +74,9 @@ class C
         }
 
         [Fact, Trait(Traits.Feature, Traits.Features.CodeActionsRemoveUnreachableCode)]
-        public async Task TestNotInIfWithNoBlock()
+        public async Task TestInIfWithNoBlock()
         {
-            await TestMissingInRegularAndScriptAsync(
+            await TestInRegularAndScript1Async(
 @"
 class C
 {
@@ -78,6 +84,16 @@ class C
     {
         if (false)
             [|var v = 0;|]
+    }
+}",
+@"
+class C
+{
+    void M()
+    {
+        if (false)
+        {
+        }
     }
 }");
         }

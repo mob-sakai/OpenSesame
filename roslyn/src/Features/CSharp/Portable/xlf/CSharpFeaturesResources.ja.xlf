@@ -32,6 +32,11 @@
         <target state="translated">式/ブロック本体の基本設定を適用します</target>
         <note />
       </trans-unit>
+      <trans-unit id="Apply_file_header_preferences">
+        <source>Apply file header preferences</source>
+        <target state="translated">ファイル ヘッダーの基本設定を適用する</target>
+        <note />
+      </trans-unit>
       <trans-unit id="Apply_implicit_explicit_type_preferences">
         <source>Apply implicit/explicit type preferences</source>
         <target state="translated">暗黙的/明示的な型の基本設定を適用します</target>
@@ -289,7 +294,7 @@
       </trans-unit>
       <trans-unit id="Selection_does_not_contain_a_valid_node">
         <source>Selection does not contain a valid node</source>
-        <target state="translated">選択には有効なノードは含まれません。</target>
+        <target state="translated">選択には有効なノードは含まれません</target>
         <note />
       </trans-unit>
       <trans-unit id="Invalid_selection">

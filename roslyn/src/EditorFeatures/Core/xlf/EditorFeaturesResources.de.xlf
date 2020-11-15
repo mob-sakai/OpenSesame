@@ -37,6 +37,16 @@
         <target state="translated">Möchten Sie dennoch fortfahren? Möglicherweise wird fehlerhafter Code generiert.</target>
         <note />
       </trans-unit>
+      <trans-unit id="Error_creating_instance_of_CodeFixProvider">
+        <source>Error creating instance of CodeFixProvider</source>
+        <target state="translated">Fehler beim Erstellen der CodeFixProvider-Instanz</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Error_creating_instance_of_CodeFixProvider_0">
+        <source>Error creating instance of CodeFixProvider '{0}'</source>
+        <target state="translated">Fehler beim Erstellen der CodeFixProvider-Instanz "{0}".</target>
+        <note />
+      </trans-unit>
       <trans-unit id="Expander_display_text">
         <source>items from unimported namespaces</source>
         <target state="translated">Elemente aus nicht importierten Namespaces</target>
@@ -65,6 +75,11 @@
       <trans-unit id="Go_To_Base">
         <source>Go To Base</source>
         <target state="translated">Zu Basis wechseln</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Inline_Parameter_Name_Hints">
+        <source>Inline Parameter Name Hints</source>
+        <target state="translated">Hinweise zum Inlineparameternamen</target>
         <note />
       </trans-unit>
       <trans-unit id="Invalid_assembly_name">
@@ -409,7 +424,7 @@
       </trans-unit>
       <trans-unit id="_0_unresolvable_conflict_s">
         <source>{0} unresolvable conflict(s)</source>
-        <target state="translated">{0} nicht lösbare Konflikt(s)</target>
+        <target state="translated">{0} nicht lösbare(r) Konflikt(e)</target>
         <note />
       </trans-unit>
       <trans-unit id="Applying_0">
@@ -1194,11 +1209,6 @@ Möchten Sie fortfahren?</target>
         <target state="translated">Klammerabschluss</target>
         <note />
       </trans-unit>
-      <trans-unit id="Fix_all_occurrences_in">
-        <source>Fix all occurrences in</source>
-        <target state="translated">Alle Vorkommen korrigieren in</target>
-        <note />
-      </trans-unit>
       <trans-unit id="Cannot_apply_operation_while_a_rename_session_is_active">
         <source>Cannot apply operation while a rename session is active.</source>
         <target state="translated">Der Vorgang kann nicht angewendet werden, während eine Umbenennungssitzung aktiv ist.</target>
@@ -1266,17 +1276,17 @@ Möchten Sie fortfahren?</target>
       </trans-unit>
       <trans-unit id="_0_references">
         <source>'{0}' references</source>
-        <target state="translated">'"{0}"-Verweise</target>
+        <target state="translated">"{0}"-Verweise</target>
         <note />
       </trans-unit>
       <trans-unit id="_0_implementations">
         <source>'{0}' implementations</source>
-        <target state="translated">'"{0}"-Implementierungen</target>
+        <target state="translated">"{0}"-Implementierungen</target>
         <note />
       </trans-unit>
       <trans-unit id="_0_declarations">
         <source>'{0}' declarations</source>
-        <target state="translated">'"{0}"-Deklarationen</target>
+        <target state="translated">"{0}"-Deklarationen</target>
         <note />
       </trans-unit>
       <trans-unit id="Inline_Rename_Conflict">

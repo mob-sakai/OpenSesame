@@ -971,7 +971,10 @@ namespace Microsoft.CodeAnalysis.CSharp
                                 _ = BindToNaturalType(argument, diagnostics);
                                 break;
                             case BoundUnconvertedSwitchExpression { Type: { } naturalType } switchExpr:
-                                _ = ConvertSwitchExpression(switchExpr, naturalType ?? CreateErrorType(), conversionIfTargetTyped: null, diagnostics);
+                                _ = ConvertSwitchExpression(switchExpr, naturalType, conversionIfTargetTyped: null, diagnostics);
+                                break;
+                            case BoundUnconvertedConditionalOperator { Type: { } naturalType } conditionalExpr:
+                                _ = ConvertConditionalExpression(conditionalExpr, naturalType, conversionIfTargetTyped: null, diagnostics);
                                 break;
                         }
                     }
@@ -1090,6 +1093,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             bool hasBaseReceiver = receiver != null && receiver.Kind == BoundKind.BaseReference;
 
             ReportDiagnosticsIfObsolete(diagnostics, method, node, hasBaseReceiver);
+            ReportDiagnosticsIfUnmanagedCallersOnly(diagnostics, method, node.Location, isDelegateConversion: false);
 
             // No use site errors, but there could be use site warnings.
             // If there are any use site warnings, they have already been reported by overload resolution.

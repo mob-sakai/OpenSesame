@@ -10,11 +10,13 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Runtime.Serialization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Host;
 using Microsoft.CodeAnalysis.Options;
+using Microsoft.CodeAnalysis.PooledObjects;
 using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.CodeAnalysis.Text;
 using Roslyn.Utilities;
@@ -301,7 +303,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
             }
         }
 
-        private static DiagnosticDataLocation? CreateLocation(Document? document, Location location)
+        private static DiagnosticDataLocation? CreateLocation(TextDocument? document, Location location)
         {
             if (document == null)
             {
@@ -337,18 +339,12 @@ namespace Microsoft.CodeAnalysis.Diagnostics
             return Create(diagnostic, project.Id, project.Language, project.Solution.Options, location: null, additionalLocations: null, additionalProperties: null);
         }
 
-        public static DiagnosticData Create(Diagnostic diagnostic, Document document)
+        public static DiagnosticData Create(Diagnostic diagnostic, TextDocument document)
         {
             var project = document.Project;
             var location = CreateLocation(document, diagnostic.Location);
 
-            var additionalLocations = diagnostic.AdditionalLocations.Count == 0
-                ? (IReadOnlyCollection<DiagnosticDataLocation>)Array.Empty<DiagnosticDataLocation>()
-                : diagnostic.AdditionalLocations.Where(loc => loc.IsInSource)
-                                                .Select(loc => CreateLocation(document.Project.GetDocument(loc.SourceTree), loc))
-                                                .WhereNotNull()
-                                                .ToReadOnlyCollection();
-
+            var additionalLocations = GetAdditionalLocations(document, diagnostic);
             var additionalProperties = GetAdditionalProperties(document, diagnostic);
 
             var documentPropertiesService = document.Services.GetService<DocumentPropertiesService>();
@@ -403,10 +399,34 @@ namespace Microsoft.CodeAnalysis.Diagnostics
                 isSuppressed: diagnostic.IsSuppressed);
         }
 
-        private static ImmutableDictionary<string, string?>? GetAdditionalProperties(Document document, Diagnostic diagnostic)
+        private static ImmutableDictionary<string, string?>? GetAdditionalProperties(TextDocument document, Diagnostic diagnostic)
         {
-            var service = document.GetLanguageService<IDiagnosticPropertiesService>();
+            var service = document.Project.GetLanguageService<IDiagnosticPropertiesService>();
             return service?.GetAdditionalProperties(diagnostic);
+        }
+
+        private static ImmutableArray<DiagnosticDataLocation> GetAdditionalLocations(TextDocument document, Diagnostic diagnostic)
+        {
+            if (diagnostic.AdditionalLocations.Count == 0)
+            {
+                return ImmutableArray<DiagnosticDataLocation>.Empty;
+            }
+
+            using var _ = ArrayBuilder<DiagnosticDataLocation>.GetInstance(diagnostic.AdditionalLocations.Count, out var builder);
+            foreach (var location in diagnostic.AdditionalLocations)
+            {
+                if (location.IsInSource)
+                {
+                    builder.AddIfNotNull(CreateLocation(document.Project.GetDocument(location.SourceTree), location));
+                }
+                else if (location.Kind == LocationKind.ExternalFile)
+                {
+                    var textDocumentId = document.Project.GetDocumentForExternalLocation(location);
+                    builder.AddIfNotNull(CreateLocation(document.Project.GetTextDocument(textDocumentId), location));
+                }
+            }
+
+            return builder.ToImmutable();
         }
 
         /// <summary>
@@ -465,7 +485,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
             }
         }
 
-        private static void GetLocationInfo(Document document, Location location, out TextSpan sourceSpan, out FileLinePositionSpan originalLineInfo, out FileLinePositionSpan mappedLineInfo)
+        private static void GetLocationInfo(TextDocument document, Location location, out TextSpan sourceSpan, out FileLinePositionSpan originalLineInfo, out FileLinePositionSpan mappedLineInfo)
         {
             var diagnosticSpanMappingService = document.Project.Solution.Workspace.Services.GetService<IWorkspaceVenusSpanMappingService>();
             if (diagnosticSpanMappingService != null)

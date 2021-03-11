@@ -870,6 +870,11 @@ namespace Microsoft.CodeAnalysis
             int i = 0;
             foreach (var syntaxTree in syntaxTrees)
             {
+                // Skip auto-generated files. No need to check them with analyzers.
+                if (syntaxTree.FilePath.Length == 0)
+                {
+                    continue;
+                }
 
                 var options = sourceFileAnalyzerConfigOptions[i].AnalyzerOptions;
 

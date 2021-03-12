@@ -10,16 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2
 
-    - uses: actions/checkout@v2
+      - name: Cache Nuget
+        uses: actions/cache@v2
+        with:
+          path: |
+            !~/.nuget/packages/opensesame.*
+            ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-packages-${{ hashFiles('**/eng/Versions.props') }}
 
-    - name: Cache Nuget
-      uses: actions/cache@v2
-      with:
-        path: |
-          !~/.nuget/packages/OpenSesame.*
-          ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-packages-${{ hashFiles('**/eng/Versions.props') }}
-
-    - run: |
-        ./tool.sh --pack --run-tests
+      - run: |
+          ./tool.sh --pack --run-tests

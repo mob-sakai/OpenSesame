@@ -3,9 +3,7 @@ name: release
 on:
   push:
     branches:
-      - master
-      - alpha
-      - beta
+      - main
       - "v*.x"
 
 jobs:
@@ -19,7 +17,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            !~/.nuget/packages/OpenSesame.*
+            !~/.nuget/packages/opensesame.*
             ~/.nuget/packages
           key: ${{ runner.os }}-nuget-packages-${{ hashFiles('**/eng/Versions.props') }}
 
@@ -31,7 +29,6 @@ jobs:
 
       - uses: cycjimmy/semantic-release-action@v2
         with:
-          dry_run: true
           extra_plugins: |
             @semantic-release/changelog
             @semantic-release/git

@@ -17,7 +17,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            !~/.nuget/packages/OpenSesame.*
+            !~/.nuget/packages/opensesame.*
             ~/.nuget/packages
           key: ${{ runner.os }}-nuget-packages-${{ hashFiles('**/eng/Versions.props') }}
 

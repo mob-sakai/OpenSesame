@@ -118,7 +118,7 @@ namespace PrivateLibrary
         /// <summary>
         /// Public Method
         /// </summary>
-        public string PublicMethod()
+        public virtual string PublicMethod()
         {
             return "PublicMethod";
         }
@@ -151,7 +151,7 @@ namespace PrivateLibrary
         /// <summary>
         /// Public Method
         /// </summary>
-        public string PublicMethod(InternalClass instance)
+        public virtual string PublicMethod(InternalClass instance)
         {
             return instance.PublicMethod();
         }

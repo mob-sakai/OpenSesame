@@ -1,8 +1,17 @@
 ﻿using System;
 using PrivateLibrary.Bridges;
 
+[assembly: System.Runtime.CompilerServices.IgnoresAccessChecksTo("PrivateLibrary")]
 namespace PrivateLibrary.Console
 {
+    internal class InheritClass : PrivateLibrary.InternalClass
+    {
+        public override string PublicMethod()
+        {
+            return "PublicMethod (InheritClass)";
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)

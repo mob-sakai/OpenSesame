@@ -76,9 +76,14 @@ if [ $pack == true ]; then
 fi
 
 if [ $run_tests == true ]; then
+  dotnet clean ./Tests/PrivateLibrary.Tests
+  dotnet clean ./Tests/PrivateLibrary.Bridge
+  dotnet clean ./Tests/PrivateLibrary.Console
+
   echo -e "\n\n>>>> Update toolset: version=${version}\n"
   dotnet add ./Tests/PrivateLibrary.Tests package OpenSesame.Net.Compilers.Toolset -v ${version}
   dotnet add ./Tests/PrivateLibrary.Bridge package OpenSesame.Net.Compilers.Toolset -v ${version}
+  dotnet add ./Tests/PrivateLibrary.Console package OpenSesame.Net.Compilers.Toolset -v ${version}
 
   echo -e "\n\n>>>> Start tests: version=${version}\n"
   dotnet test ./Tests
@@ -93,11 +98,11 @@ if [ $run_tests == true ]; then
     EXE=./Tests/PrivateLibrary.Console/bin/Release/${fw}/PrivateLibrary.Console
     if [ `echo ${fw} | grep 'netstandard'` ]; then
       echo "    skipped: ${fw}"
-    elif [ `echo ${fw} | grep 'netcore'` ]; then
-      dotnet ${EXE}.dll
-      [ "$?" != 0 ] && exit 1
     elif [ -e ${EXE}.exe ]; then
       mono ${EXE}.exe
+      [ "$?" != 0 ] && exit 1
+    elif [ -e ${EXE}.dll ]; then
+      dotnet ${EXE}.dll
       [ "$?" != 0 ] && exit 1
     else
       echo "    skipped: ${fw}"

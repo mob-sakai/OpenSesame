@@ -6,30 +6,36 @@ on:
       - master
       - alpha
       - beta
+      - "v*.x"
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2
 
-    - uses: actions/checkout@v2
+      - name: Cache Nuget
+        uses: actions/cache@v2
+        with:
+          path: |
+            !~/.nuget/packages/OpenSesame.*
+            ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-packages-${{ hashFiles('**/eng/Versions.props') }}
 
-    - name: Cache Nuget
-      uses: actions/cache@v2
-      with:
-        path: |
-          !~/.nuget/packages/OpenSesame.*
-          ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-packages-${{ hashFiles('**/eng/Versions.props') }}
+      - name: Cache Node
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
-    - name: Cache Node
-      uses: actions/cache@v2
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        
-    - run: npm ci && npx semantic-release
-      env:
-        NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
-        GITHUB_TOKEN: ${{ github.token }}
+      - uses: cycjimmy/semantic-release-action@v2
+        with:
+          dry_run: true
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
+            @semantic-release/exec
+        env:
+          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}

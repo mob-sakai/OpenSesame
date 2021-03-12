@@ -121,7 +121,7 @@ Use Csc-Manager to modify your VisualStudio Code and C# extension.
 
 When [Program.cs][code] is compiled by `OpenSesame.Net.Compilers.Toolset`, the changes are as follows:
 
-[code]: https://github.com/mob-sakai/OpenSesame/blob/master/Tests/PrivateLibrary.Console/Program.cs
+[code]: https://github.com/mob-sakai/OpenSesame/blob/main/Tests/PrivateLibrary.Console/Program.cs
 
 ```diff
 using System;
@@ -198,7 +198,7 @@ If a new stable version of the Rosly package has been released, please update Ro
 
 ### Release
 
-When push to `beta` or `master` branch, this package is automatically released by GitHub Action.
+When push to `main` or `v*.x` branch, this package is automatically released by GitHub Action.
 
 * Update version of the package
 * Update and push CHANGELOG.md

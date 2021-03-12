@@ -9,7 +9,6 @@ using Microsoft.CodeAnalysis.CSharp.Symbols;
 using Microsoft.CodeAnalysis.PooledObjects;
 using Roslyn.Utilities;
 
-#pragma warning disable CS0162
 namespace Microsoft.CodeAnalysis.CSharp
 {
     /// <summary>
@@ -25,7 +24,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             AssemblySymbol within,
             ref HashSet<DiagnosticInfo> useSiteDiagnostics)
         {
-            return true;
             bool failedThroughTypeCheck;
             return IsSymbolAccessibleCore(symbol, within, null, out failedThroughTypeCheck, within.DeclaringCompilation, ref useSiteDiagnostics);
         }
@@ -40,7 +38,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             ref HashSet<DiagnosticInfo> useSiteDiagnostics,
             TypeSymbol throughTypeOpt = null)
         {
-            return true;
             bool failedThroughTypeCheck;
             return IsSymbolAccessibleCore(symbol, within, throughTypeOpt, out failedThroughTypeCheck, within.DeclaringCompilation, ref useSiteDiagnostics);
         }
@@ -58,8 +55,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             ref HashSet<DiagnosticInfo> useSiteDiagnostics,
             ConsList<TypeSymbol> basesBeingResolved = null)
         {
-            failedThroughTypeCheck = false;
-            return true;
             return IsSymbolAccessibleCore(symbol, within, throughTypeOpt, out failedThroughTypeCheck, within.DeclaringCompilation, ref useSiteDiagnostics, basesBeingResolved);
         }
 
@@ -69,8 +64,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         internal static bool IsEffectivelyPublicOrInternal(Symbol symbol, out bool isInternal)
         {
-            isInternal = true;
-            return true;
             Debug.Assert(symbol is object);
 
             switch (symbol.Kind)
@@ -680,7 +673,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <param name="toAssembly">The assembly possibly providing symbols to be accessed.</param>
         internal static bool HasInternalAccessTo(this AssemblySymbol fromAssembly, AssemblySymbol toAssembly)
         {
-            return true;
             if (Equals(fromAssembly, toAssembly))
             {
                 return true;

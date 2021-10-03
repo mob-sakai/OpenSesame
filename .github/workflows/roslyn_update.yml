@@ -28,7 +28,7 @@ jobs:
       run: |
         # Get version from issue title.
         VERSION=`echo '${{ github.event.issue.title }}' | awk -F "[v: ]" '{print $NF}'`
-        echo ::set-env name=VERSION::${VERSION}
+        echo "VERSION=${VERSION}" >> $GITHUB_ENV
         echo "  >>>> VERSION = ${VERSION}"
 
         # Find sha1 from nuget page.

@@ -1,3 +1,15 @@
+# [3.8.0](https://github.com/mob-sakai/OpenSesame/compare/v3.7.0...v3.8.0) (2021-10-03)
+
+
+### Bug Fixes
+
+* Fixed IndexOutOfRange exception when building a project with analyzers ([8f0fe7e](https://github.com/mob-sakai/OpenSesame/commit/8f0fe7ebe16c999e48c17e08534efade98b36aac))
+
+
+### Features
+
+* merge roslyn 3.8.0 ([727a453](https://github.com/mob-sakai/OpenSesame/commit/727a45313e4a1e7bc8c0534930f078b4a8d1eb2a))
+
 # [3.7.0](https://github.com/mob-sakai/OpenSesame/compare/v3.6.0...v3.7.0) (2020-09-09)
 
 

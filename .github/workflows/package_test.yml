@@ -18,7 +18,8 @@ jobs:
           path: |
             !~/.nuget/packages/opensesame.*
             ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-packages-${{ hashFiles('**/eng/Versions.props') }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/eng/Versions.props') }}
+          restore-keys: ${{ runner.os }}-nuget-
 
       - run: |
           ./tool.sh --pack --run-tests

@@ -19,13 +19,15 @@ jobs:
           path: |
             !~/.nuget/packages/opensesame.*
             ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-packages-${{ hashFiles('**/eng/Versions.props') }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/eng/Versions.props') }}
+          restore-keys: ${{ runner.os }}-nuget-
 
       - name: Cache Node
         uses: actions/cache@v2
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
 
       - uses: cycjimmy/semantic-release-action@v2
         with:

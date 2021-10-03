@@ -7230,6 +7230,32 @@ public class Student : Person { public Student() : $$base(0) { } }
         }
 
         [Fact, Trait(Traits.Feature, Traits.Features.QuickInfo)]
+        public async Task QuickInfoRecordClass()
+        {
+            await TestWithOptionsAsync(
+                Options.Regular.WithLanguageVersion(LanguageVersion.CSharp9),
+@"record class Person(string First, string Last)
+{
+    void M($$Person p)
+    {
+    }
+}", MainDescription("record Person"));
+        }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.QuickInfo)]
+        public async Task QuickInfoRecordStruct()
+        {
+            await TestWithOptionsAsync(
+                Options.Regular.WithLanguageVersion(LanguageVersion.CSharp9),
+@"record struct Person(string First, string Last)
+{
+    void M($$Person p)
+    {
+    }
+}", MainDescription("record struct Person"));
+        }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.QuickInfo)]
         [WorkItem(51615, "https://github.com/dotnet/roslyn/issues/51615")]
         public async Task TestVarPatternOnVarKeyword()
         {
@@ -7264,6 +7290,50 @@ public class Student : Person { public Student() : $$base(0) { } }
     }
 }",
                 MainDescription($"({FeaturesResources.local_variable}) string? x"));
+        }
+
+        [WorkItem(53135, "https://github.com/dotnet/roslyn/issues/53135")]
+        [Fact, Trait(Traits.Feature, Traits.Features.QuickInfo)]
+        public async Task TestDocumentationCData()
+        {
+            var markup =
+@"using I$$ = IGoo;
+/// <summary>
+/// summary for interface IGoo
+/// <code><![CDATA[
+/// List<string> y = null;
+/// ]]></code>
+/// </summary>
+interface IGoo {  }";
+
+            await TestAsync(markup,
+                MainDescription("interface IGoo"),
+                Documentation(@"summary for interface IGoo
+
+List<string> y = null;"));
+        }
+
+        [WorkItem(37503, "https://github.com/dotnet/roslyn/issues/37503")]
+        [Fact, Trait(Traits.Feature, Traits.Features.QuickInfo)]
+        public async Task DoNotNormalizeWhitespaceForCode()
+        {
+            var markup =
+@"using I$$ = IGoo;
+/// <summary>
+/// Normalize    this, and <c>Also        this</c>
+/// <code>
+/// line 1
+/// line     2
+/// </code>
+/// </summary>
+interface IGoo {  }";
+
+            await TestAsync(markup,
+                MainDescription("interface IGoo"),
+                Documentation(@"Normalize this, and Also this
+
+line 1
+line     2"));
         }
     }
 }

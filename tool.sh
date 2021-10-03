@@ -71,6 +71,8 @@ if [ -z "${version}" ]; then
 fi
 
 if [ $pack == true ]; then
+  echo -e "\n\n>>>> Clean arttifacts in packages\n"
+  rm -rf roslyn/artifacts/packages
   echo -e "\n\n>>>> Start pack: version=${version}\n"
   roslyn/build.sh --pack -r -c Release /p:PackageVersion=${version} /p:SemanticVersioningV1=false
 fi

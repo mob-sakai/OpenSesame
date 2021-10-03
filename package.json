@@ -1,9 +1,0 @@
-{
-  "name": "release-to-nuget",
-  "version": "1.0.0",
-  "description": "To release nuget package",
-  "scripts": {
-    "build:pack": "./tool.sh --pack",
-    "build:test": "./tool.sh --run-tests"
-  }
-}

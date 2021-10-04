@@ -1120,6 +1120,15 @@ namespace Microsoft.CodeAnalysis
                     }
                 }
 
+                // Need to ensure the PDB file path validation is done on the original path as that is the 
+                // file we will write out to disk, there is no guarantee that the file paths emitted into 
+                // the PE / PDB are valid file paths because pathmap can be used to create deliberately 
+                // illegal names
+                if (!PathUtilities.IsValidFilePath(finalPdbFilePath))
+                {
+                    diagnostics.Add(MessageProvider.CreateDiagnostic(MessageProvider.FTL_InvalidInputFileName, Location.None, finalPdbFilePath));
+                }
+
                 var moduleBeingBuilt = compilation.CheckOptionsAndCreateModuleBuilder(
                     diagnostics,
                     Arguments.ManifestResources,
@@ -1224,7 +1233,7 @@ namespace Microsoft.CodeAnalysis
                             // only report unused usings if we have success.
                             if (success)
                             {
-                                compilation.ReportUnusedImports(null, diagnostics, cancellationToken);
+                                compilation.ReportUnusedImports(diagnostics, cancellationToken);
                             }
                         }
 
@@ -1278,7 +1287,7 @@ namespace Microsoft.CodeAnalysis
                             peStreamProvider,
                             refPeStreamProviderOpt,
                             pdbStreamProviderOpt,
-                            pdbOptionsBlobReader: null,
+                            rebuildData: null,
                             testSymWriterFactory: null,
                             diagnostics: diagnostics,
                             emitOptions: emitOptions,

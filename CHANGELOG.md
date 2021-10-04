@@ -1,3 +1,10 @@
+# [3.11.0](https://github.com/mob-sakai/OpenSesame/compare/v3.10.0...v3.11.0) (2021-10-04)
+
+
+### Features
+
+* merge roslyn 3.11.0 ([8713a85](https://github.com/mob-sakai/OpenSesame/commit/8713a8500b0700f25c817dd04e406db71a400575))
+
 # [3.10.0](https://github.com/mob-sakai/OpenSesame/compare/v3.9.0...v3.10.0) (2021-10-04)
 
 

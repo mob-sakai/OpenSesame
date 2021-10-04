@@ -62,6 +62,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             failedThroughTypeCheck = false;
             return true;
+            
             return IsSymbolAccessibleCore(symbol, within, throughTypeOpt, out failedThroughTypeCheck, within.DeclaringCompilation, ref useSiteInfo, basesBeingResolved);
         }
 

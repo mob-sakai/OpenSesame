@@ -2464,6 +2464,44 @@ namespace System.Runtime.CompilerServices
                     bindingDiagnostics.Free();
                     externAliasesToCheck.Free();
                 }
+
+                if (externAliasesToCheck is object)
+                {
+                    RoslynDebug.Assert(diagnostics.DependenciesBag is object);
+
+                    // We could do this check after we have built the transitive closure
+                    // in GetCompleteSetOfUsedAssemblies.completeTheSetOfUsedAssemblies. However,
+                    // the level of accuracy is probably not worth the complexity this would add.
+                    var bindingDiagnostics = new BindingDiagnosticBag(diagnosticBag: null, PooledHashSet<AssemblySymbol>.GetInstance());
+                    RoslynDebug.Assert(bindingDiagnostics.DependenciesBag is object);
+
+                    foreach (var aliasedNamespace in externAliasesToCheck)
+                    {
+                        bindingDiagnostics.Clear();
+                        bindingDiagnostics.AddAssembliesUsedByNamespaceReference(aliasedNamespace);
+
+                        // See if any of the references with the alias are registered as used. We can get in a situation when none of them are.
+                        // For example, when the alias was used in a doc comment, but nothing was found within it. We would get only a warning
+                        // in this case and no assembly marked as used.
+                        if (_lazyUsedAssemblyReferences?.IsEmpty == false || diagnostics.DependenciesBag.Count != 0)
+                        {
+                            foreach (var assembly in bindingDiagnostics.DependenciesBag)
+                            {
+                                if (_lazyUsedAssemblyReferences?.Contains(assembly) == true ||
+                                    diagnostics.DependenciesBag.Contains(assembly))
+                                {
+                                    bindingDiagnostics.DependenciesBag.Clear();
+                                    break;
+                                }
+                            }
+                        }
+
+                        diagnostics.AddDependencies(bindingDiagnostics);
+                    }
+
+                    bindingDiagnostics.Free();
+                    externAliasesToCheck.Free();
+                }
             }
 
             CompleteTrees(filterTree);

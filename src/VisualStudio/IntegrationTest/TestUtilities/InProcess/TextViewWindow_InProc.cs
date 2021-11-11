@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,7 +74,7 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
 
                 const VSConstants.VSStd2KCmdID ECMD_SMARTTASKS = (VSConstants.VSStd2KCmdID)147;
                 var cmdID = ECMD_SMARTTASKS;
-                object obj = null;
+                object? obj = null;
                 shell.PostExecCommand(cmdGroup, (uint)cmdID, (uint)cmdExecOpt, ref obj);
             });
         }
@@ -116,7 +114,7 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
         public string[] GetCurrentClassifications()
             => InvokeOnUIThread(cancellationToken =>
             {
-                IClassifier classifier = null;
+                IClassifier? classifier = null;
                 try
                 {
                     var textView = GetActiveTextView();
@@ -264,7 +262,8 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 var broker = GetComponentModelService<IAsyncQuickInfoBroker>();
-                await broker.TriggerQuickInfoAsync(GetActiveTextView());
+                var session = await broker.TriggerQuickInfoAsync(GetActiveTextView());
+                Contract.ThrowIfNull(session);
             });
         }
 
@@ -278,6 +277,9 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
                 var broker = GetComponentModelService<IAsyncQuickInfoBroker>();
 
                 var session = broker.GetSession(view);
+
+                // GetSession will not return null if preceded by a call to InvokeQuickInfo
+                Contract.ThrowIfNull(session);
 
                 using var cts = new CancellationTokenSource(Helper.HangMitigatingTimeout);
                 while (session.State != QuickInfoSessionState.Visible)
@@ -298,6 +300,7 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
             {
                 return tag.Tag.GetType().Equals(type);
             }
+
             var service = GetComponentModelService<IViewTagAggregatorFactoryService>();
             var aggregator = service.CreateTagAggregator<ITag>(view);
             var allTags = aggregator.GetTags(new SnapshotSpan(view.TextSnapshot, 0, view.TextSnapshot.Length));
@@ -353,17 +356,13 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
             }
 
             var activeSession = broker.GetSession(view);
-            if (activeSession == null || !activeSession.IsExpanded)
+            if (activeSession == null)
             {
                 var bufferType = view.TextBuffer.ContentType.DisplayName;
                 throw new InvalidOperationException(string.Format("No expanded light bulb session found after View.ShowSmartTag.  Buffer content type={0}", bufferType));
             }
 
-            if (activeSession.TryGetSuggestedActionSets(out var actionSets) != QuerySuggestedActionCompletionStatus.Completed)
-            {
-                actionSets = Array.Empty<SuggestedActionSet>();
-            }
-
+            var actionSets = await LightBulbHelper.WaitForItemsAsync(broker, view);
             return await SelectActionsAsync(actionSets);
         }
 
@@ -420,11 +419,13 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
                     }
 
                     var actionSetsForAction = await action.GetActionSetsAsync(CancellationToken.None);
-                    action = await GetFixAllSuggestedActionAsync(actionSetsForAction, fixAllScope.Value);
-                    if (action == null)
+                    var fixAllAction = await GetFixAllSuggestedActionAsync(actionSetsForAction, fixAllScope.Value);
+                    if (fixAllAction == null)
                     {
                         throw new InvalidOperationException($"Unable to find FixAll in {fixAllScope.ToString()} code fix for suggested action '{action.DisplayText}'.");
                     }
+
+                    action = fixAllAction;
 
                     if (willBlockUntilComplete
                         && action is FixAllSuggestedAction fixAllSuggestedAction
@@ -446,7 +447,7 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
                 }
 
                 action.Invoke(CancellationToken.None);
-                return !(action is SuggestedAction suggestedAction)
+                return action is not SuggestedAction suggestedAction
                     || suggestedAction.GetTestAccessor().IsApplied;
             };
         }
@@ -477,7 +478,7 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
             return actions;
         }
 
-        private static async Task<FixAllSuggestedAction> GetFixAllSuggestedActionAsync(IEnumerable<SuggestedActionSet> actionSets, FixAllScope fixAllScope)
+        private static async Task<FixAllSuggestedAction?> GetFixAllSuggestedActionAsync(IEnumerable<SuggestedActionSet> actionSets, FixAllScope fixAllScope)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -497,10 +498,10 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
                     if (action.HasActionSets)
                     {
                         var nestedActionSets = await action.GetActionSetsAsync(CancellationToken.None);
-                        fixAllSuggestedAction = await GetFixAllSuggestedActionAsync(nestedActionSets, fixAllScope);
-                        if (fixAllSuggestedAction != null)
+                        var fixAllCodeAction = await GetFixAllSuggestedActionAsync(nestedActionSets, fixAllScope);
+                        if (fixAllCodeAction != null)
                         {
-                            return fixAllSuggestedAction;
+                            return fixAllCodeAction;
                         }
                     }
                 }

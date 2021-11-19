@@ -39,7 +39,7 @@ This means that a "bridge" assembly to another assembly can be easily generated.
 * Allow unsafe code automatically (for .Net Framework)
 * With `MetadataImportOptions.All` for compilation options
 * With `BinderFlags.IgnoreAccessibility` for compilation options
-* Inject `IgnoresAccessChecksToAttribute` automatically
+* Inject `IgnoresAccessChecksToAttribute` class automatically
 
 ### Supported frameworks
 
@@ -53,11 +53,11 @@ This means that a "bridge" assembly to another assembly can be easily generated.
 
 ## Packages
 
-| Package Name                         | Original Package                    | Version | Downloads |
-| ------------------------------------ | ----------------------------------- | ------- | --------- |
-| [OpenSesame.Net.Compilers.Toolset][] | [Microsoft.Net.Compilers.Toolset][] | ![V1][] | ![D1][]   |
-| [OpenSesame.Net.Compilers][]         | [Microsoft.Net.Compilers][]         | ![V2][] | ![D2][]   |
-| [OpenSesame.NetCore.Compilers][]     | [Microsoft.NetCore.Compilers][]     | ![V3][] | ![D3][]   |
+| Package Name                                  | Original Package                    | Version | Downloads |
+| --------------------------------------------- | ----------------------------------- | ------- | --------- |
+| [OpenSesame.Net.Compilers.Toolset][]          | [Microsoft.Net.Compilers.Toolset][] | ![V1][] | ![D1][]   |
+| [OpenSesame.Net.Compilers][] (deprecated)     | [Microsoft.Net.Compilers][]         | ![V2][] | ![D2][]   |
+| [OpenSesame.NetCore.Compilers][] (deprecated) | [Microsoft.NetCore.Compilers][]     | ![V3][] | ![D3][]   |
 
 [OpenSesame.Net.Compilers.Toolset]: https://www.nuget.org/packages/OpenSesame.Net.Compilers.Toolset
 [Microsoft.Net.Compilers.Toolset]: https://www.nuget.org/packages/Microsoft.Net.Compilers.Toolset
@@ -206,8 +206,8 @@ When push to `main` or `v*.x` branch, this package is automatically released by 
 * Release on GitHub
 * Publish to nuget registory
 
-Alternatively, release it manually with the following command:
+Alternatively, publish packages manually with the following command:
 
 ```bash
-$ node run release -- --no-ci
+./tool.sh --pack --run-tests --publish --token <NUGET_TOKEN>
 ```

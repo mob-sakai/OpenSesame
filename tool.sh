@@ -84,8 +84,11 @@ if [ $run_tests == true ]; then
 
   echo -e "\n\n>>>> Update toolset: version=${version}\n"
   dotnet add ./Tests/PrivateLibrary.Tests package OpenSesame.Net.Compilers.Toolset -v ${version}
+  [ "$?" != 0 ] && exit 1
   dotnet add ./Tests/PrivateLibrary.Bridge package OpenSesame.Net.Compilers.Toolset -v ${version}
+  [ "$?" != 0 ] && exit 1
   dotnet add ./Tests/PrivateLibrary.Console package OpenSesame.Net.Compilers.Toolset -v ${version}
+  [ "$?" != 0 ] && exit 1
 
   echo -e "\n\n>>>> Start tests: version=${version}\n"
   dotnet test ./Tests
